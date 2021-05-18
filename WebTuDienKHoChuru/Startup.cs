@@ -39,26 +39,26 @@ namespace WebTuDienKHoChuru
 				options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
 				options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
 			})
-				.AddJwtBearer(options =>
+			.AddJwtBearer(options =>
+			{
+				options.RequireHttpsMetadata = false;
+				options.SaveToken = true;
+				options.TokenValidationParameters = new TokenValidationParameters
 				{
-					options.RequireHttpsMetadata = false;
-					options.SaveToken = true;
-					options.TokenValidationParameters = new TokenValidationParameters
+					ValidateIssuerSigningKey = true,
+					IssuerSigningKey = new SymmetricSecurityKey(key),
+					ValidateIssuer = false,
+					ValidateAudience = false
+				};
+				options.Events = new JwtBearerEvents
+				{
+					OnMessageReceived = context =>
 					{
-						ValidateIssuerSigningKey = true,
-						IssuerSigningKey = new SymmetricSecurityKey(key),
-						ValidateIssuer = false,
-						ValidateAudience = false
-					};
-					options.Events = new JwtBearerEvents
-					{
-						OnMessageReceived = context =>
-						{
-							context.Token = context.Request.Cookies["token"];
-							return Task.CompletedTask;
-						}
-					};
-				});
+						context.Token = context.Request.Cookies["token"];
+						return Task.CompletedTask;
+					}
+				};
+			});
 
 			services.AddScoped<IUserService, UserService>();
 		}

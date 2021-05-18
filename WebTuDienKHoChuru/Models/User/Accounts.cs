@@ -11,11 +11,11 @@ namespace WebTuDienKHoChuru.Models.User
 			{
 				new Account
 				{
-					Id=1,Fullname="La Quốc Thắng",Username="quocthang0507",Password="admin",Role=Role.Admin
+					Id=1, Fullname="La Quốc Thắng", Username="admin", Password="admin", Role=Role.Admin
 				},
 				new Account
 				{
-					Id=2,Fullname="La Quốc Thắng",Username="quocthang0507",Password="admin",Role=Role.Colaborator
+					Id=2, Fullname="La Quốc Thắng", Username="colab", Password="colab", Role=Role.Colaborator
 				}
 			};
 		}

@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
@@ -15,10 +16,10 @@ namespace WebTuDienKHoChuru.Services
 		private readonly ILogger<UserService> logger;
 		private readonly AppSettings appSettings;
 
-		public UserService(ILogger<UserService> logger, AppSettings appSettings)
+		public UserService(ILogger<UserService> logger, IOptions<AppSettings> appSettings)
 		{
 			this.logger = logger;
-			this.appSettings = appSettings;
+			this.appSettings = appSettings.Value;
 		}
 
 		public Account Authenticate(string username, string password)
@@ -46,7 +47,8 @@ namespace WebTuDienKHoChuru.Services
 			};
 			var token = tokenHandler.CreateToken(tokenDescriptor);
 			account.Token = tokenHandler.WriteToken(token);
-			return account.WithoutPassword();
+			// return account.WithoutPassword();
+			return account;
 		}
 	}
 }

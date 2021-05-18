@@ -362,3 +362,7 @@ D:\Github\TuDienKHoChuru\WebTuDienKHoChuru\obj\Debug\net5.0\WebTuDienKHoChuru.dl
 D:\Github\TuDienKHoChuru\WebTuDienKHoChuru\obj\Debug\net5.0\ref\WebTuDienKHoChuru.dll
 D:\Github\TuDienKHoChuru\WebTuDienKHoChuru\obj\Debug\net5.0\WebTuDienKHoChuru.pdb
 D:\Github\TuDienKHoChuru\WebTuDienKHoChuru\obj\Debug\net5.0\WebTuDienKHoChuru.genruntimeconfig.cache
+D:\Github\TuDienKHoChuru\WebTuDienKHoChuru\bin\Debug\net5.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll
+D:\Github\TuDienKHoChuru\WebTuDienKHoChuru\bin\Debug\net5.0\Microsoft.IdentityModel.Protocols.dll
+D:\Github\TuDienKHoChuru\WebTuDienKHoChuru\bin\Debug\net5.0\Microsoft.IdentityModel.Protocols.OpenIdConnect.dll
+D:\Github\TuDienKHoChuru\WebTuDienKHoChuru\obj\Debug\net5.0\Razor\Views\Error\Index.cshtml.g.cs

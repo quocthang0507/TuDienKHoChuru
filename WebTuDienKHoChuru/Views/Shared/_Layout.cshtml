@@ -1,4 +1,6 @@
-﻿@using WebTuDienKHoChuru.Utils;
+﻿@using Microsoft.AspNetCore.Http;
+@using WebTuDienKHoChuru.Utils;
+@using WebTuDienKHoChuru.Models.User;
 
 <!DOCTYPE html>
 <html lang="vi">
@@ -24,6 +26,39 @@
 						<li class="nav-item">
 							<a class="nav-link text-dark @Html.IsSelected(actions: "Index", controllers: "Home")" asp-area="" asp-controller="Home" asp-action="Index">Trang chủ</a>
 						</li>
+						@{
+							string role = Context.Session.GetString("Role");
+							if (role == Role.Colaborator)
+							{
+								<li class="nav-item">
+									<a class="nav-link text-info @Html.IsSelected(actions: "Index", controllers: "Colaborator")" asp-area="" asp-controller="Contribution" asp-action="Index">Trang người đóng góp</a>
+								</li>
+							}
+							else if (role == Role.Admin)
+							{
+								<li class="nav-item">
+									<a class="nav-link text-info @Html.IsSelected(actions: "Index", controllers: "Admin")" asp-area="" asp-controller="Admin" asp-action="Index">Trang quản trị viên</a>
+								</li>
+							}
+						}
+						@{
+							string username = @Context.Session.GetString("Username");
+							if (username == null)
+							{
+								<li class="nav-item">
+									<a class="nav-link text-success @Html.IsSelected(actions: "Index", controllers: "Login")" asp-area="" asp-controller="Login" asp-action="Index">Đăng nhập</a>
+								</li>
+							}
+							else
+							{
+								<li class="nav-item">
+									<i class="nav-link text-success">Xin chào, @username</i>
+								</li>
+								<li class="nav-item">
+									<a class="nav-link text-danger" asp-area="" asp-controller="Login" asp-action="Logout">Đăng xuất</a>
+								</li>
+							}
+						}
 					</ul>
 				</div>
 			</div>
