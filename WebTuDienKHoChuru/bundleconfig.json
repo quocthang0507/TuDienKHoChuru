@@ -7,5 +7,14 @@
 		"minify": {
 			"enabled": true
 		}
+	},
+	{
+		"outputFileName": "wwwroot/css/login.min.css",
+		"inputFiles": [
+			"wwwroot/css/login.css"
+		],
+		"minify": {
+			"enabled": true
+		}
 	}
 ]

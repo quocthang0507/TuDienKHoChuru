@@ -8,6 +8,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using WebTuDienKHoChuru.Models.User;
+using WebTuDienKHoChuru.Utils;
 
 namespace WebTuDienKHoChuru.Services
 {
@@ -22,16 +23,29 @@ namespace WebTuDienKHoChuru.Services
 			this.appSettings = appSettings.Value;
 		}
 
-		public Account Authenticate(string username, string password)
+		/// <summary>
+		/// Returns a key-value pair whose key is one of:
+		/// -1: Empty login info
+		/// 0: Wrong user login info
+		/// 1: Actual user login info
+		/// </summary>
+		/// <param name="username"></param>
+		/// <param name="password"></param>
+		/// <returns></returns>
+		public KeyValuePair<int, Account> Authenticate(string username, string password)
 		{
 			logger.LogInformation($"Validating user {username}");
-			Accounts users = new Accounts();
+
+			if (Extensions.IsOneNullOrEmpty(username, password))
+				return new KeyValuePair<int, Account>(-1, null);
+
+			Accounts users = new();
 			List<Account> list = users.GetAccounts();
 			Account account = list.SingleOrDefault(a =>
 			  a.Username.Equals(username, StringComparison.OrdinalIgnoreCase) &&
 			  a.Password.Equals(password));
 			if (account == null)
-				return null;
+				return new KeyValuePair<int, Account>(0, null);
 
 			var tokenHandler = new JwtSecurityTokenHandler();
 			var key = Encoding.UTF8.GetBytes(appSettings.Secret);
@@ -48,7 +62,7 @@ namespace WebTuDienKHoChuru.Services
 			var token = tokenHandler.CreateToken(tokenDescriptor);
 			account.Token = tokenHandler.WriteToken(token);
 			// return account.WithoutPassword();
-			return account;
+			return new KeyValuePair<int, Account>(1, account);
 		}
 	}
 }

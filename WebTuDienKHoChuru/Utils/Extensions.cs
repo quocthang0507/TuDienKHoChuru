@@ -21,14 +21,24 @@ namespace WebTuDienKHoChuru.Utils
 			return acceptedActions.Contains(currentAction) && acceptedControllers.Contains(currentController);
 		}
 
-		public static bool IsNullOrWhitespace(params string[] strings)
+		public static bool IsOneNullOrEmpty(params string[] strings)
 		{
 			foreach (var str in strings)
 			{
-				if (string.IsNullOrWhiteSpace(str))
+				if (string.IsNullOrEmpty(str))
 					return true;
 			}
 			return false;
+		}
+
+		public static bool IsAllNullOrEmpty(params string[] strings)
+		{
+			foreach (var str in strings)
+			{
+				if (!string.IsNullOrEmpty(str))
+					return false;
+			}
+			return true;
 		}
 	}
 }

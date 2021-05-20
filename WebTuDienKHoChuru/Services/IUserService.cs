@@ -1,9 +1,10 @@
-﻿using WebTuDienKHoChuru.Models.User;
+﻿using System.Collections.Generic;
+using WebTuDienKHoChuru.Models.User;
 
 namespace WebTuDienKHoChuru.Services
 {
 	public interface IUserService
 	{
-		Account Authenticate(string username, string password);
+		KeyValuePair<int, Account> Authenticate(string username, string password);
 	}
 }

@@ -1,4 +1,6 @@
-﻿@model LoginModel
+﻿@using WebTuDienKHoChuru.Controllers
+@using WebTuDienKHoChuru.Utils
+@model LoginModel
 
 @{
 	ViewData["Title"] = "Đăng nhập";
@@ -7,33 +9,62 @@
 <div class="login-form">
 	@using (Html.BeginForm("Login", "Login", FormMethod.Post))
 	{
+		<div class="imgContainer">
+			<img src="~/img/churu.jpg" alt="login" class="imgLogin" />
+		</div>
+		<h6 class="text-sm-center">@Constants.App</h6>
+		<h4 class="text-center">Đăng nhập</h4>
 		<fieldset>
-			<h2 class="text-center">Đăng nhập</h2>
 			@Html.AntiForgeryToken()
 			@Html.ValidationSummary(true)
 			@if (@ViewBag.Message != null)
 			{
-				<div style="border: 1px solid red">
+				<div style="color: red;" id="message">
 					@ViewBag.Message
 				</div>
 			}
 			<div class="form-group">
-				@Html.TextBoxFor(x => x.Username, new { @class = "form-control", placeholder = "Tên đăng nhập", required = "required" })
+				@Html.TextBoxFor(x => x.Username, new
+				{
+					@class = "form-control",
+					placeholder = "Tên đăng nhập",
+					required = "required",
+					value = Context.Request.Cookies[LoginController.NAME]
+				})
 				@Html.ValidationMessageFor(x => x.Username)
 			</div>
 			<div class="form-group">
-				@Html.PasswordFor(x => x.Password, new { @class = "form-control", placeholder = "Mật khẩu", required = "required" })
+				@Html.PasswordFor(x => x.Password, new
+				{
+					@class = "form-control",
+					placeholder = "Mật khẩu",
+					required = "required",
+					value = Context.Request.Cookies[LoginController.PASS]
+				})
 				@Html.ValidationMessageFor(x => x.Password)
 			</div>
 			<div class="form-check">
-				@Html.CheckBoxFor(x => x.RememberMe, new { @class = "form-check-input", id = "rememberMe"})
+				@Html.CheckBoxFor(x => x.RememberMe, new { @class = "form-check-input", id = "rememberMe" })
 				<label class="form-check-label" for="rememberMe">
 					Ghi nhớ thông tin đăng nhập
 				</label>
 			</div>
 			<div class="form-group">
-				<input type="submit" value="Đăng nhập" class="btn btn-primary btn-block" />
+				<input type="submit" value="Đăng nhập" class="button"/>
 			</div>
 		</fieldset>
 	}
 </div>
+
+@section Styles{
+	<link rel="stylesheet" href="~/css/login.css" asp-append-version="true" />
+}
+@section Scripts{
+	<script>
+		setTimeout(function () {
+			if ($('#message').length > 0) {
+				$('#message').fadeOut(500, function () { $(this).remove(); });
+			}
+		}, 3000)
+	</script>
+}

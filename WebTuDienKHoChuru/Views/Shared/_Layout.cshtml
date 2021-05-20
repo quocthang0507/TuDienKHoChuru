@@ -1,5 +1,6 @@
 ﻿@using Microsoft.AspNetCore.Http;
 @using WebTuDienKHoChuru.Utils;
+@using WebTuDienKHoChuru.Controllers;
 @using WebTuDienKHoChuru.Models.User;
 
 <!DOCTYPE html>
@@ -7,16 +8,18 @@
 <head>
 	<meta charset="utf-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-	<title>@ViewData["Title"] - Từ điển K'Ho - Việt - Churu</title>
+	<title>@ViewData["Title"] - @Constants.App</title>
 	<link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-	<link rel="stylesheet" href="~/css/site.css" />
+	<link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
 	<link rel="icon" type="image/png" href="~/favicon.ico">
+	<link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Open+Sans" />
+	@await RenderSectionAsync("Styles", required: false)
 </head>
 <body>
 	<header>
 		<nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
 			<div class="container">
-				<a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">Từ điển K'Ho - Việt - Churu</a>
+				<a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">@Constants.App</a>
 				<button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".navbar-collapse" aria-controls="navbarSupportedContent"
 						aria-expanded="false" aria-label="Toggle navigation">
 					<span class="navbar-toggler-icon"></span>
@@ -27,39 +30,35 @@
 							<a class="nav-link text-dark @Html.IsSelected(actions: "Index", controllers: "Home")" asp-area="" asp-controller="Home" asp-action="Index">Trang chủ</a>
 						</li>
 						@{
-							string role = Context.Session.GetString("Role");
+							string role = Context.Session.GetString(LoginController.ROLE);
 							if (role == Role.Colaborator)
 							{
 								<li class="nav-item">
-									<a class="nav-link text-info @Html.IsSelected(actions: "Index", controllers: "Colaborator")" asp-area="" asp-controller="Contribution" asp-action="Index">Trang người đóng góp</a>
+									<a class="nav-link text-dark @Html.IsSelected(actions: "Index", controllers: "Colaborator")" asp-area="" asp-controller="Contribution" asp-action="Index">Trang người đóng góp</a>
 								</li>
 							}
 							else if (role == Role.Admin)
 							{
 								<li class="nav-item">
-									<a class="nav-link text-info @Html.IsSelected(actions: "Index", controllers: "Admin")" asp-area="" asp-controller="Admin" asp-action="Index">Trang quản trị viên</a>
-								</li>
-							}
-						}
-						@{
-							string username = @Context.Session.GetString("Username");
-							if (username == null)
-							{
-								<li class="nav-item">
-									<a class="nav-link text-success @Html.IsSelected(actions: "Index", controllers: "Login")" asp-area="" asp-controller="Login" asp-action="Index">Đăng nhập</a>
-								</li>
-							}
-							else
-							{
-								<li class="nav-item">
-									<i class="nav-link text-success">Xin chào, @username</i>
-								</li>
-								<li class="nav-item">
-									<a class="nav-link text-danger" asp-area="" asp-controller="Login" asp-action="Logout">Đăng xuất</a>
+									<a class="nav-link text-dark @Html.IsSelected(actions: "Index", controllers: "Admin")" asp-area="" asp-controller="Admin" asp-action="Index">Trang quản trị viên</a>
 								</li>
 							}
 						}
 					</ul>
+					<div class="d-inline my-2 my-lg-0">
+						@{
+							string fullname = @Context.Session.GetString(LoginController.FULLNAME);
+							if (fullname == null && !Html.IsThisPage(controllers: "Login", actions: "Index"))
+							{
+								<a class="my-2 my-sm-0 btn btn-outline-primary" asp-area="" asp-controller="Login" asp-action="Index">Đăng nhập</a>
+							}
+							else if (fullname != null)
+							{
+								<i class="mr-sm-4">Xin chào @fullname</i>
+								<a class="my-2 my-sm-0 btn btn-outline-danger" asp-area="" asp-controller="Login" asp-action="Logout">Đăng xuất</a>
+							}
+						}
+					</div>
 				</div>
 			</div>
 		</nav>
@@ -70,9 +69,9 @@
 		</main>
 	</div>
 
-	<footer class="border-top footer text-muted">
-		<div class="container">
-			&copy; 2021 - Đại học Đà Lạt
+	<footer class="footer border-top text-center text-lg-start bg-light text-muted">
+		<div class="text-center p-4" style="background-color: rgba(0, 0, 0, 0.05);">
+			<p>&copy; 2021 - Bản quyền thuộc về Khoa Công nghệ Thông tin, Trường Đại học Đà Lạt</p>
 		</div>
 	</footer>
 	<script src="~/lib/jquery/dist/jquery.min.js"></script>
