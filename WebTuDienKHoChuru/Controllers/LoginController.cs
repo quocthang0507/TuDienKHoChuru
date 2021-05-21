@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Text;
@@ -12,11 +11,11 @@ namespace WebTuDienKHoChuru.Controllers
 {
 	public class LoginController : Controller
 	{
-		public static readonly string TOKEN = "token";
-		public static readonly string FULLNAME = "Fullname";
-		public static readonly string NAME = "Username";
-		public static readonly string PASS = "Password";
-		public static readonly string ROLE = "Role";
+		public static readonly string TOKEN = "_Token_";
+		public static readonly string FULLNAME = "_Fullname_";
+		public static readonly string USERNAME = "_Username_";
+		public static readonly string PASS = "_Password_";
+		public static readonly string ROLE = "_Role_";
 
 		private readonly IUserService userService;
 
@@ -28,10 +27,15 @@ namespace WebTuDienKHoChuru.Controllers
 		// GET: Login
 		public IActionResult Index()
 		{
-			if (Extensions.IsAllNullOrEmpty(HttpContext.Session.GetString(NAME), HttpContext.Session.GetString(ROLE)))
+			if (Extensions.IsAllNullOrEmpty(HttpContext.Session.GetString(FULLNAME), HttpContext.Session.GetString(ROLE)))
 				return View();
 			else
 				return RedirectToAction("Index", "Home");
+		}
+
+		public IActionResult Login()
+		{
+			return View();
 		}
 
 		[HttpPost]
@@ -52,22 +56,16 @@ namespace WebTuDienKHoChuru.Controllers
 					return View("Index", model);
 				}
 				var user = result.Value;
-				if (model.RememberMe)
-				{
-					HttpContext.Response.Cookies.Append(NAME, user.Username, new CookieOptions { Expires = DateTime.UtcNow.AddDays(14) });
-					HttpContext.Response.Cookies.Append(PASS, user.Password, new CookieOptions { Expires = DateTime.UtcNow.AddDays(14) });
-				}
-				else
-				{
-					HttpContext.Response.Cookies.Delete(NAME);
-					HttpContext.Response.Cookies.Delete(PASS);
-				}
 				HttpContext.Session.Set(FULLNAME, Encoding.UTF8.GetBytes(user.Fullname));
 				HttpContext.Session.Set(ROLE, Encoding.UTF8.GetBytes(user.Role));
 				HttpContext.Response.Cookies.Append(TOKEN, user.Token, new CookieOptions { HttpOnly = true });
-				return RedirectToAction("Index", "Home");
+				return user.Role switch
+				{
+					Role.Admin => RedirectToAction("Index", "Admin"),
+					Role.Colaborator => RedirectToAction("Index", "Colaborator"),
+					_ => RedirectToAction("Index", "Home"),
+				};
 			}
-			// return Unauthorized();
 			return View("Index", model);
 		}
 

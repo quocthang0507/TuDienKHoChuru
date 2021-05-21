@@ -34,6 +34,7 @@ namespace WebTuDienKHoChuru
 
 			var appSettings = appSettingsSection.Get<AppSettings>();
 			var key = Encoding.UTF8.GetBytes(appSettings.Secret);
+			var issuer = appSettings.Issuer;
 			services.AddAuthentication(options =>
 			{
 				options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -47,8 +48,10 @@ namespace WebTuDienKHoChuru
 				{
 					ValidateIssuerSigningKey = true,
 					IssuerSigningKey = new SymmetricSecurityKey(key),
-					ValidateIssuer = false,
-					ValidateAudience = false
+					ValidateIssuer = true,
+					ValidIssuer = issuer,
+					ValidateAudience = true,
+					ValidAudience = issuer
 				};
 				options.Events = new JwtBearerEvents
 				{

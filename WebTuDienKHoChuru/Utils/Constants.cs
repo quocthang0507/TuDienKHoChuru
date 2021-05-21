@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
-namespace WebTuDienKHoChuru.Utils
+﻿namespace WebTuDienKHoChuru.Utils
 {
 	public static class Constants
 	{
