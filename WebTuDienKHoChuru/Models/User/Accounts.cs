@@ -15,7 +15,7 @@ namespace WebTuDienKHoChuru.Models.User
 				},
 				new Account
 				{
-					Id=2, Fullname="La Quốc Thắng", Username="colab", Password="colab", Role=Role.Colaborator
+					Id=2, Fullname="La Quốc Thắng", Username="colab", Password="colab", Role=Role.Collaborator
 				}
 			};
 		}

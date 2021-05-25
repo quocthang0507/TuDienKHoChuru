@@ -1,6 +1,5 @@
 ﻿@using Microsoft.AspNetCore.Http;
 @using WebTuDienKHoChuru.Utils;
-@using WebTuDienKHoChuru.Controllers;
 @using WebTuDienKHoChuru.Models.User;
 
 <!DOCTYPE html>
@@ -30,11 +29,11 @@
 							<a class="nav-link text-dark @Html.IsSelected(actions: "Index", controllers: "Home")" asp-area="" asp-controller="Home" asp-action="Index">Trang chủ</a>
 						</li>
 						@{
-							string role = Context.Session.GetString(LoginController.ROLE);
-							if (role == Role.Colaborator)
+							string role = Context.Session.GetString(Constants.ROLE);
+							if (role == Role.Collaborator)
 							{
 								<li class="nav-item">
-									<a class="nav-link text-dark @Html.IsSelected(actions: "Index", controllers: "Colaborator")" asp-area="" asp-controller="Contribution" asp-action="Index">Trang người đóng góp</a>
+									<a class="nav-link text-dark @Html.IsSelected(actions: "Index", controllers: "Collaborator")" asp-area="" asp-controller="Collaborator" asp-action="Index">Trang người đóng góp</a>
 								</li>
 							}
 							else if (role == Role.Admin)
@@ -47,7 +46,7 @@
 					</ul>
 					<div class="d-inline my-2 my-lg-0">
 						@{
-							string fullname = @Context.Session.GetString(LoginController.FULLNAME);
+							string fullname = @Context.Session.GetString(Constants.FULLNAME);
 							if (fullname == null && !Html.IsThisPage(controllers: "Login", actions: "Index"))
 							{
 								<a class="my-2 my-sm-0 btn btn-outline-primary" asp-area="" asp-controller="Login" asp-action="Index">Đăng nhập</a>

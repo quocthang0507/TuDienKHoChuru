@@ -4,7 +4,7 @@ using WebTuDienKHoChuru.Models.User;
 
 namespace WebTuDienKHoChuru.Controllers
 {
-	[Authorize(Roles = Role.Colaborator)]
+	[Authorize(Roles = Role.Collaborator)]
 	public class CollaboratorController : Controller
 	{
 		// GET: Collaborator

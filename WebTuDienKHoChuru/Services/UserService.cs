@@ -61,8 +61,7 @@ namespace WebTuDienKHoChuru.Services
 			};
 			var token = tokenHandler.CreateToken(tokenDescriptor);
 			account.Token = tokenHandler.WriteToken(token);
-			// return account.WithoutPassword();
-			return new KeyValuePair<int, Account>(1, account);
+			return new KeyValuePair<int, Account>(1, account.WithoutPassword());
 		}
 	}
 }

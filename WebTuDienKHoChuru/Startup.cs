@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -8,6 +9,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using System.Threading.Tasks;
 using WebTuDienKHoChuru.Services;
+using WebTuDienKHoChuru.Utils;
 
 namespace WebTuDienKHoChuru
 {
@@ -34,7 +36,6 @@ namespace WebTuDienKHoChuru
 
 			var appSettings = appSettingsSection.Get<AppSettings>();
 			var key = Encoding.UTF8.GetBytes(appSettings.Secret);
-			var issuer = appSettings.Issuer;
 			services.AddAuthentication(options =>
 			{
 				options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -48,16 +49,14 @@ namespace WebTuDienKHoChuru
 				{
 					ValidateIssuerSigningKey = true,
 					IssuerSigningKey = new SymmetricSecurityKey(key),
-					ValidateIssuer = true,
-					ValidIssuer = issuer,
-					ValidateAudience = true,
-					ValidAudience = issuer
+					ValidateIssuer = false,
+					ValidateAudience = false
 				};
 				options.Events = new JwtBearerEvents
 				{
 					OnMessageReceived = context =>
 					{
-						context.Token = context.Request.Cookies["token"];
+						context.Token = context.Request.Cookies[Constants.TOKEN];
 						return Task.CompletedTask;
 					}
 				};

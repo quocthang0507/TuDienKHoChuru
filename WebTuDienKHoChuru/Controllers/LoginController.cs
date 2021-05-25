@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using System;
 using System.Text;
 using WebTuDienKHoChuru.Models;
 using WebTuDienKHoChuru.Models.User;
@@ -11,12 +10,6 @@ namespace WebTuDienKHoChuru.Controllers
 {
 	public class LoginController : Controller
 	{
-		public static readonly string TOKEN = "_Token_";
-		public static readonly string FULLNAME = "_Fullname_";
-		public static readonly string USERNAME = "_Username_";
-		public static readonly string PASS = "_Password_";
-		public static readonly string ROLE = "_Role_";
-
 		private readonly IUserService userService;
 
 		public LoginController(IUserService userService)
@@ -27,7 +20,7 @@ namespace WebTuDienKHoChuru.Controllers
 		// GET: Login
 		public IActionResult Index()
 		{
-			if (Extensions.IsAllNullOrEmpty(HttpContext.Session.GetString(FULLNAME), HttpContext.Session.GetString(ROLE)))
+			if (Extensions.IsAllNullOrEmpty(HttpContext.Session.GetString(Constants.FULLNAME), HttpContext.Session.GetString(Constants.ROLE)))
 				return View();
 			else
 				return RedirectToAction("Index", "Home");
@@ -56,13 +49,13 @@ namespace WebTuDienKHoChuru.Controllers
 					return View("Index", model);
 				}
 				var user = result.Value;
-				HttpContext.Session.Set(FULLNAME, Encoding.UTF8.GetBytes(user.Fullname));
-				HttpContext.Session.Set(ROLE, Encoding.UTF8.GetBytes(user.Role));
-				HttpContext.Response.Cookies.Append(TOKEN, user.Token, new CookieOptions { HttpOnly = true });
+				HttpContext.Session.Set(Constants.FULLNAME, Encoding.UTF8.GetBytes(user.Fullname));
+				HttpContext.Session.Set(Constants.ROLE, Encoding.UTF8.GetBytes(user.Role));
+				HttpContext.Response.Cookies.Append(Constants.TOKEN, user.Token, new CookieOptions { HttpOnly = true });
 				return user.Role switch
 				{
 					Role.Admin => RedirectToAction("Index", "Admin"),
-					Role.Colaborator => RedirectToAction("Index", "Colaborator"),
+					Role.Collaborator => RedirectToAction("Index", "Collaborator"),
 					_ => RedirectToAction("Index", "Home"),
 				};
 			}
@@ -72,9 +65,9 @@ namespace WebTuDienKHoChuru.Controllers
 		[Route("Logout")]
 		public IActionResult Logout()
 		{
-			HttpContext.Session.Remove(FULLNAME);
-			HttpContext.Session.Remove(ROLE);
-			HttpContext.Response.Cookies.Delete(TOKEN);
+			HttpContext.Session.Remove(Constants.FULLNAME);
+			HttpContext.Session.Remove(Constants.ROLE);
+			HttpContext.Response.Cookies.Delete(Constants.TOKEN);
 			return RedirectToAction("Index", "Home");
 		}
 	}
