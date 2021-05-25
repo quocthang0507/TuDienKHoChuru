@@ -10,9 +10,9 @@
 	@using (Html.BeginForm("Login", "Login", FormMethod.Post))
 	{
 	<div class="imgContainer">
-		<img src="~/img/churu.jpg" alt="login" class="imgLogin" />
+		<img src="~/img/login-avatar.jpg" alt="login" class="imgLogin" />
 	</div>
-	<h6 class="text-sm-center">@Constants.App</h6>
+	<h6 class="text-sm-center">@Constants.Title</h6>
 	<h4 class="text-center">Đăng nhập</h4>
 	<fieldset>
 		@Html.AntiForgeryToken()

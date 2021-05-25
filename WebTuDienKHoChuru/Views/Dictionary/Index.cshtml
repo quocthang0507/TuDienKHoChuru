@@ -1,0 +1,69 @@
+﻿@using WebTuDienKHoChuru.Utils
+@{
+	ViewData["Title"] = "Từ điển";
+	Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="text-center">
+	<h5 class="display-5">@Constants.ListDictionaries</h5>
+</div>
+
+<div class="row justify-content-center">
+	<div class="row">
+		<div class="col-12 col-sm-6 col-lg-3">
+			<a asp-area="" asp-controller="Dictionary" asp-action="Viet_KHo">
+				<div class="single wow fadeInUp" data-wow-delay="0.2s" style="visibility: visible; animation-delay: 0.2s; animation-name: fadeInUp;">
+					<div class="thumb">
+						<img src="~/img/kho-1.jpg" alt="@Constants.Viet_KHo">
+					</div>
+					<div class="single_details_info">
+						<h6>@Constants.Viet_KHo</h6>
+					</div>
+				</div>
+			</a>
+		</div>
+
+		<div class="col-12 col-sm-6 col-lg-3">
+			<a asp-area="" asp-controller="Dictionary" asp-action="KHo_Viet">
+				<div class="single wow fadeInUp" data-wow-delay="0.3s" style="visibility: visible; animation-delay: 0.3s; animation-name: fadeInUp;">
+					<div class="thumb">
+						<img src="~/img/kho-2.jpg" alt="@Constants.KHo_Viet">
+					</div>
+					<div class="single_details_info">
+						<h6>@Constants.KHo_Viet</h6>
+					</div>
+				</div>
+			</a>
+		</div>
+
+		<div class="col-12 col-sm-6 col-lg-3">
+			<a asp-area="" asp-controller="Dictionary" asp-action="Viet_Churu">
+				<div class="single wow fadeInUp" data-wow-delay="0.4s" style="visibility: visible; animation-delay: 0.4s; animation-name: fadeInUp;">
+					<div class="thumb">
+						<img src="~/img/churu-1.jpg" alt="@Constants.Viet_Churu">
+					</div>
+					<div class="single_details_info">
+						<h6>@Constants.Viet_Churu</h6>
+					</div>
+				</div>
+			</a>
+		</div>
+
+		<div class="col-12 col-sm-6 col-lg-3">
+			<a asp-area="" asp-controller="Dictionary" asp-action="Churu_Viet">
+				<div class="single wow fadeInUp" data-wow-delay="0.5s" style="visibility: visible; animation-delay: 0.5s; animation-name: fadeInUp;">
+					<div class="thumb">
+						<img src="~/img/churu-2.jpg" alt="@Constants.Churu_Viet">
+					</div>
+					<div class="single_details_info">
+						<h6>@Constants.Churu_Viet</h6>
+					</div>
+				</div>
+			</a>
+		</div>
+	</div>
+</div>
+
+@section Styles{
+	<link rel="stylesheet" href="~/css/dictionary.css" asp-append-version="true" />
+}

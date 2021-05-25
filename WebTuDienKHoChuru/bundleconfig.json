@@ -16,5 +16,14 @@
 		"minify": {
 			"enabled": true
 		}
+	},
+	{
+		"outputFileName": "wwwroot/css/dictionary.min.css",
+		"inputFiles": [
+			"wwwroot/css/dictionary.css"
+		],
+		"minify": {
+			"enabled": true
+		}
 	}
 ]

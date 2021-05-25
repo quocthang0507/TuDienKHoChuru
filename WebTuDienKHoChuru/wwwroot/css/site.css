@@ -84,3 +84,7 @@ body {
 	position: absolute;
 	width: 100%;
 }
+
+	.footer p {
+		margin: 0.5rem;
+	}
