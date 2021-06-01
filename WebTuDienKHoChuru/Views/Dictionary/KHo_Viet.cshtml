@@ -1,6 +1,57 @@
 ﻿@using WebTuDienKHoChuru.Utils
+@model IEnumerable<WebTuDienKHoChuru.Models.KhoVietView>
+
 @{
 	ViewData["Title"] = Constants.KHo_Viet;
 	Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
+<table class="table">
+	<thead>
+		<tr>
+			<th>
+				@Html.DisplayNameFor(model => model.Word)
+			</th>
+			<th>
+				@Html.DisplayNameFor(model => model.Meaning)
+			</th>
+			<th>
+				@Html.DisplayNameFor(model => model.ImgPath)
+			</th>
+			<th>
+				@Html.DisplayNameFor(model => model.WordPronun)
+			</th>
+			<th>
+				@Html.DisplayNameFor(model => model.Example)
+			</th>
+			<th>
+				@Html.DisplayNameFor(model => model.ExPronun)
+			</th>
+		</tr>
+	</thead>
+	<tbody>
+		@foreach (var item in Model)
+		{
+			<tr>
+				<td>
+					@Html.DisplayFor(modelItem => item.Word)
+				</td>
+				<td>
+					@Html.DisplayFor(modelItem => item.Meaning)
+				</td>
+				<td>
+					<img src="@Html.DisplayFor(modelItem => item.ImgPath)" alt="@Html.DisplayFor(modelItem => item.Word)" />
+				</td>
+				<td>
+					<audio src="@Html.DisplayFor(modelItem => item.WordPronun)" controls/>
+				</td>
+				<td>
+					@Html.DisplayFor(modelItem => item.Example)
+				</td>
+				<td>
+					<audio src="@Html.DisplayFor(modelItem => item.ExPronun)" controls />
+				</td>
+			</tr>
+		}
+	</tbody>
+</table>

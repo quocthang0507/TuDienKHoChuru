@@ -1,12 +1,14 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using System.Threading.Tasks;
+using WebTuDienKHoChuru.Models;
 using WebTuDienKHoChuru.Services;
 using WebTuDienKHoChuru.Utils;
 
@@ -25,6 +27,11 @@ namespace WebTuDienKHoChuru
 		public void ConfigureServices(IServiceCollection services)
 		{
 			services.AddCors();
+
+			services.AddDbContext<TuDienContext>(options =>
+					options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+
+			services.AddDatabaseDeveloperPageExceptionFilter();
 
 			services.AddControllersWithViews();
 
