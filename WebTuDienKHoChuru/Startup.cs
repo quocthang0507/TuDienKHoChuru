@@ -8,7 +8,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using System.Threading.Tasks;
-using WebTuDienKHoChuru.Models;
+using WebTuDienKHoChuru.Models.DataAccess;
 using WebTuDienKHoChuru.Services;
 using WebTuDienKHoChuru.Utils;
 

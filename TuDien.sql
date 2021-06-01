@@ -89,26 +89,36 @@ CREATE TABLE EXAMPLE
 );
 GO
 
-CREATE VIEW KHoViet_View AS 
--- ALTER VIEW KHoViet_View AS 
+CREATE PROC KHoVietView_procedure
+    @PageNumber INT,
+    @RowsOfPage INT
+AS
     SELECT WORD.ID, Word, DICTIONARY.Meaning, WORD.ImgPath, WORD.PronunPath AS 'WordPronun', EXAMPLE.Example, EXAMPLE.PronunPath AS 'ExPronun'
     FROM 
     (
         (WORD INNER JOIN DICTIONARY ON WORD.ID = DICTIONARY.WordID)
         INNER JOIN EXAMPLE ON WORD.ID = EXAMPLE.WordID
     )
-    WHERE DictType = 1;
+    WHERE DictType = 1
+    ORDER BY Word
+    OFFSET (@PageNumber - 1) * @RowsOfPage ROWS
+    FETCH NEXT @RowsOfPage ROWS ONLY;
 GO
 
-CREATE VIEW ChuruViet_View AS 
--- ALTER VIEW ChuruViet_View AS 
+CREATE PROC ChuruVietView_procedure
+    @PageNumber INT,
+    @RowsOfPage INT
+AS
     SELECT WORD.ID, Word, DICTIONARY.Meaning, WORD.ImgPath, WORD.PronunPath AS 'WordPronun', EXAMPLE.Example, EXAMPLE.PronunPath AS 'ExPronun'
     FROM 
     (
         (WORD INNER JOIN DICTIONARY ON WORD.ID = DICTIONARY.WordID)
         INNER JOIN EXAMPLE ON WORD.ID = EXAMPLE.WordID
     )
-    WHERE DictType = 3;
+    WHERE DictType = 3
+    ORDER BY Word
+    OFFSET (@PageNumber - 1) * @RowsOfPage ROWS
+    FETCH NEXT @RowsOfPage ROWS ONLY;
 GO
 
 /*

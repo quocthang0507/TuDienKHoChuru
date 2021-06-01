@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
-using WebTuDienKHoChuru.Models;
+using WebTuDienKHoChuru.Models.DataAccess;
 
 namespace WebTuDienKHoChuru.Controllers
 {

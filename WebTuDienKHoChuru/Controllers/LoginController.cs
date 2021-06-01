@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Text;
 using WebTuDienKHoChuru.Models;
@@ -27,6 +28,18 @@ namespace WebTuDienKHoChuru.Controllers
 		}
 
 		public IActionResult Login()
+		{
+			return View();
+		}
+
+		[Authorize]
+		public IActionResult ChangePassword()
+		{
+			return View();
+		}
+
+		[Authorize]
+		public IActionResult ChangeInfo()
 		{
 			return View();
 		}
@@ -60,6 +73,13 @@ namespace WebTuDienKHoChuru.Controllers
 				};
 			}
 			return View("Index", model);
+		}
+
+		[HttpPost]
+		[ValidateAntiForgeryToken]
+		public IActionResult ChangePassword(ChangePasswordModel model)
+		{
+			return View();
 		}
 
 		[Route("Logout")]

@@ -12,7 +12,7 @@
 	<link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
 	<link rel="icon" type="image/png" href="~/favicon.ico">
 	<link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Open+Sans" />
-	<link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"/>
+	<link rel="stylesheet" type="text/css" href="~/lib/fontawesome/css/all.min.css" />
 	@await RenderSectionAsync("Styles", required: false)
 </head>
 <body>
@@ -53,12 +53,32 @@
 							string fullname = @Context.Session.GetString(Constants.FULLNAME);
 							if (fullname == null && !Html.IsThisPage(controllers: "Login", actions: "Index"))
 							{
-								<a class="my-2 my-sm-0 btn btn-outline-primary" asp-area="" asp-controller="Login" asp-action="Index">Đăng nhập</a>
+								<a class="my-2 my-sm-0 btn btn-outline-primary" asp-area="" asp-controller="Login" asp-action="Index">
+									<i class="fas fa-sign-in-alt"></i>
+									Đăng nhập
+								</a>
 							}
 							else if (fullname != null)
 							{
-								<i class="mr-sm-4">Xin chào @fullname</i>
-								<a class="my-2 my-sm-0 btn btn-outline-danger" asp-area="" asp-controller="Login" asp-action="Logout">Đăng xuất</a>
+								<div class="dropdown">
+									<button class="mr-sm-4 btn dropdown-toggle" type="button" id="dropdownLoginButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+										Xin chào @fullname
+									</button>
+									<div class="dropdown-menu" aria-labelledby="dropdownLoginButton">
+										<a class="dropdown-item" asp-area="" asp-controller="Login" asp-action="ChangePassword">
+											<i class="fas fa-key"></i>
+											Đổi mật khẩu
+										</a>
+										<a class="dropdown-item" asp-area="" asp-controller="Login" asp-action="ChangeInfo">
+											<i class="fas fa-key"></i>
+											Cập nhật thông tin
+										</a>
+										<a class="dropdown-item" asp-area="" asp-controller="Login" asp-action="Logout">
+											<i class="fas fa-sign-out-alt"></i>
+											Đăng xuất
+										</a>
+									</div>
+								</div>
 							}
 						}
 					</div>
