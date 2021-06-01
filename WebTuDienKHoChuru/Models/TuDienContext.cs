@@ -22,14 +22,15 @@ namespace WebTuDienKHoChuru.Models
 		public virtual DbSet<Dictionary> Dictionaries { get; set; }
 		public virtual DbSet<Example> Examples { get; set; }
 		public virtual DbSet<KhoVietView> KhoVietViews { get; set; }
+		public virtual DbSet<ChuruVietView> ChuruVietViews { get; set; }
 		public virtual DbSet<Word> Words { get; set; }
 
 		protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 		{
-			if (!optionsBuilder.IsConfigured)
-			{
-				optionsBuilder.UseSqlServer("Server=.\\SQLExpress;Database=TuDienKHo_Viet_Churu;Trusted_Connection=True;");
-			}
+			//if (!optionsBuilder.IsConfigured)
+			//{
+			//	optionsBuilder.UseSqlServer("Server=.\\SQLExpress;Database=TuDienKHo_Viet_Churu;Trusted_Connection=True;");
+			//}
 		}
 
 		protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -138,6 +139,19 @@ namespace WebTuDienKHoChuru.Models
 				entity.HasNoKey();
 
 				entity.ToView("KHoViet_View");
+
+				entity.Property(e => e.Example).IsRequired();
+
+				entity.Property(e => e.Id).HasColumnName("ID");
+
+				entity.Property(e => e.Meaning).IsRequired();
+			});
+
+			modelBuilder.Entity<ChuruVietView>(entity =>
+			{
+				entity.HasNoKey();
+
+				entity.ToView("ChuruViet_View");
 
 				entity.Property(e => e.Example).IsRequired();
 

@@ -34,9 +34,9 @@ namespace WebTuDienKHoChuru.Controllers
 			return View();
 		}
 
-		public IActionResult Churu_Viet()
+		public async Task<IActionResult> Churu_Viet()
 		{
-			return View();
+			return View(await _context.ChuruVietViews.ToListAsync());
 		}
 	}
 }
