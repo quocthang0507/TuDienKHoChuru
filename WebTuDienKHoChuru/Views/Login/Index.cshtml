@@ -9,42 +9,39 @@
 <div class="login-form">
 	@using (Html.BeginForm("Login", "Login", FormMethod.Post))
 	{
-	<div class="imgContainer">
-		<img src="~/img/login-avatar.jpg" alt="login" class="imgLogin" />
-	</div>
-	<h6 class="text-sm-center">@Constants.Title</h6>
-	<h4 class="text-center">Đăng nhập</h4>
-	<fieldset>
-		@Html.AntiForgeryToken()
-		@Html.ValidationSummary(true)
-		@if (@ViewBag.Message != null)
-			{
-		<div style="color: red;" id="message">
-			@ViewBag.Message
+		<div class="imgContainer">
+			<img src="~/img/login-avatar.jpg" alt="login" class="imgLogin" />
 		</div>
-			}
-		<div class="form-group">
-			@Html.TextBoxFor(x => x.Username, new
-	   {
-		   @class = "form-control",
-		   placeholder = "Tên đăng nhập",
-		   required = "required"
-	   })
-			@Html.ValidationMessageFor(x => x.Username)
-		</div>
-		<div class="form-group">
-			@Html.PasswordFor(x => x.Password, new
-			{
-				@class = "form-control",
-				placeholder = "Mật khẩu",
-				required = "required"
-			})
-			@Html.ValidationMessageFor(x => x.Password)
-		</div>
-		<div class="form-group">
-			<input type="submit" value="Đăng nhập" class="button" />
-		</div>
-	</fieldset>
+		<h6 class="text-sm-center">@Constants.Title</h6>
+		<h4 class="text-center">Đăng nhập</h4>
+		<fieldset>
+			@Html.AntiForgeryToken()
+			@Html.ValidationSummary(true)
+			<div style="color: red;" id="message" class="text-center">
+				@ViewBag.Message
+				@Html.ValidationMessageFor(x => x.Username)
+				@Html.ValidationMessageFor(x => x.Password)
+			</div>
+			<div class="form-group">
+				@Html.TextBoxFor(x => x.Username, new
+		   {
+			   @class = "form-control",
+			   placeholder = "Tên đăng nhập",
+			   required = "required"
+		   })
+			</div>
+			<div class="form-group">
+				@Html.PasswordFor(x => x.Password, new
+				{
+					@class = "form-control",
+					placeholder = "Mật khẩu",
+					required = "required"
+				})
+			</div>
+			<div class="form-group">
+				<input type="submit" value="Đăng nhập" class="button" />
+			</div>
+		</fieldset>
 	}
 </div>
 

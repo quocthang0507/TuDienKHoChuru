@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System;
+using System.Linq;
 using System.Text;
 using WebTuDienKHoChuru.Models;
 using WebTuDienKHoChuru.Models.User;
@@ -41,7 +43,8 @@ namespace WebTuDienKHoChuru.Controllers
 		[Authorize]
 		public IActionResult ChangeInfo()
 		{
-			return View();
+			string username = HttpContext.Session.GetString(Constants.USERNAME);
+			return View(Accounts.FindOne(username));
 		}
 
 		[HttpPost]
@@ -64,6 +67,7 @@ namespace WebTuDienKHoChuru.Controllers
 				var user = result.Value;
 				HttpContext.Session.Set(Constants.FULLNAME, Encoding.UTF8.GetBytes(user.Fullname));
 				HttpContext.Session.Set(Constants.ROLE, Encoding.UTF8.GetBytes(user.Role));
+				HttpContext.Session.Set(Constants.USERNAME, Encoding.UTF8.GetBytes(user.Username));
 				HttpContext.Response.Cookies.Append(Constants.TOKEN, user.Token, new CookieOptions { HttpOnly = true });
 				return user.Role switch
 				{
@@ -79,6 +83,62 @@ namespace WebTuDienKHoChuru.Controllers
 		[ValidateAntiForgeryToken]
 		public IActionResult ChangePassword(ChangePasswordModel model)
 		{
+			if (ModelState.IsValid)
+			{
+				string username = HttpContext.Session.GetString(Constants.USERNAME);
+				var result = userService.Authenticate(username, model.OldPassword);
+				if (result.Key == -1)
+				{
+					ViewBag.Message = "Không được bỏ trống thông tin đăng nhập bắt buộc";
+					return View();
+				}
+				else if (result.Key == 0)
+				{
+					ViewBag.Message = "Mật khẩu cũ không đúng";
+					return View();
+				}
+				var user = result.Value;
+				user.Password = SHA256.Instance.GetSHA256(model.NewPassword);
+				user.Token = null;
+				if (Accounts.UpdateAccount(user))
+				{
+					ViewBag.Message = "Đổi mật khẩu thành công";
+				}
+				else
+				{
+					ViewBag.Message = "Đổi mật khẩu không thành công";
+				}
+				return View();
+			}
+			return View();
+		}
+
+		[HttpPost]
+		[ValidateAntiForgeryToken]
+		public IActionResult ChangeInfo(Account account)
+		{
+			if (ModelState.IsValid)
+			{
+				string username = HttpContext.Session.GetString(Constants.USERNAME);
+				var oldAccount = Accounts.FindOne(username);
+				if (oldAccount != null)
+				{
+					account.Password = oldAccount.Password;
+					account.Id = oldAccount.Id;
+					account.Role = oldAccount.Role;
+					if (Accounts.UpdateAccount(account))
+					{
+						HttpContext.Session.Set(Constants.FULLNAME, Encoding.UTF8.GetBytes(account.Fullname));
+						HttpContext.Session.Set(Constants.USERNAME, Encoding.UTF8.GetBytes(account.Username));
+						ViewBag.Message = "Cập nhật thông tin thành công";
+					}
+					else
+					{
+						ViewBag.Message = "Cập nhật không thông tin thành công";
+					}
+					return View(account);
+				}
+			}
 			return View();
 		}
 

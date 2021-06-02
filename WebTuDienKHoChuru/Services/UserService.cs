@@ -39,11 +39,9 @@ namespace WebTuDienKHoChuru.Services
 			if (Extensions.IsOneNullOrEmpty(username, password))
 				return new KeyValuePair<int, Account>(-1, null);
 
-			Accounts users = new();
-			List<Account> list = users.GetAccounts();
-			Account account = list.SingleOrDefault(a =>
-			  a.Username.Equals(username, StringComparison.OrdinalIgnoreCase) &&
-			  a.Password.Equals(password));
+			List<Account> list = Accounts.GetAccounts();
+
+			Account account = list.SingleOrDefault(a => a.Username.Equals(username, StringComparison.OrdinalIgnoreCase) && SHA256.Instance.Equals(a.Password, password));
 			if (account == null)
 				return new KeyValuePair<int, Account>(0, null);
 

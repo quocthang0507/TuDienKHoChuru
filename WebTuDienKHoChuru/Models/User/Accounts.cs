@@ -1,28 +1,54 @@
-﻿using System.Collections.Generic;
+﻿using DataAccess;
+using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace WebTuDienKHoChuru.Models.User
 {
 	public class Accounts
 	{
-		public List<Account> GetAccounts()
+		public static List<Account> GetAccounts()
 		{
-			return new List<Account>
+			try
 			{
-				new Account
-				{
-					Id=1, Fullname="La Quốc Thắng", Username="admin", Password="admin", Role=Role.Admin
-				},
-				new Account
-				{
-					Id=2, Fullname="La Quốc Thắng", Username="colab", Password="colab", Role=Role.Collaborator
-				}
-			};
+				return CBO.FillCollection<Account>(SqlDataProvider.Instance.ExecuteReader("GET_ACCOUNTS"));
+			}
+			catch (Exception)
+			{
+				return new List<Account>();
+			}
 		}
 
-		public List<Account> GetAccWithoutPass()
+		public static List<Account> GetAccWithoutPass()
 		{
 			return GetAccounts().Select(a => a.WithoutPassword()).ToList();
+		}
+
+		public static bool UpdateAccount(Account account)
+		{
+			try
+			{
+				int result = SqlDataProvider.Instance.ExecuteNonQuery("UPDATE_ACCOUNT",
+					account.Id, account.Fullname, account.Username, account.Password, account.Role, account.Email, account.PhoneNumber, account.Address);
+				return result > 0;
+			}
+			catch (Exception)
+			{
+				return false;
+			}
+		}
+
+		public static Account FindOne(string username)
+		{
+			try
+			{
+				var account = GetAccounts().Single(acc => acc.Username.Equals(username, StringComparison.OrdinalIgnoreCase));
+				return account;
+			}
+			catch (Exception)
+			{
+				return null;
+			}
 		}
 	}
 }

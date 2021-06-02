@@ -31,12 +31,46 @@ CREATE TABLE ACCOUNT
     [ID] TINYINT IDENTITY(1, 1) PRIMARY KEY,
     [Fullname] NVARCHAR(100) NOT NULL,
     [Username] NVARCHAR(50) NOT NULL,
-    [Password] NVARCHAR(100) NOT NULL,
+    [Password] NVARCHAR(100) NOT NULL, --SHA256
     [Role] NVARCHAR(100) NOT NULL,
     [Email] NVARCHAR(100) NULL,
     [PhoneNumber] NVARCHAR(10) NULL,
     [Address] NVARCHAR(200) NOT NULL
 );
+GO
+
+ALTER TABLE ACCOUNT ADD UNIQUE (Username);
+GO
+
+INSERT INTO ACCOUNT VALUES (N'La Quốc Thắng', 'admin', '8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918', 'Admin', '1610207@dlu.edu.vn', '0987610260', N'Võ Trường Toản, Phường 8, Đà Lạt, Lâm Đồng')
+INSERT INTO ACCOUNT VALUES (N'Cộng tác viên', 'collaborator', '53adf83d9f7b4dd136fee848946a5ea6d28640406aa260d1bb6adb79dccb58ee', 'Collaborator', '', '', N'Đại học Đà Lạt, Phù Đổng Thiên Vương, Phường 8, Đà Lạt, Lâm Đồng')
+GO
+
+CREATE PROC GET_ACCOUNTS
+AS
+    SELECT * FROM ACCOUNT
+GO
+
+CREATE PROC UPDATE_ACCOUNT
+    @ID TINYINT,
+    @Fullname NVARCHAR(100),
+    @Username NVARCHAR(50),
+    @Password NVARCHAR(100),
+    @Role NVARCHAR(100),
+    @Email NVARCHAR(100),
+    @PhoneNumber NVARCHAR(10),
+    @Address NVARCHAR(200)
+AS
+    UPDATE ACCOUNT
+    SET 
+        [Fullname] = @Fullname, 
+        [Username] = @Username, 
+        [Password] = @Password, 
+        [Role] = @Role, 
+        [Email] = @Email,
+        [PhoneNumber] = @PhoneNumber,
+        [Address] = @Address
+    WHERE ID = @ID
 GO
 
 CREATE TABLE DICT_TYPE

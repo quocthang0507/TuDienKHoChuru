@@ -1,19 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
-using WebTuDienKHoChuru.Models.DataAccess;
 
 namespace WebTuDienKHoChuru.Controllers
 {
 	public class DictionaryController : Controller
 	{
-		private readonly TuDienContext _context;
-
-		public DictionaryController(TuDienContext context)
-		{
-			_context = context;
-		}
-
 		public IActionResult Index()
 		{
 			return View();
@@ -21,7 +12,7 @@ namespace WebTuDienKHoChuru.Controllers
 
 		public async Task<IActionResult> KHo_Viet()
 		{
-			return View(await _context.KhoVietViews.ToListAsync());
+			return View();
 		}
 
 		public IActionResult Viet_KHo()
@@ -36,7 +27,7 @@ namespace WebTuDienKHoChuru.Controllers
 
 		public async Task<IActionResult> Churu_Viet()
 		{
-			return View(await _context.ChuruVietViews.ToListAsync());
+			return View();
 		}
 	}
 }
