@@ -1,10 +1,11 @@
 ﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using WebTuDienKHoChuru.Models.User;
 
 namespace WebTuDienKHoChuru.Services
 {
 	public interface IUserService
 	{
-		KeyValuePair<int, Account> Authenticate(string username, string password);
+		Task<KeyValuePair<int, Account>> Authenticate(string username, string password);
 	}
 }

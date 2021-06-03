@@ -7,6 +7,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
 using System.Text;
+using System.Threading.Tasks;
 using WebTuDienKHoChuru.Models.User;
 using WebTuDienKHoChuru.Utils;
 
@@ -32,14 +33,14 @@ namespace WebTuDienKHoChuru.Services
 		/// <param name="username"></param>
 		/// <param name="password"></param>
 		/// <returns></returns>
-		public KeyValuePair<int, Account> Authenticate(string username, string password)
+		public async Task<KeyValuePair<int, Account>> Authenticate(string username, string password)
 		{
 			logger.LogInformation($"Validating user {username}");
 
 			if (Extensions.IsOneNullOrEmpty(username, password))
 				return new KeyValuePair<int, Account>(-1, null);
 
-			List<Account> list = Accounts.GetAccounts();
+			List<Account> list = await Accounts.GetAccounts();
 
 			Account account = list.SingleOrDefault(a => a.Username.Equals(username, StringComparison.OrdinalIgnoreCase) && SHA256.Instance.Equals(a.Password, password));
 			if (account == null)

@@ -13,5 +13,7 @@
 		public const string USERNAME = "_Username_";
 		public const string PASS = "_Password_";
 		public const string ROLE = "_Role_";
+
+		public const int RowsOfPage = 10;
 	}
 }

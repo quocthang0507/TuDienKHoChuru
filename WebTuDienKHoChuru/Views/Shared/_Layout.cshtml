@@ -31,6 +31,12 @@
 						</li>
 						@{
 							string role = Context.Session.GetString(Constants.ROLE);
+							if (!string.IsNullOrWhiteSpace(role))
+							{
+								<li class="nav-item">
+									<a class="nav-link text-dark @Html.IsSelected(actions: "Manage", controllers: "Dictionary")" asp-area="" asp-controller="Dictionary" asp-action="Manage">Quản lý từ điển</a>
+								</li>
+							}
 							if (role == Role.Collaborator)
 							{
 								<li class="nav-item">

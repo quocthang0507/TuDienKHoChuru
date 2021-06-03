@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Data;
 using System.Data.SqlClient;
+using System.Threading.Tasks;
 
 namespace DataAccess
 {
@@ -28,7 +29,7 @@ namespace DataAccess
 			this.connectionString = connectionString;
 		}
 
-		private void AssignParameterValues(SqlParameter[] commandParameters, object[] parameterValues)
+		private static void AssignParameterValues(SqlParameter[] commandParameters, object[] parameterValues)
 		{
 			if (commandParameters == null || parameterValues == null) return;
 			if (commandParameters.Length != parameterValues.Length)
@@ -37,17 +38,17 @@ namespace DataAccess
 				commandParameters[i].Value = parameterValues[i];
 		}
 
-		public override DataSet ExecuteDataset(string spName, params object[] parameterValues)
+		public override async Task<DataSet> ExecuteDataset(string spName, params object[] parameterValues)
 		{
-			return SqlHelper.ExecuteDataset(connectionString, spName, parameterValues);
+			return await Task.Run(() => SqlHelper.ExecuteDataset(connectionString, spName, parameterValues));
 		}
 
-		public override int ExecuteNonQuery(string spName, params object[] parameterValues)
+		public override async Task<int> ExecuteNonQuery(string spName, params object[] parameterValues)
 		{
-			return SqlHelper.ExecuteNonQuery(connectionString, spName, parameterValues);
+			return await Task.Run(() => SqlHelper.ExecuteNonQuery(connectionString, spName, parameterValues));
 		}
 
-		public override object ExecuteNonQueryWithOutput(string outputParam, string spName, params object[] parameterValues)
+		public override async Task<object> ExecuteNonQueryWithOutput(string outputParam, string spName, params object[] parameterValues)
 		{
 			if (string.IsNullOrEmpty(outputParam))
 				throw new ArgumentException("OutputParam can't be null or empty!");
@@ -64,21 +65,20 @@ namespace DataAccess
 			if (sqlParameter == null)
 				throw new Exception("Parameter not found!");
 			AssignParameterValues(parameters, parameterValues);
-			int result = SqlHelper.ExecuteNonQuery(connectionString, CommandType.StoredProcedure, spName, parameters);
+			int result = await Task.Run(() => SqlHelper.ExecuteNonQuery(connectionString, CommandType.StoredProcedure, spName, parameters));
 			if (result > 0)
 				return sqlParameter.Value;
 			return null;
 		}
 
-		public override IDataReader ExecuteReader(string spName, params object[] parameterValues)
+		public override async Task<IDataReader> ExecuteReader(string spName, params object[] parameterValues)
 		{
-			return SqlHelper.ExecuteReader(connectionString, spName, parameterValues);
+			return await Task.Run(() => SqlHelper.ExecuteReader(connectionString, spName, parameterValues));
 		}
 
-		public override object ExecuteScalar(string spName, params object[] parameterValues)
+		public override async Task<object> ExecuteScalar(string spName, params object[] parameterValues)
 		{
-			return SqlHelper.ExecuteScalar(connectionString, spName, parameterValues);
+			return await Task.Run(() => SqlHelper.ExecuteScalar(connectionString, spName, parameterValues));
 		}
 	}
-
 }

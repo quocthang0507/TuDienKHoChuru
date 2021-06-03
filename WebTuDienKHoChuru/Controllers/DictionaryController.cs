@@ -1,5 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using System.Collections.Generic;
 using System.Threading.Tasks;
+using WebTuDienKHoChuru.Models.DataAccess;
 
 namespace WebTuDienKHoChuru.Controllers
 {
@@ -10,7 +13,23 @@ namespace WebTuDienKHoChuru.Controllers
 			return View();
 		}
 
-		public async Task<IActionResult> KHo_Viet()
+		[Authorize]
+		public async Task<IActionResult> Manage(int dictTypeID = 1, int pageNumber = 1)
+		{
+			ViewBag.DictTypes = await GetDictTypes();
+			ViewBag.DictTypeID = dictTypeID;
+			ViewBag.PageNumbers = await WORDs.GetPageNumbers(dictTypeID);
+			ViewBag.SelectedPage = pageNumber;
+			return View();
+		}
+
+		[HttpGet]
+		public async Task<List<DICT_TYPE>> GetDictTypes() => await DICT_TYPEs.GetDictTypes();
+
+		[HttpGet]
+		public async Task<List<WORD>> GetWords(int dictTypeID, int pageNumber) => await WORDs.GetWords(dictTypeID, pageNumber);
+
+		public IActionResult KHo_Viet()
 		{
 			return View();
 		}
@@ -25,7 +44,7 @@ namespace WebTuDienKHoChuru.Controllers
 			return View();
 		}
 
-		public async Task<IActionResult> Churu_Viet()
+		public IActionResult Churu_Viet()
 		{
 			return View();
 		}

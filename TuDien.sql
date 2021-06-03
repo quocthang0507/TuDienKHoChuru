@@ -1,9 +1,7 @@
 USE master 
 GO
 
-IF EXISTS(SELECT *
-FROM sys.databases
-WHERE name = 'TuDienKHo_Viet_Churu')
+IF EXISTS(SELECT * FROM sys.databases WHERE name = 'TuDienKHo_Viet_Churu')
     DROP DATABASE [TuDienKHo_Viet_Churu]
 GO
 
@@ -42,21 +40,18 @@ CREATE TABLE ACCOUNT
 );
 GO
 
-INSERT INTO ACCOUNT
-VALUES
+INSERT INTO ACCOUNT VALUES
     (N'La Quốc Thắng', 'admin', '8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918', 'Admin', '1610207@dlu.edu.vn', '0987610260', N'Võ Trường Toản, Phường 8, Đà Lạt, Lâm Đồng')
-INSERT INTO ACCOUNT
-VALUES
+INSERT INTO ACCOUNT VALUES
     (N'Cộng tác viên', 'collaborator', '53adf83d9f7b4dd136fee848946a5ea6d28640406aa260d1bb6adb79dccb58ee', 'Collaborator', '', '', N'Đại học Đà Lạt, Phù Đổng Thiên Vương, Phường 8, Đà Lạt, Lâm Đồng')
 GO
 
-CREATE PROC GET_ACCOUNTS
+CREATE PROC proc_GET_ACCOUNTS
 AS
-SELECT *
-FROM ACCOUNT
+SELECT * FROM ACCOUNT
 GO
 
-CREATE PROC UPDATE_ACCOUNT
+CREATE PROC proc_UPDATE_ACCOUNT
     @ID TINYINT,
     @Fullname NVARCHAR(100),
     @Username NVARCHAR(50),
@@ -85,23 +80,19 @@ CREATE TABLE DICT_TYPE
 );
 GO
 
-INSERT INTO DICT_TYPE
-VALUES
-    (N'Từ điển K''Ho - Việt')
-INSERT INTO DICT_TYPE
-VALUES
-    (N'Từ điển Việt - K''Ho')
-INSERT INTO DICT_TYPE
-VALUES
-    (N'Từ điển Churu - Việt')
-INSERT INTO DICT_TYPE
-VALUES
-    (N'Từ điển Việt - Churu')
+INSERT INTO DICT_TYPE VALUES (N'Từ điển K''Ho - Việt')
+INSERT INTO DICT_TYPE VALUES (N'Từ điển Việt - K''Ho')
+INSERT INTO DICT_TYPE VALUES (N'Từ điển Churu - Việt')
+INSERT INTO DICT_TYPE VALUES (N'Từ điển Việt - Churu')
+GO
+
+CREATE PROC proc_GET_DICT_TYPES
+AS
+SELECT * FROM DICT_TYPE
 GO
 
 SET DATEFORMAT DMY;
 GO
-
 
 CREATE TABLE WORD_TYPE
 (
@@ -133,6 +124,39 @@ CREATE TABLE WORD
     [UpdatedDate] DATETIME NULL,
     [Creator] NVARCHAR(50) REFERENCES Account(Username)
 );
+GO
+
+CREATE PROC proc_GET_WORDS
+	@DictType TINYINT,
+    @PageNumber INT,
+    @RowsOfPage INT
+AS
+SELECT ID, Word
+FROM WORD
+WHERE DictType = @DictType
+ORDER BY Word
+    OFFSET (@PageNumber - 1) * @RowsOfPage ROWS
+    FETCH NEXT @RowsOfPage ROWS ONLY;
+GO
+
+CREATE PROC proc_GET_PAGE_NUMBERS
+-- ALTER PROC proc_GET_PAGE_NUMBERS
+(
+	@DictType TINYINT,
+	@RowsOfPage INT
+)
+AS
+BEGIN
+	SELECT 
+	CASE 
+		WHEN COUNT(*) <= @RowsOfPage THEN 1 
+		ELSE CEILING(COUNT(*) / @RowsOfPage)
+	END
+	FROM WORD WHERE WORD.DictType = @DictType;
+END
+GO
+
+--SELECT DBO.func_GET_PAGE_NUMBERS(1, 10)
 
 /*
     Bảng này lưu (các) nghĩa của từ
@@ -158,38 +182,6 @@ CREATE TABLE EXAMPLE
 );
 GO
 
-CREATE PROC KHoVietView_procedure
-    @PageNumber INT,
-    @RowsOfPage INT
-AS
-SELECT WORD.ID, Word, DICTIONARY.Meaning, WORD.ImgPath, WORD.PronunPath AS 'WordPronun', EXAMPLE.Example, EXAMPLE.PronunPath AS 'ExPronun'
-FROM
-    (
-    (WORD INNER JOIN DICTIONARY ON WORD.ID = DICTIONARY.WordID)
-    INNER JOIN EXAMPLE ON WORD.ID = EXAMPLE.WordID
-    )
-WHERE DictType = 1
-ORDER BY Word
-    OFFSET (@PageNumber - 1) * @RowsOfPage ROWS
-    FETCH NEXT @RowsOfPage ROWS ONLY;
-GO
-
-CREATE PROC ChuruVietView_procedure
-    @PageNumber INT,
-    @RowsOfPage INT
-AS
-SELECT WORD.ID, Word, DICTIONARY.Meaning, WORD.ImgPath, WORD.PronunPath AS 'WordPronun', EXAMPLE.Example, EXAMPLE.PronunPath AS 'ExPronun'
-FROM
-    (
-    (WORD INNER JOIN DICTIONARY ON WORD.ID = DICTIONARY.WordID)
-    INNER JOIN EXAMPLE ON WORD.ID = EXAMPLE.WordID
-    )
-WHERE DictType = 3
-ORDER BY Word
-    OFFSET (@PageNumber - 1) * @RowsOfPage ROWS
-    FETCH NEXT @RowsOfPage ROWS ONLY;
-GO
-
 /*
     Bảng này lưu các đoạn văn song ngữ
 */
@@ -200,4 +192,36 @@ CREATE TABLE BILINGUAL_PASSAGE
     [Source] NVARCHAR(MAX) NOT NULL,
     [Destination] NVARCHAR(MAX) NOT NULL
 );
+GO
+
+CREATE PROC proc_KHoVietView
+    @PageNumber INT,
+    @RowsOfPage INT
+AS
+SELECT WORD.ID, Word, DICTIONARY.Meaning, WORD.ImgPath, WORD.PronunPath AS 'WordPronun', EXAMPLE.Example, EXAMPLE.PronunPath AS 'ExPronun'
+FROM
+(
+    (WORD INNER JOIN DICTIONARY ON WORD.ID = DICTIONARY.WordID)
+    INNER JOIN EXAMPLE ON WORD.ID = EXAMPLE.WordID
+)
+WHERE DictType = 1
+ORDER BY Word
+    OFFSET (@PageNumber - 1) * @RowsOfPage ROWS
+    FETCH NEXT @RowsOfPage ROWS ONLY;
+GO
+
+CREATE PROC proc_ChuruVietView
+    @PageNumber INT,
+    @RowsOfPage INT
+AS
+SELECT WORD.ID, Word, DICTIONARY.Meaning, WORD.ImgPath, WORD.PronunPath AS 'WordPronun', EXAMPLE.Example, EXAMPLE.PronunPath AS 'ExPronun'
+FROM
+(
+    (WORD INNER JOIN DICTIONARY ON WORD.ID = DICTIONARY.WordID)
+    INNER JOIN EXAMPLE ON WORD.ID = EXAMPLE.WordID
+)
+WHERE DictType = 3
+ORDER BY Word
+    OFFSET (@PageNumber - 1) * @RowsOfPage ROWS
+    FETCH NEXT @RowsOfPage ROWS ONLY;
 GO

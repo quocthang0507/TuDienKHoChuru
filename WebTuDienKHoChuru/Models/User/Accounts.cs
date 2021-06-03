@@ -2,16 +2,17 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace WebTuDienKHoChuru.Models.User
 {
 	public class Accounts
 	{
-		public static List<Account> GetAccounts()
+		public static async Task<List<Account>> GetAccounts()
 		{
 			try
 			{
-				return CBO.FillCollection<Account>(SqlDataProvider.Instance.ExecuteReader("GET_ACCOUNTS"));
+				return CBO.FillCollection<Account>(await SqlDataProvider.Instance.ExecuteReader("proc_GET_ACCOUNTS"));
 			}
 			catch (Exception)
 			{
@@ -19,16 +20,16 @@ namespace WebTuDienKHoChuru.Models.User
 			}
 		}
 
-		public static List<Account> GetAccWithoutPass()
+		public static async Task<List<Account>> GetAccWithoutPass()
 		{
-			return GetAccounts().Select(a => a.WithoutPassword()).ToList();
+			return (await GetAccounts()).Select(a => a.WithoutPassword()).ToList();
 		}
 
-		public static bool UpdateAccount(Account account)
+		public static async Task<bool> UpdateAccount(Account account)
 		{
 			try
 			{
-				int result = SqlDataProvider.Instance.ExecuteNonQuery("UPDATE_ACCOUNT",
+				int result = await SqlDataProvider.Instance.ExecuteNonQuery("proc_UPDATE_ACCOUNT",
 					account.Id, account.Fullname, account.Username, account.Password, account.Role, account.Email, account.PhoneNumber, account.Address);
 				return result > 0;
 			}
@@ -38,11 +39,11 @@ namespace WebTuDienKHoChuru.Models.User
 			}
 		}
 
-		public static Account FindOne(string username)
+		public static async Task<Account> FindOne(string username)
 		{
 			try
 			{
-				var account = GetAccounts().Single(acc => acc.Username.Equals(username, StringComparison.OrdinalIgnoreCase));
+				var account = (await GetAccounts()).Single(acc => acc.Username.Equals(username, StringComparison.OrdinalIgnoreCase));
 				return account;
 			}
 			catch (Exception)

@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Text;
+using System.Threading.Tasks;
 using WebTuDienKHoChuru.Models;
 using WebTuDienKHoChuru.Models.User;
 using WebTuDienKHoChuru.Services;
@@ -39,19 +40,19 @@ namespace WebTuDienKHoChuru.Controllers
 		}
 
 		[Authorize]
-		public IActionResult ChangeInfo()
+		public async Task<IActionResult> ChangeInfo()
 		{
 			string username = HttpContext.Session.GetString(Constants.USERNAME);
-			return View(Accounts.FindOne(username));
+			return View(await Accounts.FindOne(username));
 		}
 
 		[HttpPost]
 		[ValidateAntiForgeryToken]
-		public IActionResult Login(LoginModel model)
+		public async Task<IActionResult> Login(LoginModel model)
 		{
 			if (ModelState.IsValid)
 			{
-				var result = userService.Authenticate(model.Username, model.Password);
+				var result = await userService.Authenticate(model.Username, model.Password);
 				if (result.Key == -1)
 				{
 					ViewBag.Message = "Không được bỏ trống thông tin đăng nhập bắt buộc";
@@ -79,12 +80,12 @@ namespace WebTuDienKHoChuru.Controllers
 
 		[HttpPost]
 		[ValidateAntiForgeryToken]
-		public IActionResult ChangePassword(ChangePasswordModel model)
+		public async Task<IActionResult> ChangePassword(ChangePasswordModel model)
 		{
 			if (ModelState.IsValid)
 			{
 				string username = HttpContext.Session.GetString(Constants.USERNAME);
-				var result = userService.Authenticate(username, model.OldPassword);
+				var result = await userService.Authenticate(username, model.OldPassword);
 				if (result.Key == -1)
 				{
 					ViewBag.Message = "Không được bỏ trống thông tin đăng nhập bắt buộc";
@@ -98,7 +99,7 @@ namespace WebTuDienKHoChuru.Controllers
 				var user = result.Value;
 				user.Password = SHA256.Instance.GetSHA256(model.NewPassword);
 				user.Token = null;
-				if (Accounts.UpdateAccount(user))
+				if (await Accounts.UpdateAccount(user))
 				{
 					ViewBag.Message = "Đổi mật khẩu thành công";
 				}
@@ -113,18 +114,18 @@ namespace WebTuDienKHoChuru.Controllers
 
 		[HttpPost]
 		[ValidateAntiForgeryToken]
-		public IActionResult ChangeInfo(Account account)
+		public async Task<IActionResult> ChangeInfo(Account account)
 		{
 			if (ModelState.IsValid)
 			{
 				string username = HttpContext.Session.GetString(Constants.USERNAME);
-				var oldAccount = Accounts.FindOne(username);
+				var oldAccount = await Accounts.FindOne(username);
 				if (oldAccount != null)
 				{
 					account.Password = oldAccount.Password;
 					account.Id = oldAccount.Id;
 					account.Role = oldAccount.Role;
-					if (Accounts.UpdateAccount(account))
+					if (await Accounts.UpdateAccount(account))
 					{
 						HttpContext.Session.Set(Constants.FULLNAME, Encoding.UTF8.GetBytes(account.Fullname));
 						HttpContext.Session.Set(Constants.USERNAME, Encoding.UTF8.GetBytes(account.Username));

@@ -8,7 +8,7 @@ namespace WebTuDienKHoChuru.Controllers
 	public class CollaboratorController : Controller
 	{
 		// GET: Collaborator
-		public ActionResult Index()
+		public IActionResult Index()
 		{
 			return View();
 		}
