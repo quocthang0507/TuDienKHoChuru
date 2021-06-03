@@ -1,7 +1,9 @@
 USE master 
 GO
 
-IF EXISTS(SELECT * FROM sys.databases WHERE name = 'TuDienKHo_Viet_Churu')
+IF EXISTS(SELECT *
+FROM sys.databases
+WHERE name = 'TuDienKHo_Viet_Churu')
     DROP DATABASE [TuDienKHo_Viet_Churu]
 GO
 
@@ -30,8 +32,9 @@ CREATE TABLE ACCOUNT
 (
     [ID] TINYINT IDENTITY(1, 1) PRIMARY KEY,
     [Fullname] NVARCHAR(100) NOT NULL,
-    [Username] NVARCHAR(50) NOT NULL,
-    [Password] NVARCHAR(100) NOT NULL, --SHA256
+    [Username] NVARCHAR(50) NOT NULL UNIQUE,
+    [Password] NVARCHAR(100) NOT NULL,
+    --SHA256
     [Role] NVARCHAR(100) NOT NULL,
     [Email] NVARCHAR(100) NULL,
     [PhoneNumber] NVARCHAR(10) NULL,
@@ -39,16 +42,18 @@ CREATE TABLE ACCOUNT
 );
 GO
 
-ALTER TABLE ACCOUNT ADD UNIQUE (Username);
-GO
-
-INSERT INTO ACCOUNT VALUES (N'La Quốc Thắng', 'admin', '8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918', 'Admin', '1610207@dlu.edu.vn', '0987610260', N'Võ Trường Toản, Phường 8, Đà Lạt, Lâm Đồng')
-INSERT INTO ACCOUNT VALUES (N'Cộng tác viên', 'collaborator', '53adf83d9f7b4dd136fee848946a5ea6d28640406aa260d1bb6adb79dccb58ee', 'Collaborator', '', '', N'Đại học Đà Lạt, Phù Đổng Thiên Vương, Phường 8, Đà Lạt, Lâm Đồng')
+INSERT INTO ACCOUNT
+VALUES
+    (N'La Quốc Thắng', 'admin', '8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918', 'Admin', '1610207@dlu.edu.vn', '0987610260', N'Võ Trường Toản, Phường 8, Đà Lạt, Lâm Đồng')
+INSERT INTO ACCOUNT
+VALUES
+    (N'Cộng tác viên', 'collaborator', '53adf83d9f7b4dd136fee848946a5ea6d28640406aa260d1bb6adb79dccb58ee', 'Collaborator', '', '', N'Đại học Đà Lạt, Phù Đổng Thiên Vương, Phường 8, Đà Lạt, Lâm Đồng')
 GO
 
 CREATE PROC GET_ACCOUNTS
 AS
-    SELECT * FROM ACCOUNT
+SELECT *
+FROM ACCOUNT
 GO
 
 CREATE PROC UPDATE_ACCOUNT
@@ -61,7 +66,7 @@ CREATE PROC UPDATE_ACCOUNT
     @PhoneNumber NVARCHAR(10),
     @Address NVARCHAR(200)
 AS
-    UPDATE ACCOUNT
+UPDATE ACCOUNT
     SET 
         [Fullname] = @Fullname, 
         [Username] = @Username, 
@@ -80,12 +85,39 @@ CREATE TABLE DICT_TYPE
 );
 GO
 
-INSERT INTO DICT_TYPE VALUES (N'Từ điển K''Ho - Việt')
-INSERT INTO DICT_TYPE VALUES (N'Từ điển Việt - K''Ho')
-INSERT INTO DICT_TYPE VALUES (N'Từ điển Churu - Việt')
-INSERT INTO DICT_TYPE VALUES (N'Từ điển Việt - Churu')
+INSERT INTO DICT_TYPE
+VALUES
+    (N'Từ điển K''Ho - Việt')
+INSERT INTO DICT_TYPE
+VALUES
+    (N'Từ điển Việt - K''Ho')
+INSERT INTO DICT_TYPE
+VALUES
+    (N'Từ điển Churu - Việt')
+INSERT INTO DICT_TYPE
+VALUES
+    (N'Từ điển Việt - Churu')
 GO
-SELECT * FROM DICT_TYPE
+
+SET DATEFORMAT DMY;
+GO
+
+
+CREATE TABLE WORD_TYPE
+(
+    [WordType] VARCHAR(10) PRIMARY KEY,
+    [Description] NVARCHAR(MAX) NOT NULL
+);
+GO
+
+INSERT INTO WORD_TYPE VALUES ('Noun', N'Danh từ')
+INSERT INTO WORD_TYPE VALUES ('Verb', N'Động từ')
+INSERT INTO WORD_TYPE VALUES ('Adjective', N'Tính từ')
+INSERT INTO WORD_TYPE VALUES ('Adverb', N'Trạng từ')
+INSERT INTO WORD_TYPE VALUES ('Pronoun', N'Đại từ')
+INSERT INTO WORD_TYPE VALUES ('Prep', N'Giới từ')
+INSERT INTO WORD_TYPE VALUES ('Others', N'Khác')
+GO
 
 /*
     Bảng này lưu trữ từ vựng
@@ -93,12 +125,14 @@ SELECT * FROM DICT_TYPE
 CREATE TABLE WORD
 (
     [ID] INT IDENTITY(1, 1) PRIMARY KEY,
-    [Word] NVARCHAR(MAX),
+    [Word] NVARCHAR(MAX) NOT NULL,
     [DictType] TINYINT REFERENCES DICT_TYPE([DictType]),
     [PronunPath] NVARCHAR(MAX) NULL,
-    [ImgPath] NVARCHAR(MAX) NULL
+    [ImgPath] NVARCHAR(MAX) NULL,
+    [AddedDate] DATETIME NULL,
+    [UpdatedDate] DATETIME NULL,
+    [Creator] NVARCHAR(50) REFERENCES Account(Username)
 );
-GO
 
 /*
     Bảng này lưu (các) nghĩa của từ
@@ -119,6 +153,7 @@ CREATE TABLE EXAMPLE
     [ID] INT IDENTITY(1, 1) PRIMARY KEY,
     [WordID] INT REFERENCES WORD(ID),
     [Example] NVARCHAR(MAX) NOT NULL,
+    [Meaning] NVARCHAR(MAX) NOT NULL,
     [PronunPath] NVARCHAR(MAX) NULL
 );
 GO
@@ -127,14 +162,14 @@ CREATE PROC KHoVietView_procedure
     @PageNumber INT,
     @RowsOfPage INT
 AS
-    SELECT WORD.ID, Word, DICTIONARY.Meaning, WORD.ImgPath, WORD.PronunPath AS 'WordPronun', EXAMPLE.Example, EXAMPLE.PronunPath AS 'ExPronun'
-    FROM 
+SELECT WORD.ID, Word, DICTIONARY.Meaning, WORD.ImgPath, WORD.PronunPath AS 'WordPronun', EXAMPLE.Example, EXAMPLE.PronunPath AS 'ExPronun'
+FROM
     (
-        (WORD INNER JOIN DICTIONARY ON WORD.ID = DICTIONARY.WordID)
-        INNER JOIN EXAMPLE ON WORD.ID = EXAMPLE.WordID
+    (WORD INNER JOIN DICTIONARY ON WORD.ID = DICTIONARY.WordID)
+    INNER JOIN EXAMPLE ON WORD.ID = EXAMPLE.WordID
     )
-    WHERE DictType = 1
-    ORDER BY Word
+WHERE DictType = 1
+ORDER BY Word
     OFFSET (@PageNumber - 1) * @RowsOfPage ROWS
     FETCH NEXT @RowsOfPage ROWS ONLY;
 GO
@@ -143,14 +178,14 @@ CREATE PROC ChuruVietView_procedure
     @PageNumber INT,
     @RowsOfPage INT
 AS
-    SELECT WORD.ID, Word, DICTIONARY.Meaning, WORD.ImgPath, WORD.PronunPath AS 'WordPronun', EXAMPLE.Example, EXAMPLE.PronunPath AS 'ExPronun'
-    FROM 
+SELECT WORD.ID, Word, DICTIONARY.Meaning, WORD.ImgPath, WORD.PronunPath AS 'WordPronun', EXAMPLE.Example, EXAMPLE.PronunPath AS 'ExPronun'
+FROM
     (
-        (WORD INNER JOIN DICTIONARY ON WORD.ID = DICTIONARY.WordID)
-        INNER JOIN EXAMPLE ON WORD.ID = EXAMPLE.WordID
+    (WORD INNER JOIN DICTIONARY ON WORD.ID = DICTIONARY.WordID)
+    INNER JOIN EXAMPLE ON WORD.ID = EXAMPLE.WordID
     )
-    WHERE DictType = 3
-    ORDER BY Word
+WHERE DictType = 3
+ORDER BY Word
     OFFSET (@PageNumber - 1) * @RowsOfPage ROWS
     FETCH NEXT @RowsOfPage ROWS ONLY;
 GO
