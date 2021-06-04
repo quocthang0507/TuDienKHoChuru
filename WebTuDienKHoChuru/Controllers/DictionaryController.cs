@@ -20,6 +20,8 @@ namespace WebTuDienKHoChuru.Controllers
 			ViewBag.DictTypeID = dictTypeID;
 			ViewBag.PageNumbers = await WORDs.GetPageNumbers(dictTypeID);
 			ViewBag.SelectedPage = pageNumber;
+			ViewBag.WordList = await GetWords(dictTypeID, pageNumber);
+			ViewBag.WordTypes = await GetWordTypes();
 			return View();
 		}
 
@@ -28,6 +30,9 @@ namespace WebTuDienKHoChuru.Controllers
 
 		[HttpGet]
 		public async Task<List<WORD>> GetWords(int dictTypeID, int pageNumber) => await WORDs.GetWords(dictTypeID, pageNumber);
+
+		[HttpGet]
+		public async Task<List<WORD_TYPE>> GetWordTypes() => await WORD_TYPEs.GetWordTypes();
 
 		public IActionResult KHo_Viet()
 		{

@@ -110,6 +110,12 @@ INSERT INTO WORD_TYPE VALUES ('Prep', N'Giới từ')
 INSERT INTO WORD_TYPE VALUES ('Others', N'Khác')
 GO
 
+CREATE PROC proc_GET_WORD_TYPES
+-- ALTER PROC proc_GET_WORD_TYPES
+AS
+SELECT * FROM WORD_TYPE ORDER BY [Description]
+GO
+
 /*
     Bảng này lưu trữ từ vựng
 */
@@ -118,6 +124,7 @@ CREATE TABLE WORD
     [ID] INT IDENTITY(1, 1) PRIMARY KEY,
     [Word] NVARCHAR(MAX) NOT NULL,
     [DictType] TINYINT REFERENCES DICT_TYPE([DictType]),
+    [WordType] VARCHAR(10) REFERENCES WORD_TYPE([WordType]) DEFAULT 'Others',
     [PronunPath] NVARCHAR(MAX) NULL,
     [ImgPath] NVARCHAR(MAX) NULL,
     [AddedDate] DATETIME NULL,

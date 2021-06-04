@@ -26,29 +26,61 @@
 		<div class="form-group">
 			<label for="wordList">Danh sách từ vựng</label>
 			<ul class="list-group" id="wordList">
+				@foreach (WORD w in ViewBag.WordList)
+				{
+					<li class="list-group-item" value="@w.ID" id="@w.ID">@w.Word</li>
+				}
 			</ul>
 			<nav aria-label="Trang">
 				<ul class="pagination justify-content-center">
-					<li class="page-item prev"><a class="page-link" href="#">Trước</a></li>
+					<li class="page-item prev">
+						<a class="page-link" href="#" aria-label="Previous">
+							<span aria-hidden="true">&laquo;</span>
+							Trước
+						</a>
+					</li>
 					@for (int p = 1; p <= ViewBag.PageNumbers; p++)
 					{
 						string url = $"Dictionary/Manage?dictTypeID={ViewBag.DictTypeID}&pageNumber={p}";
-						@if (p == ViewBag.SelectedPage)
-						{
-							<li class="page-item active"><a class="page-link" href="#">@p</a></li>
-						}
-						else
-						{
-							<li class="page-item"><a class="page-link" href="@url">@p</a></li>
-						}
+						<li class="page-item@(p == ViewBag.SelectedPage ? " active" : "") "><a class="page-link" href="#">@p</a></li>
 					}
-					<li class="page-item next"><a class="page-link" href="#">Sau</a></li>
+					<li class="page-item next">
+						<a class="page-link" href="#" aria-label="Next">
+							Sau
+							<span aria-hidden="true">&raquo;</span>
+						</a>
+					</li>
 				</ul>
 			</nav>
 		</div>
 	</div>
 	<div class="col-8">
-
+		<form>
+			<div class="form-row">
+				<div class="form-group col-md-6">
+					<label for="inputWord">Từ vựng</label>
+					<input type="text" class="form-control" id="inputWord" placeholder="Từ vựng">
+				</div>
+				<div class="form-group col-md-6">
+					<label for="inputWordType">Từ loại</label>
+					<select id="inputWordtype" class="form-control">
+						@foreach (WORD_TYPE w in ViewBag.WordTypes)
+						{
+							<option value="@w.WordType">@w.Description</option>
+						}
+					</select>
+				</div>
+			</div>
+			<div class="form-row">
+				<div class="input-group col-md-6">
+					<label class="form-label" for="inputImage">Hình ảnh</label>
+					<input type="file" class="form-control" id="inputImage" name="inputImage" accept="image/*" />
+					<div id="divImagePreview"></div>
+				</div>
+				<div class="form-group col-md-6">
+				</div>
+			</div>
+		</form>
 	</div>
 </div>
 
@@ -70,6 +102,26 @@
 			prev.click(function () {
 				$('li.active').removeClass('active').prev().addClass('active');
 			});
+
+			$('#inputImage').on('change', function () {
+				var fileInput = document.querySelector('[type=file]');
+				if (fileInput.files && fileInput.files[0]) {
+					var reader = new FileReader();
+					reader.onload = function (e) {
+						document.getElementById('divImagePreview').innerHTML = '<img class="imgPreview" src="' + e.target.result + '"/>';
+					};
+					reader.readAsDataURL(fileInput.files[0]);
+				}
+			});
+
 		});
 	</script>
+}
+
+@section Styles{
+	<style>
+		.imgPreview {
+			width: 100%;
+		}
+	</style>
 }

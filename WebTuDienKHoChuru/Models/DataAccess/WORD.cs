@@ -22,6 +22,11 @@ namespace WebTuDienKHoChuru.Models.DataAccess
 		[DisplayName("Loại từ điển")]
 		public int DictType { get; set; }
 
+		[Required]
+		[DefaultValue("Others")]
+		[StringLength(10)]
+		public string WordType { get; set; }
+
 		[DisplayName("Phát âm")]
 		public string PronunPath { get; set; }
 

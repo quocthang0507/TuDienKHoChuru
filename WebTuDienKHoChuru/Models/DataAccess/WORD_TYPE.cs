@@ -1,5 +1,9 @@
-﻿using System.ComponentModel;
+﻿using DataAccess;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using System.Threading.Tasks;
 
 namespace WebTuDienKHoChuru.Models.DataAccess
 {
@@ -13,5 +17,20 @@ namespace WebTuDienKHoChuru.Models.DataAccess
 		[Required]
 		[DisplayName("Mô tả")]
 		public string Description { get; set; }
+	}
+
+	public class WORD_TYPEs
+	{
+		public static async Task<List<WORD_TYPE>> GetWordTypes()
+		{
+			try
+			{
+				return CBO.FillCollection<WORD_TYPE>(await SqlDataProvider.Instance.ExecuteReader("proc_GET_WORD_TYPES"));
+			}
+			catch (Exception)
+			{
+				return new List<WORD_TYPE>();
+			}
+		}
 	}
 }
