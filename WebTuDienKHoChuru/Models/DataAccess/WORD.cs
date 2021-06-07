@@ -70,5 +70,18 @@ namespace WebTuDienKHoChuru.Models.DataAccess
 				return 0;
 			}
 		}
+
+		public static async Task<bool> InsertOrUpdateWord(WORD word)
+		{
+			try
+			{
+				int result = await SqlDataProvider.Instance.ExecuteNonQuery("proc_INSERT_UPDATE_WORD", word.Word, word.DictType, word.WordType, word.PronunPath, word.ImgPath, word.Creator);
+				return result > 0;
+			}
+			catch (Exception)
+			{
+				return false;
+			}
+		}
 	}
 }

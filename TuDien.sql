@@ -2,24 +2,24 @@ USE master
 GO
 
 IF EXISTS(SELECT * FROM sys.databases WHERE name = 'TuDienKHo_Viet_Churu')
-    DROP DATABASE [TuDienKHo_Viet_Churu]
+	DROP DATABASE [TuDienKHo_Viet_Churu]
 GO
 
 CREATE DATABASE [TuDienKHo_Viet_Churu] ON
 (
-    NAME = N'TuDien_data', 
-    FILENAME = N'D:\Github\TuDienKHoChuru\tudien_data.mdf', 
-    SIZE = 5MB,
-    MAXSIZE = 2048MB,
-    FILEGROWTH = 5MB
+	NAME = N'TuDien_data', 
+	FILENAME = N'D:\Github\TuDienKHoChuru\tudien_data.mdf', 
+	SIZE = 5MB,
+	MAXSIZE = 2048MB,
+	FILEGROWTH = 5MB
 )
 LOG ON 
 (
-    NAME = N'TuDien_log', 
-    FILENAME = N'D:\Github\TuDienKHoChuru\tudien_log.ldf', 
-    SIZE = 5MB,
-    MAXSIZE = 2048MB,
-    FILEGROWTH = 5MB
+	NAME = N'TuDien_log', 
+	FILENAME = N'D:\Github\TuDienKHoChuru\tudien_log.ldf', 
+	SIZE = 5MB,
+	MAXSIZE = 2048MB,
+	FILEGROWTH = 5MB
 )
 GO
 
@@ -28,22 +28,21 @@ GO
 
 CREATE TABLE ACCOUNT
 (
-    [ID] TINYINT IDENTITY(1, 1) PRIMARY KEY,
-    [Fullname] NVARCHAR(100) NOT NULL,
-    [Username] NVARCHAR(50) NOT NULL UNIQUE,
-    [Password] NVARCHAR(100) NOT NULL,
-    --SHA256
-    [Role] NVARCHAR(100) NOT NULL,
-    [Email] NVARCHAR(100) NULL,
-    [PhoneNumber] NVARCHAR(10) NULL,
-    [Address] NVARCHAR(200) NOT NULL
+	[ID] TINYINT IDENTITY(1, 1) PRIMARY KEY,
+	[Fullname] NVARCHAR(100) NOT NULL,
+	[Username] VARCHAR(50) NOT NULL UNIQUE,
+	[Password] NVARCHAR(100) NOT NULL, --SHA256
+	[Role] NVARCHAR(100) NOT NULL,
+	[Email] NVARCHAR(100) NULL,
+	[PhoneNumber] NVARCHAR(10) NULL,
+	[Address] NVARCHAR(200) NOT NULL
 );
 GO
 
 INSERT INTO ACCOUNT VALUES
-    (N'La Quốc Thắng', 'admin', '8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918', 'Admin', '1610207@dlu.edu.vn', '0987610260', N'Võ Trường Toản, Phường 8, Đà Lạt, Lâm Đồng')
+	(N'La Quốc Thắng', 'admin', '8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918', 'Admin', '1610207@dlu.edu.vn', '0987610260', N'Võ Trường Toản, Phường 8, Đà Lạt, Lâm Đồng')
 INSERT INTO ACCOUNT VALUES
-    (N'Cộng tác viên', 'collaborator', '53adf83d9f7b4dd136fee848946a5ea6d28640406aa260d1bb6adb79dccb58ee', 'Collaborator', '', '', N'Đại học Đà Lạt, Phù Đổng Thiên Vương, Phường 8, Đà Lạt, Lâm Đồng')
+	(N'Cộng tác viên', 'collaborator', '53adf83d9f7b4dd136fee848946a5ea6d28640406aa260d1bb6adb79dccb58ee', 'Collaborator', '', '', N'Đại học Đà Lạt, Phù Đổng Thiên Vương, Phường 8, Đà Lạt, Lâm Đồng')
 GO
 
 CREATE PROC proc_GET_ACCOUNTS
@@ -51,32 +50,52 @@ AS
 SELECT * FROM ACCOUNT
 GO
 
+CREATE PROC proc_INSERT_ACCOUNT
+	@Fullname NVARCHAR(100),
+	@Username VARCHAR(50),
+	@Password NVARCHAR(100),
+	@Role NVARCHAR(100),
+	@Email NVARCHAR(100),
+	@PhoneNumber NVARCHAR(10),
+	@Address NVARCHAR(200)
+AS
+INSERT INTO ACCOUNT VALUES (
+	@Fullname, 
+	@Username, 
+	@Password, 
+	@Role, 
+	@Email,
+	@PhoneNumber,
+	@Address
+)
+GO
+
 CREATE PROC proc_UPDATE_ACCOUNT
-    @ID TINYINT,
-    @Fullname NVARCHAR(100),
-    @Username NVARCHAR(50),
-    @Password NVARCHAR(100),
-    @Role NVARCHAR(100),
-    @Email NVARCHAR(100),
-    @PhoneNumber NVARCHAR(10),
-    @Address NVARCHAR(200)
+	@ID TINYINT,
+	@Fullname NVARCHAR(100),
+	@Username VARCHAR(50),
+	@Password NVARCHAR(100),
+	@Role NVARCHAR(100),
+	@Email NVARCHAR(100),
+	@PhoneNumber NVARCHAR(10),
+	@Address NVARCHAR(200)
 AS
 UPDATE ACCOUNT
-    SET 
-        [Fullname] = @Fullname, 
-        [Username] = @Username, 
-        [Password] = @Password, 
-        [Role] = @Role, 
-        [Email] = @Email,
-        [PhoneNumber] = @PhoneNumber,
-        [Address] = @Address
-    WHERE ID = @ID
+	SET 
+		[Fullname] = @Fullname, 
+		[Username] = @Username, 
+		[Password] = @Password, 
+		[Role] = @Role, 
+		[Email] = @Email,
+		[PhoneNumber] = @PhoneNumber,
+		[Address] = @Address
+	WHERE ID = @ID
 GO
 
 CREATE TABLE DICT_TYPE
 (
-    [DictType] TINYINT IDENTITY(1, 1) PRIMARY KEY,
-    [Description] NVARCHAR(MAX) NOT NULL
+	[DictType] TINYINT IDENTITY(1, 1) PRIMARY KEY,
+	[Description] NVARCHAR(MAX) NOT NULL
 );
 GO
 
@@ -96,8 +115,8 @@ GO
 
 CREATE TABLE WORD_TYPE
 (
-    [WordType] VARCHAR(10) PRIMARY KEY,
-    [Description] NVARCHAR(MAX) NOT NULL
+	[WordType] VARCHAR(10) PRIMARY KEY,
+	[Description] NVARCHAR(MAX) NOT NULL
 );
 GO
 
@@ -111,43 +130,95 @@ INSERT INTO WORD_TYPE VALUES ('Others', N'Khác')
 GO
 
 CREATE PROC proc_GET_WORD_TYPES
--- ALTER PROC proc_GET_WORD_TYPES
 AS
 SELECT * FROM WORD_TYPE ORDER BY [Description]
 GO
 
 /*
-    Bảng này lưu trữ từ vựng
+	Bảng này lưu trữ từ vựng
 */
 CREATE TABLE WORD
 (
-    [ID] INT IDENTITY(1, 1) PRIMARY KEY,
-    [Word] NVARCHAR(MAX) NOT NULL,
-    [DictType] TINYINT REFERENCES DICT_TYPE([DictType]),
-    [WordType] VARCHAR(10) REFERENCES WORD_TYPE([WordType]) DEFAULT 'Others',
-    [PronunPath] NVARCHAR(MAX) NULL,
-    [ImgPath] NVARCHAR(MAX) NULL,
-    [AddedDate] DATETIME NULL,
-    [UpdatedDate] DATETIME NULL,
-    [Creator] NVARCHAR(50) REFERENCES Account(Username)
+	[ID] INT IDENTITY(1, 1) PRIMARY KEY,
+	[Word] NVARCHAR(MAX) NOT NULL,
+	[DictType] TINYINT REFERENCES DICT_TYPE([DictType]),
+	[WordType] VARCHAR(10) REFERENCES WORD_TYPE([WordType]) DEFAULT 'Others',
+	[PronunPath] NVARCHAR(MAX) NULL,
+	[ImgPath] NVARCHAR(MAX) NULL,
+	[AddedDate] DATETIME NULL,
+	[UpdatedDate] DATETIME NULL,
+	[Creator] VARCHAR(50) NOT NULL REFERENCES ACCOUNT([Username])
 );
+GO
+
+CREATE PROC proc_INSERT_UPDATE_WORD
+	@Word NVARCHAR(MAX),
+	@DictType TINYINT,
+	@WordType VARCHAR(10),
+	@PronunPath NVARCHAR(MAX),
+	@ImgPath NVARCHAR(MAX),
+	@Creator VARCHAR(50)
+AS
+	IF EXISTS 
+	(
+		SELECT * FROM WORD
+		WHERE Word = @Word AND DictType = @DictType
+	)
+		BEGIN
+			UPDATE WORD
+			SET 
+				WordType = @WordType, 
+				PronunPath = @PronunPath,
+				ImgPath = @ImgPath,
+				Creator = @Creator,
+				UpdatedDate = GETDATE()
+			WHERE Word = @Word AND DictType = @DictType;
+		END
+	ELSE
+		BEGIN
+			INSERT INTO WORD VALUES
+			(
+				@Word,
+				@DictType,
+				@WordType,
+				@PronunPath,
+				@ImgPath,
+				GETDATE(),
+				GETDATE(),
+				@Creator
+			)
+		END
+GO
+
+EXEC dbo.proc_INSERT_UPDATE_WORD N'à wanh', 1, 'Verb', '', '', 'admin';
+EXEC dbo.proc_INSERT_UPDATE_WORD N'ada', 1, 'Noun', '', '', 'admin';
+EXEC dbo.proc_INSERT_UPDATE_WORD N'ada prum', 1, 'Noun', '', '', 'admin';
+EXEC dbo.proc_INSERT_UPDATE_WORD N'ada siam', 1, 'Noun', '', '', 'admin';
+EXEC dbo.proc_INSERT_UPDATE_WORD N'adàr', 1, 'Adjective', '', '', 'admin';
+EXEC dbo.proc_INSERT_UPDATE_WORD N'adát', 1, 'Adjective', '', '', 'admin';
+
+EXEC dbo.proc_INSERT_UPDATE_WORD N'a', 2, 'Others', '', '', 'admin';
+EXEC dbo.proc_INSERT_UPDATE_WORD N'á', 2, 'Others', '', '', 'admin';
+EXEC dbo.proc_INSERT_UPDATE_WORD N'à', 2, 'Others', '', '', 'admin';
+EXEC dbo.proc_INSERT_UPDATE_WORD N'ả', 2, 'Pronoun', '', '', 'admin';
+EXEC dbo.proc_INSERT_UPDATE_WORD N'ạ', 2, 'Others', '', '', 'admin';
+
 GO
 
 CREATE PROC proc_GET_WORDS
 	@DictType TINYINT,
-    @PageNumber INT,
-    @RowsOfPage INT
+	@PageNumber INT,
+	@RowsOfPage INT
 AS
 SELECT ID, Word
 FROM WORD
 WHERE DictType = @DictType
 ORDER BY Word
-    OFFSET (@PageNumber - 1) * @RowsOfPage ROWS
-    FETCH NEXT @RowsOfPage ROWS ONLY;
+	OFFSET (@PageNumber - 1) * @RowsOfPage ROWS
+	FETCH NEXT @RowsOfPage ROWS ONLY;
 GO
 
 CREATE PROC proc_GET_PAGE_NUMBERS
--- ALTER PROC proc_GET_PAGE_NUMBERS
 (
 	@DictType TINYINT,
 	@RowsOfPage INT
@@ -166,69 +237,43 @@ GO
 --SELECT DBO.func_GET_PAGE_NUMBERS(1, 10)
 
 /*
-    Bảng này lưu (các) nghĩa của từ
+	Bảng này lưu (các) nghĩa của từ
 */
-CREATE TABLE DICTIONARY
+CREATE TABLE GLOSSARY
 (
-    [ID] INT IDENTITY(1, 1) PRIMARY KEY,
-    [WordID] INT REFERENCES WORD(ID),
-    [Meaning] NVARCHAR(MAX) NOT NULL,
+	[ID] INT IDENTITY(1, 1) PRIMARY KEY,
+	[WordID] INT REFERENCES WORD(ID),
+	[Meaning] NVARCHAR(MAX) NOT NULL,
 );
 GO
 
+CREATE PROC proc_INSERT_GLOSSARY
+	@WordID INT,
+	@Meaning NVARCHAR(MAX)
+AS
+	INSERT INTO GLOSSARY VALUES (@WordID, @Meaning)
+GO
+
 /*
-    Bảng này lưu (các) ví dụ của từ
+	Bảng này lưu (các) ví dụ của từ
 */
 CREATE TABLE EXAMPLE
 (
-    [ID] INT IDENTITY(1, 1) PRIMARY KEY,
-    [WordID] INT REFERENCES WORD(ID),
-    [Example] NVARCHAR(MAX) NOT NULL,
-    [Meaning] NVARCHAR(MAX) NOT NULL,
-    [PronunPath] NVARCHAR(MAX) NULL
+	[GlossaryID] INT REFERENCES GLOSSARY(ID),
+	[Example] NVARCHAR(MAX) NOT NULL,
+	[Meaning] NVARCHAR(MAX) NOT NULL,
+	[PronunPath] NVARCHAR(MAX) NULL
 );
 GO
 
 /*
-    Bảng này lưu các đoạn văn song ngữ
+	Bảng này lưu các đoạn văn song ngữ
 */
 CREATE TABLE BILINGUAL_PASSAGE
 (
-    [ID] INT IDENTITY(1, 1) PRIMARY KEY,
-    [DictType] TINYINT REFERENCES DICT_TYPE(DictType),
-    [Source] NVARCHAR(MAX) NOT NULL,
-    [Destination] NVARCHAR(MAX) NOT NULL
+	[ID] INT IDENTITY(1, 1) PRIMARY KEY,
+	[DictType] TINYINT REFERENCES DICT_TYPE(DictType),
+	[Source] NVARCHAR(MAX) NOT NULL,
+	[Destination] NVARCHAR(MAX) NOT NULL
 );
-GO
-
-CREATE PROC proc_KHoVietView
-    @PageNumber INT,
-    @RowsOfPage INT
-AS
-SELECT WORD.ID, Word, DICTIONARY.Meaning, WORD.ImgPath, WORD.PronunPath AS 'WordPronun', EXAMPLE.Example, EXAMPLE.PronunPath AS 'ExPronun'
-FROM
-(
-    (WORD INNER JOIN DICTIONARY ON WORD.ID = DICTIONARY.WordID)
-    INNER JOIN EXAMPLE ON WORD.ID = EXAMPLE.WordID
-)
-WHERE DictType = 1
-ORDER BY Word
-    OFFSET (@PageNumber - 1) * @RowsOfPage ROWS
-    FETCH NEXT @RowsOfPage ROWS ONLY;
-GO
-
-CREATE PROC proc_ChuruVietView
-    @PageNumber INT,
-    @RowsOfPage INT
-AS
-SELECT WORD.ID, Word, DICTIONARY.Meaning, WORD.ImgPath, WORD.PronunPath AS 'WordPronun', EXAMPLE.Example, EXAMPLE.PronunPath AS 'ExPronun'
-FROM
-(
-    (WORD INNER JOIN DICTIONARY ON WORD.ID = DICTIONARY.WordID)
-    INNER JOIN EXAMPLE ON WORD.ID = EXAMPLE.WordID
-)
-WHERE DictType = 3
-ORDER BY Word
-    OFFSET (@PageNumber - 1) * @RowsOfPage ROWS
-    FETCH NEXT @RowsOfPage ROWS ONLY;
 GO

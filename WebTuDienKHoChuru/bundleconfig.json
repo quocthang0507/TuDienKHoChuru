@@ -25,5 +25,14 @@
 		"minify": {
 			"enabled": true
 		}
+	},
+	{
+		"outputFileName": "wwwroot/js/managedict.min.js",
+		"inputFiles": [
+			"wwwroot/js/managedict.js"
+		],
+		"minify": {
+			"enabled": true
+		}
 	}
 ]

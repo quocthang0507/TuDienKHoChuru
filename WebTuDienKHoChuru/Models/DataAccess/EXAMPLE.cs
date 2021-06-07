@@ -5,12 +5,8 @@ namespace WebTuDienKHoChuru.Models.DataAccess
 {
 	public class EXAMPLE
 	{
-		[Key]
-		[DisplayName("ID")]
-		public int ID { get; set; }
-
-		[DisplayName("ID từ")]
-		public int WordID { get; set; }
+		[DisplayName("ID nghĩa từ")]
+		public int GlossaryID { get; set; }
 
 		[Required]
 		[DisplayName("Ví dụ")]

@@ -25,6 +25,20 @@ namespace WebTuDienKHoChuru.Models.User
 			return (await GetAccounts()).Select(a => a.WithoutPassword()).ToList();
 		}
 
+		public static async Task<bool> InsertAccount(Account account)
+		{
+			try
+			{
+				int result = await SqlDataProvider.Instance.ExecuteNonQuery("proc_INSERT_ACCOUNT",
+					account.Fullname, account.Username, account.Password, account.Role, account.Email, account.PhoneNumber, account.Address);
+				return result > 0;
+			}
+			catch (Exception)
+			{
+				return false;
+			}
+		}
+
 		public static async Task<bool> UpdateAccount(Account account)
 		{
 			try

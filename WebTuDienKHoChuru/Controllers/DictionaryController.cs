@@ -14,6 +14,7 @@ namespace WebTuDienKHoChuru.Controllers
 		}
 
 		[Authorize]
+		[HttpGet("ManageDictionary")]
 		public async Task<IActionResult> Manage(int dictTypeID = 1, int pageNumber = 1)
 		{
 			ViewBag.DictTypes = await GetDictTypes();

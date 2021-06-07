@@ -5,8 +5,8 @@
 	Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<div class="row">
-	<div class="col-4">
+<div class="row justify-content-center">
+	<div class="col col-lg-4">
 		<div class="form-group">
 			<label for="selectDictType">Loại từ điển</label>
 			<select class="form-select form-control" id="selectDictType">
@@ -28,7 +28,7 @@
 			<ul class="list-group" id="wordList">
 				@foreach (WORD w in ViewBag.WordList)
 				{
-					<li class="list-group-item" value="@w.ID" id="@w.ID">@w.Word</li>
+					<li class="list-group-item list-group-item-action" value="@w.ID" id="@w.ID">@w.Word</li>
 				}
 			</ul>
 			<nav aria-label="Trang">
@@ -36,17 +36,21 @@
 					<li class="page-item prev">
 						<a class="page-link" href="#" aria-label="Previous">
 							<span aria-hidden="true">&laquo;</span>
-							Trước
 						</a>
 					</li>
 					@for (int p = 1; p <= ViewBag.PageNumbers; p++)
 					{
-						string url = $"Dictionary/Manage?dictTypeID={ViewBag.DictTypeID}&pageNumber={p}";
-						<li class="page-item@(p == ViewBag.SelectedPage ? " active" : "") "><a class="page-link" href="#">@p</a></li>
+						@if (p == ViewBag.SelectedPage)
+						{
+							<li class="page-item"><a class="page-link active" href="#">@p</a></li>
+						}
+						else
+						{
+							<li class="page-item"><a class="page-link" href="/ManageDictionary?dictTypeID=@ViewBag.DictTypeID&pageNumber=@p">@p</a></li>
+						}
 					}
 					<li class="page-item next">
 						<a class="page-link" href="#" aria-label="Next">
-							Sau
 							<span aria-hidden="true">&raquo;</span>
 						</a>
 					</li>
@@ -54,15 +58,15 @@
 			</nav>
 		</div>
 	</div>
-	<div class="col-8">
+	<div class="col-md-auto">
 		<form>
 			<div class="form-row">
-				<div class="form-group col-md-6">
-					<label for="inputWord">Từ vựng</label>
-					<input type="text" class="form-control" id="inputWord" placeholder="Từ vựng">
+				<div class="form-group col-sm">
+					<label for="inputWord" class="form-label font-weight-bold">Từ vựng</label>
+					<input type="text" class="form-control" id="inputWord" placeholder="Nhập từ vựng ở đây" required>
 				</div>
-				<div class="form-group col-md-6">
-					<label for="inputWordType">Từ loại</label>
+				<div class="form-group col-sm">
+					<label for="inputWordType" class="font-weight-bold">Từ loại</label>
 					<select id="inputWordtype" class="form-control">
 						@foreach (WORD_TYPE w in ViewBag.WordTypes)
 						{
@@ -72,12 +76,49 @@
 				</div>
 			</div>
 			<div class="form-row">
-				<div class="input-group col-md-6">
-					<label class="form-label" for="inputImage">Hình ảnh</label>
-					<input type="file" class="form-control" id="inputImage" name="inputImage" accept="image/*" />
-					<div id="divImagePreview"></div>
+				<div class="form-group col-sm">
+					<label class="form-label font-weight-bold" for="inputImage">Hình ảnh</label>
+					<input type="file" class="form-control custom-control" id="inputImage" name="inputImage"
+						   accept="image/*" required placeholder="Tập tin hình ảnh" />
 				</div>
-				<div class="form-group col-md-6">
+				<div id="divImagePreview" class="col-sm"></div>
+			</div>
+			<div class="form-row">
+				<div class="form-group" style="padding:0 5px 0;">
+					<label class="form-label font-weight-bold" for="inputAudio">Âm thanh</label>
+					<div id="inputAudio">
+						<div class="form-row">
+							<div class="form-group col-sm">
+								<label class="form-label" for="inputAudioFile">Chọn tập tin âm thanh</label>
+								<input type="file" class="form-control custom-control" id="inputAudioFile" name="inputFile"
+									   accept="audio/*" capture required placeholder="Tập tin âm thanh" />
+							</div>
+							<div class="form-group col-sm">
+								<label class="form-label" for="inputRecorder">Hoặc ghi âm trực tiếp</label>
+								<div class="form-inline" id="inputRecorder">
+									<button onclick="startRecording(this);" class="btn btn-success mb-2">
+										<i class="fas fa-play"></i>
+										Ghi âm
+									</button>
+									<button onclick="stopRecording(this);" class="btn btn-danger mx-sm-3 mb-2" disabled>
+										<i class="fas fa-stop"></i>
+										Dừng
+									</button>
+								</div>
+							</div>
+						</div>
+						<audio id="audioPreview" controls="controls" class="custom-control">
+							<source id="audioSource" src=""/>
+							Trình duyệt của bạn không hỗ trợ định dạng âm thanh này!
+						</audio>
+					</div>
+				</div>
+			</div>
+			<div class="form-row">
+				<div class="form-group" style="padding:0 5px 0;">
+					<label class="form-label font-weight-bold" for="inputAudio">Nghĩa của từ</label>
+					<small id="emailHelp" class="form-text text-muted">Nhiều nghĩa.</small>
+
 				</div>
 			</div>
 		</form>
@@ -85,42 +126,20 @@
 </div>
 
 @section Scripts{
-	<script>
-		$(document).ready(function () {
-			$("#selectDictType").change(function () {
-				var id = $('#selectDictType').val();
-				window.location = '/Dictionary/Manage/dictTypeID=' + id;
-			});
-
-			var prev = $(".pagination li.prev");
-			var next = $(".pagination li.next");
-
-			next.click(function () {
-				$('li.active').removeClass('active').next().addClass('active');
-			});
-
-			prev.click(function () {
-				$('li.active').removeClass('active').prev().addClass('active');
-			});
-
-			$('#inputImage').on('change', function () {
-				var fileInput = document.querySelector('[type=file]');
-				if (fileInput.files && fileInput.files[0]) {
-					var reader = new FileReader();
-					reader.onload = function (e) {
-						document.getElementById('divImagePreview').innerHTML = '<img class="imgPreview" src="' + e.target.result + '"/>';
-					};
-					reader.readAsDataURL(fileInput.files[0]);
-				}
-			});
-
-		});
-	</script>
+	<script src="~/js/recorder.js" type="text/javascript" asp-append-version="true"></script>
+	<script src="~/js/managedict.js" type="text/javascript" asp-append-version="true"></script>
 }
 
 @section Styles{
 	<style>
 		.imgPreview {
+			width: 100%;
+		}
+
+		.custom-control {
+			border: none;
+			padding: 2px;
+			margin: 0;
 			width: 100%;
 		}
 	</style>
