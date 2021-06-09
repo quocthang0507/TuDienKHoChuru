@@ -1,12 +1,12 @@
-﻿let audio_context;
-let recorder;
+﻿var audio_context;
+var recorder;
 
 function showLog(e, data) {
 	console.log(e + " " + (data || ''));
 }
 
 function startUserMedia(stream) {
-	let input = audio_context.createMediaStreamSource(stream);
+	var input = audio_context.createMediaStreamSource(stream);
 	showLog('Media stream created.');
 
 	recorder = new Recorder(input);
@@ -44,11 +44,27 @@ function handleRecorder(blob) {
 			return;
 	}
 
-	let url = URL.createObjectURL(blob);
+	var url = URL.createObjectURL(blob);
 	var audio = document.getElementById('audioPreview');
 	var source = document.getElementById('audioSource');
 	source.src = url;
 	audio.load();
+}
+
+function addInputMeaning() {
+	var group = document.getElementById('inputMeanings');
+	var children = group.innerHTML;
+	var i = group.childElementCount + 1;
+	children += `<input type="text" class="form-control" id="inputMeaning${i}" placeholder="Nhập nghĩa tại đây" >`;
+	group.innerHTML = children;
+}
+
+function removeInputMeaning() {
+	var group = document.getElementById('inputMeanings');
+	if (group.childElementCount >= 2)
+		group.removeChild(group.lastChild);
+	else
+		alert("Một từ phải có ít nhất một nghĩa");
 }
 
 $(document).ready(function () {
@@ -76,7 +92,7 @@ $(document).ready(function () {
 		if (fileInput.files && fileInput.files[0]) {
 			var reader = new FileReader();
 			reader.onload = function (e) {
-				document.getElementById('divImagePreview').innerHTML = '<img class="imgPreview" src="' + e.target.result + '"/>';
+				document.getElementById('divImagePreview').innerHTML = '<img class="imgPreview" class="full-width" src="' + e.target.result + '"/>';
 			};
 			reader.readAsDataURL(fileInput.files[0]);
 		}

@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
+using WebTuDienKHoChuru.Models;
 using WebTuDienKHoChuru.Models.DataAccess;
 
 namespace WebTuDienKHoChuru.Controllers
@@ -15,25 +17,31 @@ namespace WebTuDienKHoChuru.Controllers
 
 		[Authorize]
 		[HttpGet("ManageDictionary")]
-		public async Task<IActionResult> Manage(int dictTypeID = 1, int pageNumber = 1)
+		public async Task<IActionResult> Manage(int dictTypeID = 1, int pageNumber = 1, int wordID = 1)
 		{
-			ViewBag.DictTypes = await GetDictTypes();
-			ViewBag.DictTypeID = dictTypeID;
-			ViewBag.PageNumbers = await WORDs.GetPageNumbers(dictTypeID);
-			ViewBag.SelectedPage = pageNumber;
-			ViewBag.WordList = await GetWords(dictTypeID, pageNumber);
-			ViewBag.WordTypes = await GetWordTypes();
-			return View();
+			ManageDictModel model = new ManageDictModel();
+			model.DictTypes = await GetDictTypes();
+			model.PageNumbers = await WORDs.GetPageNumbers(dictTypeID);
+			model.WordList = await GetWords(dictTypeID, pageNumber);
+			model.WordTypes = await GetWordTypes();
+			model.SelectedDictTypeID = dictTypeID;
+			model.SelectedWord = model.WordList.First(w => w.ID == wordID);
+			model.SelectedWord.Meanings = await GetMeanings(wordID);
+			model.SelectedPage = pageNumber;
+			return View(model);
 		}
 
-		[HttpGet]
-		public async Task<List<DICT_TYPE>> GetDictTypes() => await DICT_TYPEs.GetDictTypes();
+		[HttpPost]
+		[Authorize]
+		[ValidateAntiForgeryToken]
+		public async Task<IActionResult> Manage(SubmitWordModel model)
+		{
+			if (ModelState.IsValid)
+			{
 
-		[HttpGet]
-		public async Task<List<WORD>> GetWords(int dictTypeID, int pageNumber) => await WORDs.GetWords(dictTypeID, pageNumber);
-
-		[HttpGet]
-		public async Task<List<WORD_TYPE>> GetWordTypes() => await WORD_TYPEs.GetWordTypes();
+			}
+			return View();
+		}
 
 		public IActionResult KHo_Viet()
 		{
@@ -54,5 +62,21 @@ namespace WebTuDienKHoChuru.Controllers
 		{
 			return View();
 		}
+
+		#region APIs
+
+		[HttpGet]
+		public async Task<List<DICT_TYPE>> GetDictTypes() => await DICT_TYPEs.GetDictTypes();
+
+		[HttpGet]
+		public async Task<List<WORD>> GetWords(int dictTypeID, int pageNumber) => await WORDs.GetWords(dictTypeID, pageNumber);
+
+		[HttpGet]
+		public async Task<List<WORD_TYPE>> GetWordTypes() => await WORD_TYPEs.GetWordTypes();
+
+		[HttpGet]
+		public async Task<List<MEANING>> GetMeanings(int wordID) => await MEANINGS.GetMeanings(wordID);
+
+		#endregion
 	}
 }

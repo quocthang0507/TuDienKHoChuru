@@ -43,6 +43,8 @@ namespace WebTuDienKHoChuru.Models.DataAccess
 		[DisplayName("Người tạo")]
 		[StringLength(50)]
 		public string Creator { get; set; }
+
+		public List<MEANING> Meanings { get; set; }
 	}
 
 	public class WORDs

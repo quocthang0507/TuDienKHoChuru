@@ -1,4 +1,5 @@
 ﻿@using WebTuDienKHoChuru.Models.DataAccess
+@model WebTuDienKHoChuru.Models.ManageDictModel
 
 @{
 	ViewData["Title"] = "Quản lý Từ điển";
@@ -7,12 +8,13 @@
 
 <div class="row justify-content-center">
 	<div class="col col-lg-4">
+		<!--DANH SÁCH LOẠI TỪ ĐIỂN-->
 		<div class="form-group">
 			<label for="selectDictType">Loại từ điển</label>
 			<select class="form-select form-control" id="selectDictType">
-				@foreach (DICT_TYPE t in ViewBag.DictTypes)
+				@foreach (DICT_TYPE t in Model.DictTypes)
 				{
-					@if (t.DictType == ViewBag.DictTypeID)
+					@if (t.DictType == Model.SelectedDictTypeID)
 					{
 						<option value="@t.DictType" selected>@t.Description</option>
 					}
@@ -23,14 +25,23 @@
 				}
 			</select>
 		</div>
+		<!--DANH SÁCH TỪ VỰNG-->
 		<div class="form-group">
 			<label for="wordList">Danh sách từ vựng</label>
-			<ul class="list-group" id="wordList">
-				@foreach (WORD w in ViewBag.WordList)
+			<div class="list-group" id="wordList">
+				@foreach (WORD w in Model.WordList)
 				{
-					<li class="list-group-item list-group-item-action" value="@w.ID" id="@w.ID">@w.Word</li>
+					@if (w.ID == Model.SelectedWord.ID)
+					{
+						<a class="list-group-item list-group-item-action active" href="#" id="@w.ID">@w.Word</a>
+					}
+					else
+					{
+						<a class="list-group-item list-group-item-action" href="/ManageDictionary?dictTypeID=@Model.SelectedDictTypeID&pageNumber=@Model.SelectedPage&wordID=@w.ID" id="@w.ID">@w.Word</a>
+					}
 				}
-			</ul>
+			</div>
+			<!--SỐ TRANG-->
 			<nav aria-label="Trang">
 				<ul class="pagination justify-content-center">
 					<li class="page-item prev">
@@ -38,15 +49,15 @@
 							<span aria-hidden="true">&laquo;</span>
 						</a>
 					</li>
-					@for (int p = 1; p <= ViewBag.PageNumbers; p++)
+					@for (int p = 1; p <= Model.PageNumbers; p++)
 					{
-						@if (p == ViewBag.SelectedPage)
+						@if (p == Model.SelectedPage)
 						{
 							<li class="page-item"><a class="page-link active" href="#">@p</a></li>
 						}
 						else
 						{
-							<li class="page-item"><a class="page-link" href="/ManageDictionary?dictTypeID=@ViewBag.DictTypeID&pageNumber=@p">@p</a></li>
+							<li class="page-item"><a class="page-link" href="/ManageDictionary?dictTypeID=@Model.SelectedDictTypeID&pageNumber=@p">@p</a></li>
 						}
 					}
 					<li class="page-item next">
@@ -58,41 +69,63 @@
 			</nav>
 		</div>
 	</div>
+	<!--FORM NHẬP LIỆU-->
 	<div class="col-md-auto">
 		<form>
+			<div class="form-row justify-content-center" role="toolbar">
+				<!--THANH ĐIỀU HƯỚNG & NÚT SUBMIT-->
+				<div>
+					<a href="#" class="btn btn-link mr-2">Từ trước đó</a>
+					<button type="submit" class="btn btn-primary mr-2">Lưu/Cập nhật</button>
+					<a href="#" class="btn btn-link">Từ kế tiếp</a>
+				</div>
+			</div>
 			<div class="form-row">
+				<!--TỪ VỰNG-->
 				<div class="form-group col-sm">
 					<label for="inputWord" class="form-label font-weight-bold">Từ vựng</label>
-					<input type="text" class="form-control" id="inputWord" placeholder="Nhập từ vựng ở đây" required>
+					<input type="text" class="form-control" id="inputWord" placeholder="Nhập từ vựng ở đây" required value="@Model.SelectedWord.Word">
 				</div>
+				<!--TỪ LOẠI-->
 				<div class="form-group col-sm">
 					<label for="inputWordType" class="font-weight-bold">Từ loại</label>
 					<select id="inputWordtype" class="form-control">
-						@foreach (WORD_TYPE w in ViewBag.WordTypes)
+						@foreach (WORD_TYPE w in Model.WordTypes)
 						{
-							<option value="@w.WordType">@w.Description</option>
+							@if (w.WordType == Model.SelectedWord.WordType)
+							{
+								<option value="@w.WordType" selected>@w.Description</option>
+							}
+							else
+							{
+								<option value="@w.WordType">@w.Description</option>
+							}
 						}
 					</select>
 				</div>
 			</div>
+			<!--HÌNH ẢNH-->
 			<div class="form-row">
 				<div class="form-group col-sm">
 					<label class="form-label font-weight-bold" for="inputImage">Hình ảnh</label>
 					<input type="file" class="form-control custom-control" id="inputImage" name="inputImage"
 						   accept="image/*" required placeholder="Tập tin hình ảnh" />
 				</div>
-				<div id="divImagePreview" class="col-sm"></div>
+				<div id="divImagePreview" src="@Model.SelectedWord.ImgPath" class="col-sm"></div>
 			</div>
+			<!--ÂM THANH-->
 			<div class="form-row">
 				<div class="form-group" style="padding:0 5px 0;">
 					<label class="form-label font-weight-bold" for="inputAudio">Âm thanh</label>
 					<div id="inputAudio">
 						<div class="form-row">
+							<!--TỪ TẬP TIN-->
 							<div class="form-group col-sm">
 								<label class="form-label" for="inputAudioFile">Chọn tập tin âm thanh</label>
 								<input type="file" class="form-control custom-control" id="inputAudioFile" name="inputFile"
 									   accept="audio/*" capture required placeholder="Tập tin âm thanh" />
 							</div>
+							<!--GHI ÂM-->
 							<div class="form-group col-sm">
 								<label class="form-label" for="inputRecorder">Hoặc ghi âm trực tiếp</label>
 								<div class="form-inline" id="inputRecorder">
@@ -108,17 +141,27 @@
 							</div>
 						</div>
 						<audio id="audioPreview" controls="controls" class="custom-control">
-							<source id="audioSource" src=""/>
+							<source id="audioSource" src="@Model.SelectedWord.PronunPath" />
 							Trình duyệt của bạn không hỗ trợ định dạng âm thanh này!
 						</audio>
 					</div>
 				</div>
 			</div>
+			<!--CÁC NGHĨA CỦA TỪ-->
 			<div class="form-row">
-				<div class="form-group" style="padding:0 5px 0;">
-					<label class="form-label font-weight-bold" for="inputAudio">Nghĩa của từ</label>
-					<small id="emailHelp" class="form-text text-muted">Nhiều nghĩa.</small>
-
+				<div class="form-group full-width" style="padding:0 5px 0;">
+					<div class="form-inline">
+						<label class="form-label font-weight-bold mb-2" for="inputMeanings">Nghĩa của từ</label>
+						<button type="button" class="btn btn-sm btn-outline-primary mx-sm-3 mb-2" onclick="addInputMeaning();"><i class="fas fa-plus"></i></button>
+						<button type="button" class="btn btn-sm btn-outline-danger mb-2" onclick="removeInputMeaning();"><i class="fas fa-minus"></i></button>
+					</div>
+					<div class="form-group" id="inputMeanings">
+						@foreach (var meaning in Model.SelectedWord.Meanings)
+						{
+							<input type="text" class="form-control" placeholder="Nhập nghĩa tại đây" id="@meaning.ID" required value="@meaning.Meaning">
+						}
+					</div>
+					<small id="emailHelp" class="form-text text-muted">Để thêm một nghĩa khác của từ, nhấn <i class="fas fa-plus"></i>. Để xóa ô, nhấn <i class="fas fa-minus"></i></small>
 				</div>
 			</div>
 		</form>
@@ -132,7 +175,7 @@
 
 @section Styles{
 	<style>
-		.imgPreview {
+		.full-width {
 			width: 100%;
 		}
 
