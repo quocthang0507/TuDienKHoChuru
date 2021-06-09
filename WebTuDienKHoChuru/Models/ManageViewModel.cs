@@ -3,7 +3,7 @@ using WebTuDienKHoChuru.Models.DataAccess;
 
 namespace WebTuDienKHoChuru.Models
 {
-	public class ManageDictModel
+	public class ManageViewModel
 	{
 		public List<DICT_TYPE> DictTypes { get; set; }
 		public int SelectedDictTypeID { get; set; }

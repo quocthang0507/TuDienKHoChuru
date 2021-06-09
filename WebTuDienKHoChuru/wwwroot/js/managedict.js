@@ -67,6 +67,33 @@ function removeInputMeaning() {
 		alert("Một từ phải có ít nhất một nghĩa");
 }
 
+function validateImage() {
+	var fileInput = document.querySelector('[type=file]');
+	var filePath = fileInput.value;
+	// Allowing 2 extensions
+	var allowedExtensions = /(\.jpg|\.png)$/i;
+	if (fileInput.files.length == 0)
+		alert('Hình ảnh không được để trống!');
+	else if (!allowedExtensions.exec(filePath)) {
+		alert('Chỉ chấp nhận hình JPG và PNG!');
+		fileInput.value = '';
+	} else {
+		// Image preview 
+		if (fileInput.files && fileInput.files[0]) {
+			const Bytes = fileInput.files[0].size;
+			const KB = Math.round((Bytes / 1024));
+			// The size of the file. 
+			if (KB > 2048) {
+				alert('Kích thước tập tin quá lớn, vui lòng gửi tập tin nhỏ hơn 2MB.');
+				return false;
+			} else {
+				return fileInput.files[0];
+			}
+		}
+	}
+	return false;
+}
+
 $(document).ready(function () {
 	// Thêm sự kiện đổi loại từ điển
 	$("#selectDictType").change(function () {
@@ -88,13 +115,13 @@ $(document).ready(function () {
 
 	// Xử lý khi chọn hình ảnh từ tập tin
 	$('#inputImage').on('change', function () {
-		var fileInput = document.querySelector('[type=file]');
-		if (fileInput.files && fileInput.files[0]) {
+		var file = validateImage();
+		if (file !== false) {
 			var reader = new FileReader();
 			reader.onload = function (e) {
 				document.getElementById('divImagePreview').innerHTML = '<img class="imgPreview" class="full-width" src="' + e.target.result + '"/>';
 			};
-			reader.readAsDataURL(fileInput.files[0]);
+			reader.readAsDataURL(file);
 		}
 	});
 

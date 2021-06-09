@@ -19,7 +19,7 @@ namespace WebTuDienKHoChuru.Controllers
 		[HttpGet("ManageDictionary")]
 		public async Task<IActionResult> Manage(int dictTypeID = 1, int pageNumber = 1, int wordID = 1)
 		{
-			ManageDictModel model = new ManageDictModel();
+			ManageViewModel model = new ManageViewModel();
 			model.DictTypes = await GetDictTypes();
 			model.PageNumbers = await WORDs.GetPageNumbers(dictTypeID);
 			model.WordList = await GetWords(dictTypeID, pageNumber);
@@ -31,10 +31,10 @@ namespace WebTuDienKHoChuru.Controllers
 			return View(model);
 		}
 
-		[HttpPost]
+		[HttpPost()]
 		[Authorize]
 		[ValidateAntiForgeryToken]
-		public async Task<IActionResult> Manage(SubmitWordModel model)
+		public async Task<IActionResult> AddOrUpdateWord(ManageWordFormModel model)
 		{
 			if (ModelState.IsValid)
 			{

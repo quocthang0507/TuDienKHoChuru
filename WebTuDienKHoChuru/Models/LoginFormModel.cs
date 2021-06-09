@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace WebTuDienKHoChuru.Models
 {
-	public class LoginModel
+	public class LoginFormModel
 	{
 		[DisplayName("Tên đăng nhập")]
 		[Required(ErrorMessage = "Tên đăng nhập là bắt buộc")]

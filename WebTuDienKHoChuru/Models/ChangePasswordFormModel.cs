@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace WebTuDienKHoChuru.Models
 {
-	public class ChangePasswordModel
+	public class ChangePasswordFormModel
 	{
 		[DisplayName("Mật khẩu cũ")]
 		[Required(ErrorMessage = "Mật khẩu cũ là bắt buộc")]

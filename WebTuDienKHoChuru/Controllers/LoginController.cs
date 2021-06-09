@@ -48,7 +48,7 @@ namespace WebTuDienKHoChuru.Controllers
 
 		[HttpPost]
 		[ValidateAntiForgeryToken]
-		public async Task<IActionResult> Login(LoginModel model)
+		public async Task<IActionResult> Login(LoginFormModel model)
 		{
 			if (ModelState.IsValid)
 			{
@@ -80,7 +80,7 @@ namespace WebTuDienKHoChuru.Controllers
 
 		[HttpPost]
 		[ValidateAntiForgeryToken]
-		public async Task<IActionResult> ChangePassword(ChangePasswordModel model)
+		public async Task<IActionResult> ChangePassword(ChangePasswordFormModel model)
 		{
 			if (ModelState.IsValid)
 			{

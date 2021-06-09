@@ -1,5 +1,5 @@
 ﻿@using WebTuDienKHoChuru.Models.DataAccess
-@model WebTuDienKHoChuru.Models.ManageDictModel
+@model WebTuDienKHoChuru.Models.ManageViewModel
 
 @{
 	ViewData["Title"] = "Quản lý Từ điển";
@@ -71,7 +71,7 @@
 	</div>
 	<!--FORM NHẬP LIỆU-->
 	<div class="col-md-auto">
-		<form>
+		<form method="post" enctype="multipart/form-data" asp-controller="Dictionary" asp-action="">
 			<div class="form-row justify-content-center" role="toolbar">
 				<!--THANH ĐIỀU HƯỚNG & NÚT SUBMIT-->
 				<div>
