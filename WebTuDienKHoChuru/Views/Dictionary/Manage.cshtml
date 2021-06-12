@@ -70,8 +70,8 @@
 		</div>
 	</div>
 	<!--FORM NHẬP LIỆU-->
-	<div class="col-md-auto">
-		<form method="post" enctype="multipart/form-data" asp-controller="Dictionary" asp-action="">
+	<div class="col col-lg-8">
+		<form method="post" id="formAddOrUpdateWord">
 			<div class="form-row justify-content-center" role="toolbar">
 				<!--THANH ĐIỀU HƯỚNG & NÚT SUBMIT-->
 				<div>
@@ -81,15 +81,20 @@
 				</div>
 			</div>
 			<div class="form-row">
+				<!--ID TỪ-->
+				<div class="form-group col-sm-2">
+					<label for="WordID" class="form-label font-weight-bold">ID</label>
+					<input type="number" class="form-control" id="WordID" readonly disabled value="@Model.SelectedWord.ID" name="WordID"/>
+				</div>
 				<!--TỪ VỰNG-->
-				<div class="form-group col-sm">
+				<div class="form-group col-sm-5">
 					<label for="inputWord" class="form-label font-weight-bold">Từ vựng</label>
-					<input type="text" class="form-control" id="inputWord" placeholder="Nhập từ vựng ở đây" required value="@Model.SelectedWord.Word">
+					<input type="text" class="form-control" id="inputWord" placeholder="Nhập từ vựng ở đây" required value="@Model.SelectedWord.Word" name="Word">
 				</div>
 				<!--TỪ LOẠI-->
-				<div class="form-group col-sm">
+				<div class="form-group col-sm-5">
 					<label for="inputWordType" class="font-weight-bold">Từ loại</label>
-					<select id="inputWordtype" class="form-control">
+					<select id="inputWordtype" class="form-control" name="WordTypeID">
 						@foreach (WORD_TYPE w in Model.WordTypes)
 						{
 							@if (w.WordType == Model.SelectedWord.WordType)
@@ -108,10 +113,12 @@
 			<div class="form-row">
 				<div class="form-group col-sm">
 					<label class="form-label font-weight-bold" for="inputImage">Hình ảnh</label>
-					<input type="file" class="form-control custom-control" id="inputImage" name="inputImage"
-						   accept="image/*" required placeholder="Tập tin hình ảnh" />
+					<input type="file" class="form-control custom-control" id="inputImage"
+						   accept="image/*" placeholder="Tập tin hình ảnh" />
 				</div>
-				<div id="divImagePreview" src="@Model.SelectedWord.ImgPath" class="col-sm"></div>
+				<div id="divImagePreview" class="col-sm">
+					<img class="imgPreview full-width" src="@Model.SelectedWord.ImgPath" alt=""/>
+				</div>
 			</div>
 			<!--ÂM THANH-->
 			<div class="form-row">
@@ -122,8 +129,8 @@
 							<!--TỪ TẬP TIN-->
 							<div class="form-group col-sm">
 								<label class="form-label" for="inputAudioFile">Chọn tập tin âm thanh</label>
-								<input type="file" class="form-control custom-control" id="inputAudioFile" name="inputFile"
-									   accept="audio/*" capture required placeholder="Tập tin âm thanh" />
+								<input type="file" class="form-control custom-control" id="inputAudioFile"
+									   accept="audio/*" capture placeholder="Tập tin âm thanh" />
 							</div>
 							<!--GHI ÂM-->
 							<div class="form-group col-sm">
@@ -141,7 +148,7 @@
 							</div>
 						</div>
 						<audio id="audioPreview" controls="controls" class="custom-control">
-							<source id="audioSource" src="@Model.SelectedWord.PronunPath" />
+							<source id="audioSource" src="@Model.SelectedWord.PronunPath"/>
 							Trình duyệt của bạn không hỗ trợ định dạng âm thanh này!
 						</audio>
 					</div>
@@ -158,7 +165,7 @@
 					<div class="form-group" id="inputMeanings">
 						@foreach (var meaning in Model.SelectedWord.Meanings)
 						{
-							<input type="text" class="form-control" placeholder="Nhập nghĩa tại đây" id="@meaning.ID" required value="@meaning.Meaning">
+							<input type="text" class="form-control" placeholder="Nhập nghĩa tại đây" required value="@meaning.Meaning" name="Meaning">
 						}
 					</div>
 					<small id="emailHelp" class="form-text text-muted">Để thêm một nghĩa khác của từ, nhấn <i class="fas fa-plus"></i>. Để xóa ô, nhấn <i class="fas fa-minus"></i></small>

@@ -1,5 +1,6 @@
 ﻿var audio_context;
 var recorder;
+var audioBlob;
 
 function showLog(e, data) {
 	console.log(e + " " + (data || ''));
@@ -27,13 +28,13 @@ function stopRecording(button) {
 	button.previousElementSibling.disabled = false;
 
 	recorder && recorder.exportWAV(blob => {
-		handleRecorder(blob);
+		validateAudio(blob);
 	});
 	showLog('Stopped recording.', null);
 	recorder.clear();
 }
 
-function handleRecorder(blob) {
+function validateAudio(blob) {
 	switch (blob.type) {
 		case 'audio/wav':
 		case 'audio/mpeg':
@@ -41,6 +42,7 @@ function handleRecorder(blob) {
 			break;
 		default:
 			alert('Không hỗ trợ các định dạng tập tin âm thanh khác, vui lòng chỉ chọn các tập tin có đuôi như sau: *.mp3, *.wav, *.ogg');
+			audioBlob = null;
 			return;
 	}
 
@@ -48,15 +50,30 @@ function handleRecorder(blob) {
 	var audio = document.getElementById('audioPreview');
 	var source = document.getElementById('audioSource');
 	source.src = url;
+	audioBlob = blob;
 	audio.load();
+}
+
+function createInputMeaning(required) {
+	var input = document.createElement('input');
+	input.type = 'text';
+	input.className = 'form-control';
+	input.placeholder = 'Nhập nghĩa tại đây';
+	input.name = 'Meaning';
+	input.required = required;
+	return input;
 }
 
 function addInputMeaning() {
 	var group = document.getElementById('inputMeanings');
-	var children = group.innerHTML;
-	var i = group.childElementCount + 1;
-	children += `<input type="text" class="form-control" id="inputMeaning${i}" placeholder="Nhập nghĩa tại đây" >`;
-	group.innerHTML = children;
+	var i = group.childElementCount;
+	let input;
+	if (i == 0)
+		input = createInputMeaning(true);
+	else
+		input = createInputMeaning(false);
+	group.appendChild(input);
+	input.focus();
 }
 
 function removeInputMeaning() {
@@ -67,7 +84,7 @@ function removeInputMeaning() {
 		alert("Một từ phải có ít nhất một nghĩa");
 }
 
-function validateImage() {
+function validateImageFile() {
 	var fileInput = document.querySelector('[type=file]');
 	var filePath = fileInput.value;
 	// Allowing 2 extensions
@@ -85,21 +102,71 @@ function validateImage() {
 			// The size of the file. 
 			if (KB > 2048) {
 				alert('Kích thước tập tin quá lớn, vui lòng gửi tập tin nhỏ hơn 2MB.');
-				return false;
+				return null;
 			} else {
 				return fileInput.files[0];
 			}
 		}
 	}
-	return false;
+	return null;
+}
+
+function showImagePreview() {
+	return function () {
+		var file = validateImageFile();
+		if (file !== false) {
+			var reader = new FileReader();
+			reader.onload = function (e) {
+				document.getElementById('divImagePreview').innerHTML = '<img class="imgPreview full-width" src="' + e.target.result + '"/>';
+			};
+			reader.readAsDataURL(file);
+		}
+	}
+}
+
+function loadDictionaryNewType() {
+	return function () {
+		var id = $('#selectDictType').val();
+		window.location = '/ManageDictionary?dictTypeID=' + id;
+	}
+}
+
+function handleSubmitForm(e) {
+	e.preventDefault();
+	var form = new FormData();
+
+	var wordID = document.getElementsByName('WordID')[0].value;
+	var word = document.getElementsByName('Word')[0].value;
+	var wordTypeID = document.getElementsByName('WordTypeID')[0].value;
+	var image = validateImageFile();
+	var meanings = $('#formAddOrUpdateWord').map(function () {
+		return {
+			WordID: wordID,
+			Meaning: $(this).find('[name="Meaning"]').value
+		}
+	});
+	if (!wordID || !word || !meanings) {
+		form.append('WordID', wordID);
+		form.append('Word', word);
+		form.append('WordTypeID', wordTypeID);
+		form.append('ImageFile', image);
+		form.append('AudioFile', audioBlob);
+		form.append('Meanings', meanings);
+
+		fetch('AddOrUpdateWord', {
+			method: 'POST',
+			body: form
+		}).then(response => response.json()).then(response2 => {
+			console.log(response2);
+		}).catch(error => {
+			console.error(error);
+		});
+	}
 }
 
 $(document).ready(function () {
 	// Thêm sự kiện đổi loại từ điển
-	$("#selectDictType").change(function () {
-		var id = $('#selectDictType').val();
-		window.location = '/ManageDictionary?dictTypeID=' + id;
-	});
+	$("#selectDictType").change(loadDictionaryNewType());
 
 	// Xử lý khi di chuyển pagination
 	var prev = $(".pagination li.prev");
@@ -114,16 +181,7 @@ $(document).ready(function () {
 	});
 
 	// Xử lý khi chọn hình ảnh từ tập tin
-	$('#inputImage').on('change', function () {
-		var file = validateImage();
-		if (file !== false) {
-			var reader = new FileReader();
-			reader.onload = function (e) {
-				document.getElementById('divImagePreview').innerHTML = '<img class="imgPreview" class="full-width" src="' + e.target.result + '"/>';
-			};
-			reader.readAsDataURL(file);
-		}
-	});
+	$('#inputImage').on('change', showImagePreview());
 
 	// Khởi tạo Audio
 	try {
@@ -144,5 +202,9 @@ $(document).ready(function () {
 		alert('Vui lòng cho chép trang web này sử dụng microphone của bạn, sau đó tải lại trang để cập nhật trạng thái.');
 	});
 
-	inputAudioFile.addEventListener('change', e => handleRecorder(e.target.files[0]));
+	inputAudioFile.addEventListener('change', e => validateAudio(e.target.files[0]));
+
+	// Xử lý sự kiện submit form
+	let form = document.getElementById('formAddOrUpdateWord');
+	form.addEventListener('submit', e => handleSubmitForm(e));
 });

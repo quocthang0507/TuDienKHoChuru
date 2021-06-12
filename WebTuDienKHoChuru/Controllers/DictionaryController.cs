@@ -31,16 +31,19 @@ namespace WebTuDienKHoChuru.Controllers
 			return View(model);
 		}
 
-		[HttpPost()]
+		[HttpPost("AddOrUpdateWord")]
 		[Authorize]
 		[ValidateAntiForgeryToken]
-		public async Task<IActionResult> AddOrUpdateWord(ManageWordFormModel model)
+		[ProducesResponseType(200)]
+		[ProducesResponseType(400)]
+		[Consumes("multipart/form-data")]
+		public async Task<IActionResult> AddOrUpdateWord([FromForm] SubmitWordFormModel model)
 		{
-			if (ModelState.IsValid)
+			if (ModelState.IsValid || model != null)
 			{
 
 			}
-			return View();
+			return BadRequest();
 		}
 
 		public IActionResult KHo_Viet()
