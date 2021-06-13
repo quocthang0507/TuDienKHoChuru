@@ -2,23 +2,25 @@
 var recorder;
 var audioBlob;
 
-function showLog(e, data) {
+function showLog(showAlert, e, data) {
+	if (showAlert)
+		alert(e + " " + (data || ''));
 	console.log(e + " " + (data || ''));
 }
 
 function startUserMedia(stream) {
 	var input = audio_context.createMediaStreamSource(stream);
-	showLog('Media stream created.');
+	showLog(false, 'Media stream created.');
 
 	recorder = new Recorder(input);
-	showLog('Recorder initialized.');
+	showLog(false, 'Recorder initialized.');
 }
 
 function startRecording(button) {
 	recorder && recorder.record();
 	button.disabled = true;
 	button.nextElementSibling.disabled = false;
-	showLog('Recording...', null);
+	showLog(false, 'Recording...', null);
 }
 
 function stopRecording(button) {
@@ -30,7 +32,7 @@ function stopRecording(button) {
 	recorder && recorder.exportWAV(blob => {
 		validateAudio(blob);
 	});
-	showLog('Stopped recording.', null);
+	showLog(false, 'Stopped recording.', null);
 	recorder.clear();
 }
 
@@ -89,14 +91,11 @@ function validateImageFile() {
 	var filePath = fileInput.value;
 	// Allowing 2 extensions
 	var allowedExtensions = /(\.jpg|\.png)$/i;
-	if (fileInput.files.length == 0)
-		alert('Hình ảnh không được để trống!');
-	else if (!allowedExtensions.exec(filePath)) {
-		alert('Chỉ chấp nhận hình JPG và PNG!');
-		fileInput.value = '';
-	} else {
-		// Image preview 
-		if (fileInput.files && fileInput.files[0]) {
+	if (fileInput.files && fileInput.files[0]) {
+		if (!allowedExtensions.exec(filePath)) {
+			alert('Chỉ chấp nhận hình JPG và PNG!');
+			fileInput.value = '';
+		} else {
 			const Bytes = fileInput.files[0].size;
 			const KB = Math.round((Bytes / 1024));
 			// The size of the file. 
@@ -145,22 +144,27 @@ function handleSubmitForm(e) {
 			Meaning: $(this).find('[name="Meaning"]').value
 		}
 	});
-	if (!wordID || !word || !meanings) {
+	if (wordID && word && meanings) {
+		var url = window.location.origin + '/api/AddOrUpdateWord';
+
 		form.append('WordID', wordID);
 		form.append('Word', word);
 		form.append('WordTypeID', wordTypeID);
 		form.append('ImageFile', image);
 		form.append('AudioFile', audioBlob);
-		form.append('Meanings', meanings);
+		//form.append('Meanings', meanings);
 
-		fetch('AddOrUpdateWord', {
+		fetch(url, {
 			method: 'POST',
 			body: form
-		}).then(response => response.json()).then(response2 => {
-			console.log(response2);
+		}).then(response => response.text()).then(data => {
+			showLog(true, data ? JSON.parse(data) : {});
 		}).catch(error => {
 			console.error(error);
+			showLog(true, error);
 		});
+	} else {
+		showLog(true, 'Vui lòng kiểm tra lại dữ liệu nhập vào');
 	}
 }
 
@@ -191,8 +195,8 @@ $(document).ready(function () {
 		window.URL = window.URL || window.webkitURL;
 
 		audio_context = new AudioContext();
-		showLog('AudioContext set up.');
-		showLog('navigator.getUserMedia ' + (navigator.getUserMedia ? 'available.' : 'not present!'));
+		showLog(false, 'AudioContext set up.');
+		showLog(false, 'navigator.getUserMedia ' + (navigator.getUserMedia ? 'available.' : 'not present!'));
 	} catch (e) {
 		alert('Trình duyệt này không hỗ trợ web audio!');
 	}

@@ -16,34 +16,21 @@ namespace WebTuDienKHoChuru.Controllers
 		}
 
 		[Authorize]
-		[HttpGet("ManageDictionary")]
 		public async Task<IActionResult> Manage(int dictTypeID = 1, int pageNumber = 1, int wordID = 1)
 		{
-			ManageViewModel model = new ManageViewModel();
-			model.DictTypes = await GetDictTypes();
-			model.PageNumbers = await WORDs.GetPageNumbers(dictTypeID);
-			model.WordList = await GetWords(dictTypeID, pageNumber);
-			model.WordTypes = await GetWordTypes();
-			model.SelectedDictTypeID = dictTypeID;
+			ManageViewModel model = new()
+			{
+				DictTypes = await GetDictTypes(),
+				PageNumbers = await GetPageNumber(dictTypeID),
+				WordList = await GetWords(dictTypeID, pageNumber),
+				WordTypes = await GetWordTypes(),
+				SelectedDictTypeID = dictTypeID,
+				SelectedPage = pageNumber
+			};
+
 			model.SelectedWord = model.WordList.First(w => w.ID == wordID);
 			model.SelectedWord.Meanings = await GetMeanings(wordID);
-			model.SelectedPage = pageNumber;
 			return View(model);
-		}
-
-		[HttpPost("AddOrUpdateWord")]
-		[Authorize]
-		[ValidateAntiForgeryToken]
-		[ProducesResponseType(200)]
-		[ProducesResponseType(400)]
-		[Consumes("multipart/form-data")]
-		public async Task<IActionResult> AddOrUpdateWord([FromForm] SubmitWordFormModel model)
-		{
-			if (ModelState.IsValid || model != null)
-			{
-
-			}
-			return BadRequest();
 		}
 
 		public IActionResult KHo_Viet()
@@ -67,19 +54,36 @@ namespace WebTuDienKHoChuru.Controllers
 		}
 
 		#region APIs
+		[Authorize]
+		[HttpPost("api/AddOrUpdateWord")]
+		[ValidateAntiForgeryToken]
+		[ProducesResponseType(200)]
+		[ProducesResponseType(400)]
+		[Consumes("multipart/form-data")]
+		public async Task<IActionResult> AddOrUpdateWord([FromForm] SubmitWordFormModel form)
+		{
+			if (ModelState.IsValid || form != null)
+			{
 
-		[HttpGet]
+			}
+			return BadRequest("This is used for POST method not GET method");
+		}
+
+		[HttpGet("api/GetDictTypes")]
 		public async Task<List<DICT_TYPE>> GetDictTypes() => await DICT_TYPEs.GetDictTypes();
 
-		[HttpGet]
+		[HttpGet("api/GetWords/{dictTypeID}/{pageNumber}")]
 		public async Task<List<WORD>> GetWords(int dictTypeID, int pageNumber) => await WORDs.GetWords(dictTypeID, pageNumber);
 
-		[HttpGet]
+		[HttpGet("api/GetWordTypes")]
 		public async Task<List<WORD_TYPE>> GetWordTypes() => await WORD_TYPEs.GetWordTypes();
 
-		[HttpGet]
+		[HttpGet("api/GetMeanings/{wordID}")]
 		public async Task<List<MEANING>> GetMeanings(int wordID) => await MEANINGS.GetMeanings(wordID);
 
+		[HttpGet("api/GetPageNumber/{dictTypeID}")]
+		public async Task<int> GetPageNumber(int dictTypeID) => await WORDs.GetPageNumbers(dictTypeID);
 		#endregion
+
 	}
 }
