@@ -1,6 +1,7 @@
-﻿var audio_context;
-var recorder;
-var audioBlob;
+﻿let audio_context;
+let recorder;
+let audioBlob;
+let audioBlobFilename;
 
 function showLog(showAlert, e, data) {
 	if (showAlert)
@@ -138,10 +139,10 @@ function handleSubmitForm(e) {
 	var word = document.getElementsByName('Word')[0].value;
 	var wordTypeID = document.getElementsByName('WordTypeID')[0].value;
 	var image = validateImageFile();
-	var meanings = $('#formAddOrUpdateWord').map(function () {
+	var meanings = $('[name="Meaning"]').map(function () {
 		return {
 			WordID: wordID,
-			Meaning: $(this).find('[name="Meaning"]').value
+			Meaning: $(this).val()
 		}
 	});
 	if (wordID && word && meanings) {
@@ -152,13 +153,13 @@ function handleSubmitForm(e) {
 		form.append('WordTypeID', wordTypeID);
 		form.append('ImageFile', image);
 		form.append('AudioFile', audioBlob);
-		//form.append('Meanings', meanings);
+		form.append('Meanings', meanings);
 
 		fetch(url, {
 			method: 'POST',
 			body: form
-		}).then(response => response.text()).then(data => {
-			showLog(true, data ? JSON.parse(data) : {});
+		}).then(response => response.json()).then(data => {
+			showLog(true, data);
 		}).catch(error => {
 			console.error(error);
 			showLog(true, error);

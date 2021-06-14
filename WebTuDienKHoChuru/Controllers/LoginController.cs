@@ -80,6 +80,7 @@ namespace WebTuDienKHoChuru.Controllers
 
 		[HttpPost]
 		[ValidateAntiForgeryToken]
+		[Authorize]
 		public async Task<IActionResult> ChangePassword(ChangePasswordFormModel model)
 		{
 			if (ModelState.IsValid)
@@ -114,6 +115,7 @@ namespace WebTuDienKHoChuru.Controllers
 
 		[HttpPost]
 		[ValidateAntiForgeryToken]
+		[Authorize]
 		public async Task<IActionResult> ChangeInfo(Account account)
 		{
 			if (ModelState.IsValid)
@@ -146,6 +148,7 @@ namespace WebTuDienKHoChuru.Controllers
 		{
 			HttpContext.Session.Remove(Constants.FULLNAME);
 			HttpContext.Session.Remove(Constants.ROLE);
+			HttpContext.Session.Remove(Constants.USERNAME);
 			HttpContext.Response.Cookies.Delete(Constants.TOKEN);
 			return RedirectToAction("Index", "Home");
 		}

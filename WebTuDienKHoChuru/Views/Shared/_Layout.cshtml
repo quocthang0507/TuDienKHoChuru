@@ -27,37 +27,37 @@
 				<div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
 					<ul class="navbar-nav flex-grow-1">
 						<li class="nav-item">
-							<a class="nav-link text-dark @Html.IsSelected(actions: "Index", controllers: "Home")" asp-area="" asp-controller="Home" asp-action="Index">Trang chủ</a>
+							<a class="nav-link text-dark @Html.IsSelected(action: "Index", controller: "Home")" asp-area="" asp-controller="Home" asp-action="Index">Trang chủ</a>
 						</li>
 						@{
 							string role = Context.Session.GetString(Constants.ROLE);
 							if (!string.IsNullOrWhiteSpace(role))
 							{
 								<li class="nav-item">
-									<a class="nav-link text-dark @Html.IsSelected(actions: "Manage", controllers: "Dictionary")" asp-area="" asp-controller="Dictionary" asp-action="Manage">Quản lý từ điển</a>
+									<a class="nav-link text-dark @Html.IsSelected(action: "Manage", controller: "Dictionary")" asp-area="" asp-controller="Dictionary" asp-action="Manage">Quản lý từ điển</a>
 								</li>
 							}
 							if (role == Role.Collaborator)
 							{
 								<li class="nav-item">
-									<a class="nav-link text-dark @Html.IsSelected(actions: "Index", controllers: "Collaborator")" asp-area="" asp-controller="Collaborator" asp-action="Index">Trang người đóng góp</a>
+									<a class="nav-link text-dark @Html.IsSelected(action: "Index", controller: "Collaborator")" asp-area="" asp-controller="Collaborator" asp-action="Index">Trang người đóng góp</a>
 								</li>
 							}
 							else if (role == Role.Admin)
 							{
 								<li class="nav-item">
-									<a class="nav-link text-dark @Html.IsSelected(actions: "Index", controllers: "Admin")" asp-area="" asp-controller="Admin" asp-action="Index">Trang quản trị viên</a>
+									<a class="nav-link text-dark @Html.IsSelected(action: "Index", controller: "Admin")" asp-area="" asp-controller="Admin" asp-action="Index">Trang quản trị viên</a>
 								</li>
 							}
 						}
 						<li class="nav-item">
-							<a class="nav-link text-dark @Html.IsSelected(actions: "Index", controllers: "Dictionary")" asp-area="" asp-controller="Dictionary" asp-action="Index">Từ điển</a>
+							<a class="nav-link text-dark @Html.IsSelected(action: "Index", controller: "Dictionary")" asp-area="" asp-controller="Dictionary" asp-action="Index">Từ điển</a>
 						</li>
 					</ul>
 					<div class="d-inline my-2 my-lg-0">
 						@{
 							string fullname = @Context.Session.GetString(Constants.FULLNAME);
-							if (fullname == null && !Html.IsThisPage(controllers: "Login", actions: "Index"))
+							if (fullname == null && !Html.IsThisPage(controller: "Login", action: "Index"))
 							{
 								<a class="my-2 my-sm-0 btn btn-outline-primary" asp-area="" asp-controller="Login" asp-action="Index">
 									<i class="fas fa-sign-in-alt"></i>

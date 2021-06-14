@@ -84,7 +84,6 @@ namespace WebTuDienKHoChuru
 				app.UseHsts();
 			}
 			app.UseHttpsRedirection();
-			app.UseDefaultFiles();
 			app.UseStaticFiles();
 
 			app.UseRouting();

@@ -42,7 +42,7 @@ namespace WebTuDienKHoChuru.Services
 
 			List<Account> list = await Accounts.GetAccounts();
 
-			Account account = list.SingleOrDefault(a => a.Username.Equals(username, StringComparison.OrdinalIgnoreCase) && SHA256.Instance.Equals(a.Password, password));
+			Account account = list.SingleOrDefault(acc => acc.Username.Equals(username, StringComparison.OrdinalIgnoreCase) && SHA256.Instance.Equals(acc.Password, password));
 			if (account == null)
 				return new KeyValuePair<int, Account>(0, null);
 
