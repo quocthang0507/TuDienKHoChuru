@@ -77,7 +77,20 @@ namespace WebTuDienKHoChuru.Models.DataAccess
 		{
 			try
 			{
-				int result = await SqlDataProvider.Instance.ExecuteNonQuery("proc_INSERT_UPDATE_WORD", word.Word, word.DictType, word.WordType, word.PronunPath, word.ImgPath, word.Creator);
+				int result = await SqlDataProvider.Instance.ExecuteNonQuery("proc_INSERT_UPDATE_WORD", word.ID, word.Word, word.DictType, word.WordType, word.PronunPath, word.ImgPath, word.Creator);
+				return result > 0;
+			}
+			catch (Exception)
+			{
+				return false;
+			}
+		}
+
+		public static async Task<bool> DeleteWord(int wordID)
+		{
+			try
+			{
+				int result = await SqlDataProvider.Instance.ExecuteNonQuery("proc_DELETE_WORD", wordID);
 				return result > 0;
 			}
 			catch (Exception)

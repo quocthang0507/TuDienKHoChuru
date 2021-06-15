@@ -2,25 +2,19 @@
 let recorder;
 let audioBlob = null;
 
-function showLog(showAlert, e, data) {
-	if (showAlert)
-		alert(e + " " + (data || ''));
-	console.log(e + " " + (data || ''));
-}
-
 function startUserMedia(stream) {
 	var input = audio_context.createMediaStreamSource(stream);
-	showLog(false, 'Media stream created.');
+	console.log('Media stream created.');
 
 	recorder = new Recorder(input);
-	showLog(false, 'Recorder initialized.');
+	console.log('Recorder initialized.');
 }
 
 function startRecording(button) {
 	recorder && recorder.record();
 	button.disabled = true;
 	button.nextElementSibling.disabled = false;
-	showLog(false, 'Recording...', null);
+	console.log('Recording...');
 }
 
 function stopRecording(button) {
@@ -32,7 +26,7 @@ function stopRecording(button) {
 	recorder && recorder.exportWAV(blob => {
 		validateAudio(blob);
 	});
-	showLog(false, 'Stopped recording.', null);
+	console.log('Stopped recording.');
 	recorder.clear();
 }
 
@@ -161,14 +155,14 @@ $(document).ready(function () {
 		window.URL = window.URL || window.webkitURL;
 
 		audio_context = new AudioContext();
-		showLog(false, 'AudioContext set up.');
-		showLog(false, 'navigator.getUserMedia ' + (navigator.getUserMedia ? 'available.' : 'not present!'));
+		console.log('AudioContext set up.');
+		console.log('Navigator.getUserMedia ' + (navigator.getUserMedia ? 'available.' : 'not present!'));
 	} catch (e) {
 		alert('Trình duyệt này không hỗ trợ web audio!');
 	}
 
 	navigator.getUserMedia({ audio: true }, startUserMedia, function (e) {
-		showLog('No live audio input: ' + e);
+		console.log('No live audio input: ' + e);
 		alert('Vui lòng cho chép trang web này sử dụng microphone của bạn, sau đó tải lại trang để cập nhật trạng thái.');
 	});
 
@@ -176,6 +170,7 @@ $(document).ready(function () {
 
 	// Xử lý sự kiện submit form
 	$('#formAddOrUpdateWord').submit(function (e) {
+		var dictTypeID = document.getElementById('selectDictType').value;
 		var wordID = document.getElementsByName('WordID')[0].value;
 		var word = document.getElementsByName('Word')[0].value;
 		var image = validateImageFile();
@@ -188,15 +183,16 @@ $(document).ready(function () {
 		}).get();
 
 		if (!wordID)
-			showLog(true, 'Thiếu ID từ');
+			alert('Thiếu ID từ');
 		else if (!word)
-			showLog(true, 'Không được bỏ trống ô từ vựng');
+			alert('Không được bỏ trống ô từ vựng');
 		else if (meanings.length == 0 || !meanings[0].Meaning)
-			showLog(true, 'Vui lòng nhập ít nhất một nghĩa cho từ này');
+			alert('Vui lòng nhập ít nhất một nghĩa cho từ này');
 		else if (image) {
 			var formData = new FormData(this);
-			formData.append('Meanings', JSON.stringify(meanings));
+			formData.append('JSONMeanings', JSON.stringify(meanings));
 			formData.append('AudioFile', audioBlob);
+			formData.append('DictType', dictTypeID);
 			$.ajax({
 				method: 'POST',
 				url: $(this).attr('action'),
@@ -205,10 +201,11 @@ $(document).ready(function () {
 				contentType: false,
 				processData: false,
 				success: function (data) {
-					showLog(true, 'Success: ', data);
+					alert('Lưu thành công');
 				},
 				error: function (data) {
-
+					console.error('Error: ', data);
+					alert('Lỗi: ' + data);
 				}
 			});
 		}

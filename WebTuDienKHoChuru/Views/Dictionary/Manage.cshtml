@@ -7,6 +7,7 @@
 }
 
 <div class="row justify-content-center">
+	<!--CỘT BÊN TRÁI-->
 	<div class="col col-lg-4">
 		<!--DANH SÁCH LOẠI TỪ ĐIỂN-->
 		<div class="form-group">
@@ -37,7 +38,7 @@
 					}
 					else
 					{
-						<a class="list-group-item list-group-item-action" href="/ManageDictionary?dictTypeID=@ViewBag.ViewModel.SelectedDictTypeID&pageNumber=@ViewBag.ViewModel.SelectedPage&wordID=@w.ID" id="@w.ID">@w.Word</a>
+						<a class="list-group-item list-group-item-action" href="/Dictionary/Manage?dictTypeID=@ViewBag.ViewModel.SelectedDictTypeID&pageNumber=@ViewBag.ViewModel.SelectedPage&wordID=@w.ID" id="@w.ID">@w.Word</a>
 					}
 				}
 			</div>
@@ -69,7 +70,7 @@
 			</nav>
 		</div>
 	</div>
-	<!--FORM NHẬP LIỆU-->
+	<!--CỘT BÊN PHẢI: FORM NHẬP LIỆU-->
 	<div class="col col-lg-8">
 		@using (Html.BeginForm("AddOrUpdateWord", "Dictionary", FormMethod.Post, new { id = "formAddOrUpdateWord" }))
 		{
@@ -149,7 +150,7 @@
 								</div>
 							</div>
 						</div>
-						<audio id="audioPreview" controls="controls" class="custom-control">
+						<audio id="audioPreview" controls class="custom-control">
 							<source id="audioSource" src="@ViewBag.ViewModel.SelectedWord.PronunPath" />
 							Trình duyệt của bạn không hỗ trợ định dạng âm thanh này!
 						</audio>

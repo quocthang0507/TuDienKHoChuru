@@ -152,6 +152,7 @@ CREATE TABLE WORD
 GO
 
 CREATE PROC proc_INSERT_UPDATE_WORD
+	@ID INT,
 	@Word NVARCHAR(MAX),
 	@DictType TINYINT,
 	@WordType VARCHAR(10),
@@ -167,12 +168,13 @@ AS
 		BEGIN
 			UPDATE WORD
 			SET 
+				Word = @Word,
 				WordType = @WordType, 
 				PronunPath = @PronunPath,
 				ImgPath = @ImgPath,
 				Creator = @Creator,
 				UpdatedDate = GETDATE()
-			WHERE Word = @Word AND DictType = @DictType;
+			WHERE ID = @ID
 		END
 	ELSE
 		BEGIN
@@ -188,6 +190,12 @@ AS
 				@Creator
 			)
 		END
+GO
+
+CREATE PROC proc_DELETE_WORD
+	@ID INT
+AS
+	DELETE FROM WORD WHERE ID = @ID
 GO
 
 EXEC dbo.proc_INSERT_UPDATE_WORD N'à wanh', 1, 'Verb', '', '', 'admin';
@@ -258,6 +266,13 @@ CREATE PROC proc_GET_MEANINGS
 	@WordID INT
 AS
 	SELECT * FROM MEANING WHERE WordID = @WordID;
+GO
+
+CREATE PROC proc_DELETE_ALL_MEANINGS
+	@WordID INT
+AS
+	DELETE FROM MEANING WHERE WordID = @WordID
+GO
 
 /*
 	Bảng này lưu (các) ví dụ của từ

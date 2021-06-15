@@ -35,7 +35,46 @@ namespace WebTuDienKHoChuru.Models.DataAccess
 			}
 		}
 
-		public static async Task<bool> InsertMeaning(MEANING glossary)
+		public static async Task<bool> InsertMeanings(List<MEANING> meanings, int wordID = 0)
+		{
+			try
+			{
+				// Xoá hết các nghĩa cũ 
+				if (wordID == 0)
+					await DeleteAllMeanings(meanings[0].WordID);
+				else
+					await DeleteAllMeanings(wordID);
+
+				// Thêm các nghĩa mới vào
+				foreach (var meaning in meanings)
+				{
+					bool result = await InsertMeaning(meaning);
+					// Nếu lỗi thì thoát luôn
+					if (!result)
+						return false;
+				}
+				return true;
+			}
+			catch (Exception)
+			{
+				return false;
+			}
+		}
+
+		private static async Task<bool> DeleteAllMeanings(int wordID)
+		{
+			try
+			{
+				int result = await SqlDataProvider.Instance.ExecuteNonQuery("proc_DELETE_ALL_MEANINGS", wordID);
+				return result > 0;
+			}
+			catch (Exception)
+			{
+				return false;
+			}
+		}
+
+		private static async Task<bool> InsertMeaning(MEANING glossary)
 		{
 			try
 			{

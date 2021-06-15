@@ -43,6 +43,9 @@ namespace WebTuDienKHoChuru.Controllers
 
 			model.SelectedWord = model.WordList.First(w => w.ID == wordID);
 			model.SelectedWord.Meanings = await GetMeanings(wordID);
+			model.SelectedWord.ImgPath = ConvertRelativePath(model.SelectedWord.ImgPath);
+			model.SelectedWord.PronunPath = ConvertRelativePath(model.SelectedWord.PronunPath);
+
 			ViewBag.ViewModel = model;
 			return View();
 		}
@@ -77,8 +80,8 @@ namespace WebTuDienKHoChuru.Controllers
 		{
 			if (ModelState.IsValid && form != null)
 			{
-				string imagePath, audioPath;
-
+				string imagePath = string.Empty, audioPath = string.Empty;
+				// Kiểm tra âm thanh và hình ảnh có nằm trong form không, nếu có thì lưu lại và lấy đường dẫn
 				if (form.ImageFile != null)
 				{
 					imagePath = await SaveImage(form.ImageFile);
@@ -91,6 +94,25 @@ namespace WebTuDienKHoChuru.Controllers
 					if (audioPath == null)
 						return StatusCode(StatusCodes.Status415UnsupportedMediaType, "Định dạng âm thanh không hợp lệ hoặc có vấn đề về tập tin");
 				}
+				// Cập nhật vào cơ sở dữ liệu bảng WORD
+				bool result = await WORDs.InsertOrUpdateWord(new WORD
+				{
+					ID = form.WordID,
+					Word = form.Word,
+					DictType = form.DictType,
+					WordType = form.WordType,
+					PronunPath = audioPath,
+					ImgPath = imagePath,
+					Creator = HttpContext.Session.GetString(Constants.USERNAME)
+				});
+				if (!result)
+					return BadRequest("Lỗi khi cập nhật các từ vựng vào cơ sở dữ liệu");
+
+				// Cập nhật vào cơ sở dữ liệu bảng MEANING
+				result = await MEANINGS.InsertMeanings(form.Meanings);
+				if (!result)
+					return BadRequest("Lỗi khi thêm các nghĩa vào cơ sở dữ liệu");
+
 				return Ok("Lưu thành công");
 			}
 			return BadRequest("URL này chỉ dùng cho phương thức POST mà thôi");
