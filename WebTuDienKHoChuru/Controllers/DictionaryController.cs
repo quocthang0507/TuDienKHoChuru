@@ -43,7 +43,8 @@ namespace WebTuDienKHoChuru.Controllers
 
 			model.SelectedWord = model.WordList.First(w => w.ID == wordID);
 			model.SelectedWord.Meanings = await GetMeanings(wordID);
-			return View(model);
+			ViewBag.ViewModel = model;
+			return View();
 		}
 
 		public IActionResult KHo_Viet()
@@ -69,20 +70,30 @@ namespace WebTuDienKHoChuru.Controllers
 		#region APIs
 		[HttpPost("api/AddOrUpdateWord"), Authorize]
 		[ValidateAntiForgeryToken]
-		[ProducesResponseType(200)]
-		[ProducesResponseType(400)]
-		[Consumes("application/json", "multipart/form-data")]
+		[ProducesResponseType(StatusCodes.Status200OK)]
+		[ProducesResponseType(StatusCodes.Status415UnsupportedMediaType)]
+		[ProducesResponseType(StatusCodes.Status400BadRequest)]
 		public async Task<IActionResult> AddOrUpdateWord([FromForm] SubmitWordFormModel form)
 		{
-			if (ModelState.IsValid || form != null)
+			if (ModelState.IsValid && form != null)
 			{
+				string imagePath, audioPath;
+
 				if (form.ImageFile != null)
-					await SaveImage(form.ImageFile);
+				{
+					imagePath = await SaveImage(form.ImageFile);
+					if (imagePath == null)
+						return StatusCode(StatusCodes.Status415UnsupportedMediaType, "Định dạng hình ảnh không hợp lệ hoặc có vấn đề về tập tin");
+				}
 				if (form.AudioFile != null)
-					await SaveAudio(form.AudioFile);
-				return Ok();
+				{
+					audioPath = await SaveAudio(form.AudioFile);
+					if (audioPath == null)
+						return StatusCode(StatusCodes.Status415UnsupportedMediaType, "Định dạng âm thanh không hợp lệ hoặc có vấn đề về tập tin");
+				}
+				return Ok("Lưu thành công");
 			}
-			return BadRequest("This is used for POST method not GET method");
+			return BadRequest("URL này chỉ dùng cho phương thức POST mà thôi");
 		}
 
 		[HttpGet("api/GetDictTypes")]

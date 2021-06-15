@@ -70,13 +70,12 @@ button.accept-policy {
 html {
 	position: relative;
 	min-height: 100%;
-	font-family: sans-serif;
 }
 
 body {
 	/* Margin bottom by footer height */
 	margin-bottom: 60px;
-	font-family: "Open Sans";
+	font-family: "Open Sans", Arial, Helvetica, sans-serif;
 }
 
 .footer {

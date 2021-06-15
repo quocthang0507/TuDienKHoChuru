@@ -1,7 +1,6 @@
 ﻿let audio_context;
 let recorder;
-let audioBlob;
-let audioBlobFilename;
+let audioBlob = null;
 
 function showLog(showAlert, e, data) {
 	if (showAlert)
@@ -85,10 +84,16 @@ function removeInputMeaning() {
 		group.removeChild(group.lastChild);
 	else
 		alert("Một từ phải có ít nhất một nghĩa");
+	group.lastChild.focus();
 }
 
+/**
+ * Validate image file before submitting
+ * Return: 
+ * * true if no selected image or correct image format or large file, 
+ * * false if wrong supported image format */
 function validateImageFile() {
-	var fileInput = document.querySelector('[type=file]');
+	var fileInput = document.getElementById('inputImage');
 	var filePath = fileInput.value;
 	// Allowing 2 extensions
 	var allowedExtensions = /(\.jpg|\.png)$/i;
@@ -96,30 +101,28 @@ function validateImageFile() {
 		if (!allowedExtensions.exec(filePath)) {
 			alert('Chỉ chấp nhận hình JPG và PNG!');
 			fileInput.value = '';
-		} else {
-			const Bytes = fileInput.files[0].size;
-			const KB = Math.round((Bytes / 1024));
-			// The size of the file. 
-			if (KB > 2048) {
-				alert('Kích thước tập tin quá lớn, vui lòng gửi tập tin nhỏ hơn 2MB.');
-				return null;
-			} else {
-				return fileInput.files[0];
-			}
+			return false;
 		}
+		const Bytes = fileInput.files[0].size;
+		const KB = Math.round((Bytes / 1024));
+		// The size of the file. 
+		if (KB > 2048) {
+			alert('Kích thước tập tin quá lớn, vui lòng gửi tập tin nhỏ hơn 2MB.');
+			return false;
+		}
+		return true;
 	}
-	return null;
+	return true;
 }
 
 function showImagePreview() {
 	return function () {
-		var file = validateImageFile();
-		if (file !== false) {
+		if (validateImageFile()) {
 			var reader = new FileReader();
 			reader.onload = function (e) {
 				document.getElementById('divImagePreview').innerHTML = '<img class="imgPreview full-width" src="' + e.target.result + '"/>';
 			};
-			reader.readAsDataURL(file);
+			reader.readAsDataURL(document.getElementById('inputImage').files[0]);
 		}
 	}
 }
@@ -128,44 +131,6 @@ function loadDictionaryNewType() {
 	return function () {
 		var id = $('#selectDictType').val();
 		window.location = '/ManageDictionary?dictTypeID=' + id;
-	}
-}
-
-function handleSubmitForm(e) {
-	e.preventDefault();
-	var form = new FormData();
-
-	var wordID = document.getElementsByName('WordID')[0].value;
-	var word = document.getElementsByName('Word')[0].value;
-	var wordTypeID = document.getElementsByName('WordTypeID')[0].value;
-	var image = validateImageFile();
-	var meanings = $('[name="Meaning"]').map(function () {
-		return {
-			WordID: wordID,
-			Meaning: $(this).val()
-		}
-	});
-	if (wordID && word && meanings) {
-		var url = window.location.origin + '/api/AddOrUpdateWord';
-
-		form.append('WordID', wordID);
-		form.append('Word', word);
-		form.append('WordTypeID', wordTypeID);
-		form.append('ImageFile', image);
-		form.append('AudioFile', audioBlob);
-		form.append('Meanings', meanings);
-
-		fetch(url, {
-			method: 'POST',
-			body: form
-		}).then(response => response.json()).then(data => {
-			showLog(true, data);
-		}).catch(error => {
-			console.error(error);
-			showLog(true, error);
-		});
-	} else {
-		showLog(true, 'Vui lòng kiểm tra lại dữ liệu nhập vào');
 	}
 }
 
@@ -210,6 +175,43 @@ $(document).ready(function () {
 	inputAudioFile.addEventListener('change', e => validateAudio(e.target.files[0]));
 
 	// Xử lý sự kiện submit form
-	let form = document.getElementById('formAddOrUpdateWord');
-	form.addEventListener('submit', e => handleSubmitForm(e));
+	$('#formAddOrUpdateWord').submit(function (e) {
+		var wordID = document.getElementsByName('WordID')[0].value;
+		var word = document.getElementsByName('Word')[0].value;
+		var image = validateImageFile();
+		var meanings = $('[name="Meaning"]').map(function () {
+			return {
+				ID: 0,
+				WordID: wordID,
+				Meaning: $(this).val()
+			}
+		}).get();
+
+		if (!wordID)
+			showLog(true, 'Thiếu ID từ');
+		else if (!word)
+			showLog(true, 'Không được bỏ trống ô từ vựng');
+		else if (meanings.length == 0 || !meanings[0].Meaning)
+			showLog(true, 'Vui lòng nhập ít nhất một nghĩa cho từ này');
+		else if (image) {
+			var formData = new FormData(this);
+			formData.append('Meanings', JSON.stringify(meanings));
+			formData.append('AudioFile', audioBlob);
+			$.ajax({
+				method: 'POST',
+				url: $(this).attr('action'),
+				data: formData,
+				cache: false,
+				contentType: false,
+				processData: false,
+				success: function (data) {
+					showLog(true, 'Success: ', data);
+				},
+				error: function (data) {
+
+				}
+			});
+		}
+		e.preventDefault();
+	});
 });

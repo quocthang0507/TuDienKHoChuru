@@ -1,6 +1,4 @@
 ﻿using Microsoft.AspNetCore.Http;
-using System.Collections.Generic;
-using WebTuDienKHoChuru.Models.DataAccess;
 
 namespace WebTuDienKHoChuru.Models
 {
@@ -8,9 +6,10 @@ namespace WebTuDienKHoChuru.Models
 	{
 		public int WordID { get; set; }
 		public string Word { get; set; }
-		public int WordTypeID { get; set; }
+		public string WordType { get; set; }
 		public IFormFile ImageFile { get; set; }
 		public IFormFile AudioFile { get; set; }
-		public List<MEANING> Meanings { get; set; }
+		// JSON format
+		public string Meanings { get; set; }
 	}
 }
