@@ -17,7 +17,6 @@ namespace WebTuDienKHoChuru.Models.User
 		[DisplayName("Tên đăng nhập")]
 		[Required(ErrorMessage = "Tên đăng nhập là bắt buộc")]
 		[StringLength(50, MinimumLength = 5, ErrorMessage = "Tên đăng nhập phải có độ dài từ 5 đến 50 ký tự")]
-		[Key]
 		public string Username { get; set; }
 
 		[JsonIgnore]

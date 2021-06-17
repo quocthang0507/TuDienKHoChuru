@@ -16,7 +16,6 @@
 			<div style="color: red;" id="message" class="text-center">
 				@ViewBag.Message
 				@Html.ValidationMessageFor(x => x.Fullname)
-				@Html.ValidationMessageFor(x => x.Username)
 				@Html.ValidationMessageFor(x => x.Email)
 				@Html.ValidationMessageFor(x => x.PhoneNumber)
 				@Html.ValidationMessageFor(x => x.Address)
@@ -28,15 +27,6 @@
 						@class = "form-control",
 						required = "required",
 						value = Model.Fullname
-					})
-			</div>
-			<div class="form-group">
-				@Html.LabelFor(x => x.Username)
-				@Html.TextBoxFor(x => x.Username, new
-					{
-						@class = "form-control",
-						required = "required",
-						value = Model.Username
 					})
 			</div>
 			<div class="form-group">

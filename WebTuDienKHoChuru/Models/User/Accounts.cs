@@ -44,7 +44,7 @@ namespace WebTuDienKHoChuru.Models.User
 			try
 			{
 				int result = await SqlDataProvider.Instance.ExecuteNonQuery("proc_UPDATE_ACCOUNT",
-					account.Id, account.Fullname, account.Username, account.Password, account.Role, account.Email, account.PhoneNumber, account.Address);
+					account.Id, account.Fullname, account.Password, account.Role, account.Email, account.PhoneNumber, account.Address);
 				return result > 0;
 			}
 			catch (Exception)

@@ -26,17 +26,22 @@ GO
 USE [TuDienKHo_Viet_Churu]
 GO
 
-CREATE TABLE ACCOUNT
-(
-	[ID] TINYINT IDENTITY(1, 1) PRIMARY KEY,
-	[Fullname] NVARCHAR(100) NOT NULL,
-	[Username] VARCHAR(50) NOT NULL UNIQUE,
-	[Password] NVARCHAR(100) NOT NULL, --SHA256
-	[Role] NVARCHAR(100) NOT NULL,
-	[Email] NVARCHAR(100) NULL,
-	[PhoneNumber] NVARCHAR(10) NULL,
-	[Address] NVARCHAR(200) NOT NULL,
-	[Active] BIT DEFAULT 1
+/**************************************
+	BẢNG ACCOUNT
+***************************************/
+
+CREATE TABLE [dbo].[ACCOUNT] (
+    [ID]          TINYINT        IDENTITY (1, 1) NOT NULL,
+    [Fullname]    NVARCHAR (100) NOT NULL,
+    [Username]    VARCHAR (50)   NOT NULL,
+    [Password]    NVARCHAR (100) NOT NULL,
+    [Role]        NVARCHAR (100) NOT NULL,
+    [Email]       NVARCHAR (100) NULL,
+    [PhoneNumber] NVARCHAR (10)  NULL,
+    [Address]     NVARCHAR (200) NULL,
+    [Active]      BIT            DEFAULT ((1)) NOT NULL,
+    PRIMARY KEY CLUSTERED ([ID] ASC),
+    UNIQUE NONCLUSTERED ([Username] ASC)
 );
 GO
 
@@ -48,7 +53,7 @@ GO
 
 CREATE PROC proc_GET_ACCOUNTS
 AS
-SELECT * FROM ACCOUNT
+	SELECT * FROM ACCOUNT
 GO
 
 CREATE PROC proc_INSERT_ACCOUNT
@@ -60,37 +65,23 @@ CREATE PROC proc_INSERT_ACCOUNT
 	@PhoneNumber NVARCHAR(10),
 	@Address NVARCHAR(200)
 AS
-INSERT INTO ACCOUNT VALUES (
-	@Fullname, 
-	@Username, 
-	@Password, 
-	@Role, 
-	@Email,
-	@PhoneNumber,
-	@Address,
-	1
-)
+	IF NOT EXISTS (SELECT * FROM ACCOUNT WHERE [Username] = @Username)
+		INSERT INTO ACCOUNT VALUES (@Fullname, @Username, @Password, @Role, @Email, @PhoneNumber, @Address, 1);
 GO
 
 CREATE PROC proc_UPDATE_ACCOUNT
 	@ID TINYINT,
 	@Fullname NVARCHAR(100),
-	@Username VARCHAR(50),
 	@Password NVARCHAR(100),
 	@Role NVARCHAR(100),
 	@Email NVARCHAR(100),
 	@PhoneNumber NVARCHAR(10),
 	@Address NVARCHAR(200)
 AS
-UPDATE ACCOUNT
+	UPDATE ACCOUNT
 	SET 
-		[Fullname] = @Fullname, 
-		[Username] = @Username, 
-		[Password] = @Password, 
-		[Role] = @Role, 
-		[Email] = @Email,
-		[PhoneNumber] = @PhoneNumber,
-		[Address] = @Address
+		[Fullname] = @Fullname, [Password] = @Password, [Role] = @Role, 
+		[Email] = @Email, [PhoneNumber] = @PhoneNumber, [Address] = @Address
 	WHERE ID = @ID
 GO
 
@@ -110,10 +101,14 @@ AS
 	WHERE Username = @Username
 GO
 
-CREATE TABLE DICT_TYPE
-(
-	[DictType] TINYINT IDENTITY(1, 1) PRIMARY KEY,
-	[Description] NVARCHAR(MAX) NOT NULL
+/**************************************
+	BẢNG DICT_TYPE
+***************************************/
+
+CREATE TABLE [dbo].[DICT_TYPE] (
+    [DictType]    TINYINT        IDENTITY (1, 1) NOT NULL,
+    [Description] NVARCHAR (MAX) NOT NULL,
+    PRIMARY KEY CLUSTERED ([DictType] ASC)
 );
 GO
 
@@ -125,16 +120,20 @@ GO
 
 CREATE PROC proc_GET_DICT_TYPES
 AS
-SELECT * FROM DICT_TYPE
+	SELECT * FROM DICT_TYPE
 GO
 
 SET DATEFORMAT DMY;
 GO
 
-CREATE TABLE WORD_TYPE
-(
-	[WordType] VARCHAR(10) PRIMARY KEY,
-	[Description] NVARCHAR(MAX) NOT NULL
+/**************************************
+	BẢNG WORD_TYPE
+***************************************/
+
+CREATE TABLE [dbo].[WORD_TYPE] (
+    [WordType]    VARCHAR (10)   NOT NULL,
+    [Description] NVARCHAR (MAX) NOT NULL,
+    PRIMARY KEY CLUSTERED ([WordType] ASC)
 );
 GO
 
@@ -149,23 +148,27 @@ GO
 
 CREATE PROC proc_GET_WORD_TYPES
 AS
-SELECT * FROM WORD_TYPE ORDER BY [Description]
+	SELECT * FROM WORD_TYPE ORDER BY [Description]
 GO
 
-/*
-	Bảng này lưu trữ từ vựng
-*/
-CREATE TABLE WORD
-(
-	[ID] INT IDENTITY(1, 1) PRIMARY KEY,
-	[Word] NVARCHAR(MAX) NOT NULL,
-	[DictType] TINYINT REFERENCES DICT_TYPE([DictType]),
-	[WordType] VARCHAR(10) REFERENCES WORD_TYPE([WordType]) DEFAULT 'Others',
-	[PronunPath] NVARCHAR(MAX) NULL,
-	[ImgPath] NVARCHAR(MAX) NULL,
-	[AddedDate] DATETIME NULL,
-	[UpdatedDate] DATETIME NULL,
-	[Creator] VARCHAR(50) NOT NULL REFERENCES ACCOUNT([Username])
+/**************************************
+	BẢNG WORD
+***************************************/
+
+CREATE TABLE [dbo].[WORD] (
+    [ID]          INT            IDENTITY (1, 1) NOT NULL,
+    [Word]        NVARCHAR (MAX) NOT NULL,
+    [DictType]    TINYINT        NULL,
+    [WordType]    VARCHAR (10)   DEFAULT ('Others') NULL,
+    [PronunPath]  NVARCHAR (MAX) NULL,
+    [ImgPath]     NVARCHAR (MAX) NULL,
+    [AddedDate]   DATETIME       NULL,
+    [UpdatedDate] DATETIME       NULL,
+    [Creator]     VARCHAR (50)   NOT NULL,
+    PRIMARY KEY CLUSTERED ([ID] ASC),
+    FOREIGN KEY ([DictType]) REFERENCES [dbo].[DICT_TYPE] ([DictType]),
+    FOREIGN KEY ([WordType]) REFERENCES [dbo].[WORD_TYPE] ([WordType]),
+    FOREIGN KEY ([Creator]) REFERENCES [dbo].[ACCOUNT] ([Username])
 );
 GO
 
@@ -178,50 +181,30 @@ CREATE PROC proc_INSERT_UPDATE_WORD
 	@ImgPath NVARCHAR(MAX),
 	@Creator VARCHAR(50)
 AS
-	IF EXISTS (SELECT * FROM WORD WHERE ID = @ID)
+	IF @ID != NULL AND EXISTS (SELECT * FROM WORD WHERE ID = @ID)
 		BEGIN
 			IF (@PronunPath IS NULL) AND (@ImgPath IS NULL)
 			BEGIN
 				UPDATE WORD
-				SET 
-					Word = @Word,
-					WordType = @WordType,
-					Creator = @Creator,
-					UpdatedDate = GETDATE()
+				SET Word = @Word, WordType = @WordType, Creator = @Creator, UpdatedDate = GETDATE()
 				WHERE ID = @ID
 			END
 			ELSE IF @PronunPath IS NULL
 			BEGIN
 				UPDATE WORD
-				SET 
-					Word = @Word,
-					WordType = @WordType, 
-					ImgPath = @ImgPath,
-					Creator = @Creator,
-					UpdatedDate = GETDATE()
+				SET Word = @Word, WordType = @WordType, ImgPath = @ImgPath, Creator = @Creator, UpdatedDate = GETDATE()
 				WHERE ID = @ID
 			END
 			ELSE IF @ImgPath IS NULL
 			BEGIN
 				UPDATE WORD
-				SET 
-					Word = @Word,
-					WordType = @WordType, 
-					PronunPath = @PronunPath,
-					Creator = @Creator,
-					UpdatedDate = GETDATE()
+				SET Word = @Word, WordType = @WordType, PronunPath = @PronunPath, Creator = @Creator, UpdatedDate = GETDATE()
 				WHERE ID = @ID
 			END
 			ELSE
 			BEGIN
 				UPDATE WORD
-				SET 
-					Word = @Word,
-					WordType = @WordType, 
-					PronunPath = @PronunPath,
-					ImgPath = @ImgPath,
-					Creator = @Creator,
-					UpdatedDate = GETDATE()
+				SET Word = @Word, WordType = @WordType, PronunPath = @PronunPath, ImgPath = @ImgPath, Creator = @Creator, UpdatedDate = GETDATE()
 				WHERE ID = @ID
 			END
 		END
@@ -242,19 +225,18 @@ AS
 	DELETE FROM WORD WHERE ID = @ID
 GO
 
-EXEC dbo.proc_INSERT_UPDATE_WORD N'à wanh', 1, 'Verb', '', '', 'admin';
-EXEC dbo.proc_INSERT_UPDATE_WORD N'ada', 1, 'Noun', '', '', 'admin';
-EXEC dbo.proc_INSERT_UPDATE_WORD N'ada prum', 1, 'Noun', '', '', 'admin';
-EXEC dbo.proc_INSERT_UPDATE_WORD N'ada siam', 1, 'Noun', '', '', 'admin';
-EXEC dbo.proc_INSERT_UPDATE_WORD N'adàr', 1, 'Adjective', '', '', 'admin';
-EXEC dbo.proc_INSERT_UPDATE_WORD N'adát', 1, 'Adjective', '', '', 'admin';
+EXEC dbo.proc_INSERT_UPDATE_WORD NULL, N'à wanh', 1, 'Verb', '', '', 'admin';
+EXEC dbo.proc_INSERT_UPDATE_WORD NULL, N'ada', 1, 'Noun', '', '', 'admin';
+EXEC dbo.proc_INSERT_UPDATE_WORD NULL, N'ada prum', 1, 'Noun', '', '', 'admin';
+EXEC dbo.proc_INSERT_UPDATE_WORD NULL, N'ada siam', 1, 'Noun', '', '', 'admin';
+EXEC dbo.proc_INSERT_UPDATE_WORD NULL, N'adàr', 1, 'Adjective', '', '', 'admin';
+EXEC dbo.proc_INSERT_UPDATE_WORD NULL, N'adát', 1, 'Adjective', '', '', 'admin';
 
-EXEC dbo.proc_INSERT_UPDATE_WORD N'a', 2, 'Others', '', '', 'admin';
-EXEC dbo.proc_INSERT_UPDATE_WORD N'á', 2, 'Others', '', '', 'admin';
-EXEC dbo.proc_INSERT_UPDATE_WORD N'à', 2, 'Others', '', '', 'admin';
-EXEC dbo.proc_INSERT_UPDATE_WORD N'ả', 2, 'Pronoun', '', '', 'admin';
-EXEC dbo.proc_INSERT_UPDATE_WORD N'ạ', 2, 'Others', '', '', 'admin';
-
+EXEC dbo.proc_INSERT_UPDATE_WORD NULL, N'a', 2, 'Others', '', '', 'admin';
+EXEC dbo.proc_INSERT_UPDATE_WORD NULL, N'á', 2, 'Others', '', '', 'admin';
+EXEC dbo.proc_INSERT_UPDATE_WORD NULL, N'à', 2, 'Others', '', '', 'admin';
+EXEC dbo.proc_INSERT_UPDATE_WORD NULL, N'ả', 2, 'Pronoun', '', '', 'admin';
+EXEC dbo.proc_INSERT_UPDATE_WORD NULL, N'ạ', 2, 'Others', '', '', 'admin';
 GO
 
 CREATE PROC proc_GET_WORDS
@@ -262,19 +244,14 @@ CREATE PROC proc_GET_WORDS
 	@PageNumber INT,
 	@RowsOfPage INT
 AS
-SELECT *
-FROM WORD
-WHERE DictType = @DictType
-ORDER BY Word
-	OFFSET (@PageNumber - 1) * @RowsOfPage ROWS
+	SELECT * FROM WORD WHERE DictType = @DictType
+	ORDER BY Word OFFSET (@PageNumber - 1) * @RowsOfPage ROWS
 	FETCH NEXT @RowsOfPage ROWS ONLY;
 GO
 
 CREATE PROC proc_GET_PAGE_NUMBERS
-(
 	@DictType TINYINT,
 	@RowsOfPage INT
-)
 AS
 BEGIN
 	SELECT 
@@ -286,16 +263,16 @@ BEGIN
 END
 GO
 
---SELECT DBO.func_GET_PAGE_NUMBERS(1, 10)
+/**************************************
+	BẢNG MEANING
+***************************************/
 
-/*
-	Bảng này lưu (các) nghĩa của từ
-*/
-CREATE TABLE MEANING
-(
-	[ID] INT IDENTITY(1, 1) PRIMARY KEY,
-	[WordID] INT REFERENCES WORD(ID),
-	[Meaning] NVARCHAR(MAX) NOT NULL,
+CREATE TABLE [dbo].[MEANING] (
+    [ID]      INT            IDENTITY (1, 1) NOT NULL,
+    [WordID]  INT            NULL,
+    [Meaning] NVARCHAR (MAX) NOT NULL,
+    PRIMARY KEY CLUSTERED ([ID] ASC),
+    FOREIGN KEY ([WordID]) REFERENCES [dbo].[WORD] ([ID])
 );
 GO
 
@@ -318,26 +295,29 @@ AS
 	DELETE FROM MEANING WHERE WordID = @WordID
 GO
 
-/*
-	Bảng này lưu (các) ví dụ của từ
-*/
-CREATE TABLE EXAMPLE
-(
-	[MeaningID] INT REFERENCES MEANING(ID),
-	[Example] NVARCHAR(MAX) NOT NULL,
-	[Meaning] NVARCHAR(MAX) NOT NULL,
-	[PronunPath] NVARCHAR(MAX) NULL
+/**************************************
+	BẢNG EXAMPLE
+***************************************/
+
+CREATE TABLE [dbo].[EXAMPLE] (
+    [MeaningID]  INT            NULL,
+    [Example]    NVARCHAR (MAX) NOT NULL,
+    [Meaning]    NVARCHAR (MAX) NOT NULL,
+    [PronunPath] NVARCHAR (MAX) NULL,
+    FOREIGN KEY ([MeaningID]) REFERENCES [dbo].[MEANING] ([ID])
 );
 GO
 
-/*
-	Bảng này lưu các đoạn văn song ngữ
-*/
-CREATE TABLE BILINGUAL_PASSAGE
-(
-	[ID] INT IDENTITY(1, 1) PRIMARY KEY,
-	[DictType] TINYINT REFERENCES DICT_TYPE(DictType),
-	[Source] NVARCHAR(MAX) NOT NULL,
-	[Destination] NVARCHAR(MAX) NOT NULL
+/**************************************
+	BẢNG BILINGUAL_PASSAGE
+***************************************/
+
+CREATE TABLE [dbo].[BILINGUAL_PASSAGE] (
+    [ID]          INT            IDENTITY (1, 1) NOT NULL,
+    [DictType]    TINYINT        NULL,
+    [Source]      NVARCHAR (MAX) NOT NULL,
+    [Destination] NVARCHAR (MAX) NOT NULL,
+    PRIMARY KEY CLUSTERED ([ID] ASC),
+    FOREIGN KEY ([DictType]) REFERENCES [dbo].[DICT_TYPE] ([DictType])
 );
 GO

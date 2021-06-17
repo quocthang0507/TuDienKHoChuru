@@ -46,17 +46,21 @@ namespace WebTuDienKHoChuru.Controllers
 			string username = HttpContext.Session.GetString(Constants.USERNAME);
 			Account account = await Accounts.FindOne(username);
 			if (account != null)
+			{
 				return View(account);
-			return RedirectToAction("Logout");
+			}
+			return BadRequest("Không tìm thấy tài khoản có tên đăng nhập như thế");
 		}
 
 		[Authorize(Roles = Role.Admin)]
-		[HttpGet("Login/AdminChangeInfo")]
-		public async Task<IActionResult> ChangeInfo(string username)
+		[HttpGet]
+		public async Task<IActionResult> AdminChangeInfo(string username)
 		{
 			Account account = await Accounts.FindOne(username);
 			if (account != null)
-				return View(account);
+			{
+				return View("ChangeInfo", account);
+			}
 			return BadRequest("Không tìm thấy tài khoản có tên đăng nhập như thế");
 		}
 
@@ -109,27 +113,20 @@ namespace WebTuDienKHoChuru.Controllers
 				if (result.Key == -1)
 				{
 					ViewBag.Message = "Không được bỏ trống thông tin đăng nhập bắt buộc";
-					return View();
 				}
 				else if (result.Key == 0)
 				{
 					ViewBag.Message = "Mật khẩu cũ không đúng";
-					return View();
-				}
-				var user = result.Value;
-				user.Password = SHA256.Instance.GetSHA256(model.NewPassword);
-				user.Token = null;
-				if (await Accounts.UpdateAccount(user))
-				{
-					ViewBag.Message = "Đổi mật khẩu thành công";
 				}
 				else
 				{
-					ViewBag.Message = "Đổi mật khẩu không thành công";
+					var user = result.Value;
+					user.Password = SHA256.Instance.GetSHA256(model.NewPassword);
+					user.Token = null;
+					ViewBag.Message = await Accounts.UpdateAccount(user) ? "Đổi mật khẩu thành công" : "Đổi mật khẩu không thành công";
 				}
-				return View();
 			}
-			return View();
+			return BadRequest("Form không hợp lệ, vui lòng kiểm tra dữ liệu nhập vào");
 		}
 
 		[HttpPost]
@@ -156,10 +153,10 @@ namespace WebTuDienKHoChuru.Controllers
 					{
 						ViewBag.Message = "Cập nhật không thông tin thành công";
 					}
-					return View(account);
+					return View("ChangeInfo", account);
 				}
 			}
-			return RedirectToAction("Logout");
+			return BadRequest("Form không hợp lệ, vui lòng kiểm tra dữ liệu nhập vào");
 		}
 
 		[Route("Logout")]
