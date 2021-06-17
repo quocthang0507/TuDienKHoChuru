@@ -20,7 +20,7 @@ namespace WebTuDienKHoChuru.Models.User
 			}
 		}
 
-		public static async Task<List<Account>> GetAccWithoutPass()
+		public static async Task<List<Account>> GetAccountsWithoutPass()
 		{
 			return (await GetAccounts()).Select(a => a.WithoutPassword()).ToList();
 		}
@@ -63,6 +63,32 @@ namespace WebTuDienKHoChuru.Models.User
 			catch (Exception)
 			{
 				return null;
+			}
+		}
+
+		public static async Task<bool> Deactivate(string username)
+		{
+			try
+			{
+				int result = await SqlDataProvider.Instance.ExecuteNonQuery("proc_DEACTIVATE_ACCOUNT", username);
+				return result > 0;
+			}
+			catch (Exception)
+			{
+				return false;
+			}
+		}
+
+		public static async Task<bool> Activate(string username)
+		{
+			try
+			{
+				int result = await SqlDataProvider.Instance.ExecuteNonQuery("proc_ACTIVATE_ACCOUNT", username);
+				return result > 0;
+			}
+			catch (Exception)
+			{
+				return false;
 			}
 		}
 	}

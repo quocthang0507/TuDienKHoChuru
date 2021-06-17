@@ -53,6 +53,7 @@ namespace WebTuDienKHoChuru.Controllers
 			if (ModelState.IsValid)
 			{
 				var result = await userService.Authenticate(model.Username, model.Password);
+				var user = result.Value;
 				if (result.Key == -1)
 				{
 					ViewBag.Message = "Không được bỏ trống thông tin đăng nhập bắt buộc";
@@ -63,7 +64,11 @@ namespace WebTuDienKHoChuru.Controllers
 					ViewBag.Message = "Sai tên đăng nhập hoặc mật khẩu";
 					return View("Index", model);
 				}
-				var user = result.Value;
+				else if (!result.Value.Active)
+				{
+					ViewBag.Message = "Tài khoản vẫn còn nhưng không thể đăng nhập vì bị tạm ngưng, vui lòng liên hệ quản trị viên để biết thêm thông tin";
+					return View("Index", model);
+				}
 				HttpContext.Session.Set(Constants.FULLNAME, Encoding.UTF8.GetBytes(user.Fullname));
 				HttpContext.Session.Set(Constants.ROLE, Encoding.UTF8.GetBytes(user.Role));
 				HttpContext.Session.Set(Constants.USERNAME, Encoding.UTF8.GetBytes(user.Username));

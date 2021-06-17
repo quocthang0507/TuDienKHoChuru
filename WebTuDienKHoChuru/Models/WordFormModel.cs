@@ -6,7 +6,7 @@ using WebTuDienKHoChuru.Models.DataAccess;
 
 namespace WebTuDienKHoChuru.Models
 {
-	public class SubmitWordFormModel
+	public class WordFormModel
 	{
 		public int WordID { get; set; }
 		public string Word { get; set; }
@@ -14,16 +14,14 @@ namespace WebTuDienKHoChuru.Models
 		public int DictType { get; set; }
 		public IFormFile ImageFile { get; set; }
 		public IFormFile AudioFile { get; set; }
-		// Contain JSON string
-		public string JSONMeanings { get; set; }
-
+		public string JMeanings { get; set; }
 		public List<MEANING> Meanings
 		{
 			get
 			{
 				try
 				{
-					return JsonConvert.DeserializeObject<List<MEANING>>(JSONMeanings);
+					return JsonConvert.DeserializeObject<List<MEANING>>(JMeanings);
 				}
 				catch (Exception)
 				{

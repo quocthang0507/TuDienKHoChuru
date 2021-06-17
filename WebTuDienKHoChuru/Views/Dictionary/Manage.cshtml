@@ -1,5 +1,5 @@
 ﻿@using WebTuDienKHoChuru.Models.DataAccess
-@model WebTuDienKHoChuru.Models.SubmitWordFormModel
+@model WebTuDienKHoChuru.Models.WordFormModel
 
 @{
 	ViewData["Title"] = "Quản lý Từ điển";
@@ -120,7 +120,7 @@
 						   accept="image/*" placeholder="Tập tin hình ảnh" />
 				</div>
 				<div id="divImagePreview" class="col-sm">
-					<img class="imgPreview full-width" src="@ViewBag.ViewModel.SelectedWord.ImgPath" alt="" />
+					<img id="imagePreview" class="imgPreview full-width" src="@ViewBag.ViewModel.SelectedWord.ImgPath" alt="" />
 				</div>
 			</div>
 			<!--ÂM THANH-->
@@ -168,7 +168,7 @@
 					<div class="form-group" id="inputMeanings">
 						@foreach (var meaning in ViewBag.ViewModel.SelectedWord.Meanings)
 						{
-							<input type="text" class="form-control" placeholder="Nhập nghĩa tại đây" required value="@meaning.Meaning">
+							<input type="text" class="form-control" placeholder="Nhập nghĩa tại đây" required value="@meaning.Meaning" name="Meaning">
 						}
 					</div>
 					<small class="form-text text-muted">Để thêm một nghĩa khác của từ, nhấn <i class="fas fa-plus"></i>. Để xóa ô, nhấn <i class="fas fa-minus"></i></small>

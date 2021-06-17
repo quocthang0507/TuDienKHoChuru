@@ -46,7 +46,10 @@ function validateAudio(blob) {
 	var audio = document.getElementById('audioPreview');
 	var source = document.getElementById('audioSource');
 	source.src = url;
+
 	audioBlob = blob;
+	audioFilename = url.replace(/^.*[\\\/]/, '');
+
 	audio.load();
 }
 
@@ -84,9 +87,10 @@ function removeInputMeaning() {
 /**
  * Validate image file before submitting
  * Return: 
- * * true if no selected image or correct image format or large file, 
- * * false if wrong supported image format */
-function validateImageFile() {
+ * * true if it is corrected image format or no selected file,
+ * * false if it is wrong supported image format or large file
+*/
+function validateImageInput() {
 	var fileInput = document.getElementById('inputImage');
 	var filePath = fileInput.value;
 	// Allowing 2 extensions
@@ -111,26 +115,56 @@ function validateImageFile() {
 
 function showImagePreview() {
 	return function () {
-		if (validateImageFile()) {
+		if (validateImageInput()) {
 			var reader = new FileReader();
 			reader.onload = function (e) {
-				document.getElementById('divImagePreview').innerHTML = '<img class="imgPreview full-width" src="' + e.target.result + '"/>';
+				document.getElementById('imagePreview').src = e.target.result;
 			};
 			reader.readAsDataURL(document.getElementById('inputImage').files[0]);
 		}
 	}
 }
 
-function loadDictionaryNewType() {
+function eventChangeDictType() {
 	return function () {
 		var id = $('#selectDictType').val();
 		window.location = '/ManageDictionary?dictTypeID=' + id;
 	}
 }
 
+function collectData(form) {
+	var formData = new FormData(form);
+
+	var dictTypeID = parseInt(document.getElementById('selectDictType').value);
+	var wordID = parseInt(document.getElementById('inputWordID').value);
+	var word = document.getElementById('inputWord').value;
+	var image = validateImageInput();
+	var meanings = $('[name="Meaning"]').map(function () {
+		return {
+			ID: 0,
+			WordID: wordID,
+			Meaning: $(this).val()
+		}
+	}).get();
+
+	// Kiểm tra hợp lệ
+	if (!wordID)
+		alert('Thiếu ID từ');
+	else if (!word)
+		alert('Không được bỏ trống ô từ vựng');
+	else if (meanings.length == 0 || !meanings[0].Meaning)
+		alert('Vui lòng nhập ít nhất một nghĩa cho từ này');
+	else if (image) {
+		formData.append('JMeanings', JSON.stringify(meanings));
+		formData.append('AudioFile', audioBlob);
+		formData.append('DictType', dictTypeID);
+	}
+	return formData;
+}
+
 $(document).ready(function () {
 	// Thêm sự kiện đổi loại từ điển
-	$("#selectDictType").change(loadDictionaryNewType());
+	$("#selectDictType").change(eventChangeDictType());
 
 	// Xử lý khi di chuyển pagination
 	var prev = $(".pagination li.prev");
@@ -166,49 +200,28 @@ $(document).ready(function () {
 		alert('Vui lòng cho chép trang web này sử dụng microphone của bạn, sau đó tải lại trang để cập nhật trạng thái.');
 	});
 
+	// Load audio từ tập tin
 	inputAudioFile.addEventListener('change', e => validateAudio(e.target.files[0]));
 
 	// Xử lý sự kiện submit form
-	$('#formAddOrUpdateWord').submit(function (e) {
-		var dictTypeID = document.getElementById('selectDictType').value;
-		var wordID = document.getElementsByName('WordID')[0].value;
-		var word = document.getElementsByName('Word')[0].value;
-		var image = validateImageFile();
-		var meanings = $('[name="Meaning"]').map(function () {
-			return {
-				ID: 0,
-				WordID: wordID,
-				Meaning: $(this).val()
+	$('#formAddOrUpdateWord').submit(async function (e) {
+		// Chuẩn bị dữ liệu
+		var data = collectData(this);
+		$.ajax({
+			method: 'POST',
+			url: $(this).attr('action'),
+			data: data,
+			cache: false,
+			contentType: false,
+			processData: false,
+			success: function (data, text) {
+				alert('Lưu thành công');
+			},
+			error: function (request, status, error) {
+				console.error('Error: ', data);
+				alert('Lỗi: ' + request.responseText);
 			}
-		}).get();
-
-		if (!wordID)
-			alert('Thiếu ID từ');
-		else if (!word)
-			alert('Không được bỏ trống ô từ vựng');
-		else if (meanings.length == 0 || !meanings[0].Meaning)
-			alert('Vui lòng nhập ít nhất một nghĩa cho từ này');
-		else if (image) {
-			var formData = new FormData(this);
-			formData.append('JSONMeanings', JSON.stringify(meanings));
-			formData.append('AudioFile', audioBlob);
-			formData.append('DictType', dictTypeID);
-			$.ajax({
-				method: 'POST',
-				url: $(this).attr('action'),
-				data: formData,
-				cache: false,
-				contentType: false,
-				processData: false,
-				success: function (data) {
-					alert('Lưu thành công');
-				},
-				error: function (data) {
-					console.error('Error: ', data);
-					alert('Lỗi: ' + data);
-				}
-			});
-		}
+		});
 		e.preventDefault();
 	});
 });

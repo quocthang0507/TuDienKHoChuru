@@ -77,7 +77,15 @@ namespace WebTuDienKHoChuru.Models.DataAccess
 		{
 			try
 			{
-				int result = await SqlDataProvider.Instance.ExecuteNonQuery("proc_INSERT_UPDATE_WORD", word.ID, word.Word, word.DictType, word.WordType, word.PronunPath, word.ImgPath, word.Creator);
+				int result = 0;
+				if (Extensions.IsAllNullOrEmpty(word.PronunPath, word.ImgPath))
+					result = await SqlDataProvider.Instance.ExecuteNonQuery("proc_INSERT_UPDATE_WORD", word.ID, word.Word, word.DictType, word.WordType, null, null, word.Creator);
+				else if (Extensions.IsAllNullOrEmpty(word.PronunPath))
+					result = await SqlDataProvider.Instance.ExecuteNonQuery("proc_INSERT_UPDATE_WORD", word.ID, word.Word, word.DictType, word.WordType, null, word.ImgPath, word.Creator);
+				else if (Extensions.IsAllNullOrEmpty(word.ImgPath))
+					result = await SqlDataProvider.Instance.ExecuteNonQuery("proc_INSERT_UPDATE_WORD", word.ID, word.Word, word.DictType, word.WordType, word.PronunPath, null, word.Creator);
+				else
+					result = await SqlDataProvider.Instance.ExecuteNonQuery("proc_INSERT_UPDATE_WORD", word.ID, word.Word, word.DictType, word.WordType, word.PronunPath, word.ImgPath, word.Creator);
 				return result > 0;
 			}
 			catch (Exception)

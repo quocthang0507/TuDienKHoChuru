@@ -1,3 +1,174 @@
-﻿@{
+﻿@using WebTuDienKHoChuru.Utils
+@using WebTuDienKHoChuru.Models.User
+@model WebTuDienKHoChuru.Models.User.Account
+
+@{
 	ViewData["Title"] = "Trang quản trị viên";
+}
+
+<div class="text-center">
+	<h5 class="display-5">@Constants.ListAccounts</h5>
+</div>
+<div>
+	<p>Tài khoản nào bị tạm ngưng sẽ được <mark>hightlight</mark></p>
+	<p>
+		Để thêm một tài khoản mới, nhấn vào đây
+		<button type="button" class="btn btn-sm btn-success" data-toggle="modal" data-target="#addAccModal"><i class="fas fa-plus"></i></button>
+	</p>
+</div>
+<div class="table-responsive">
+	<table class="table table-sm table-bordered">
+		<thead class="thead-light text-center">
+			<tr>
+				<th scope="col">#</th>
+				<th scope="col">Họ và tên</th>
+				<th scope="col">Tên đăng nhập</th>
+				<th scope="col">Vai trò</th>
+				<th scope="col">Email</th>
+				<th scope="col">SĐT</th>
+				<th scope="col">Địa chỉ</th>
+				<th scope="col">Hành động</th>
+			</tr>
+		</thead>
+		<tbody>
+			@foreach (Account acc in ViewBag.ListAccounts)
+			{
+				string className = string.Empty;
+				if (!acc.Active)
+				{
+					className = "class=table-danger";
+				}
+
+				<tr @className>
+					<th scope="row">@acc.Id</th>
+					<td>@acc.Fullname</td>
+					<td>@acc.Username</td>
+					<td>@acc.Role</td>
+					<td>@acc.Email</td>
+					<td>@acc.PhoneNumber</td>
+					<td>@acc.Address</td>
+					<td>
+						<div class="btn-group" role="group" aria-label="Action Buttons">
+							<button type="button" class="btn btn-sm btn-primary"><i class="fas fa-edit"></i></button>
+							@if (acc.Active)
+							{
+								<button type="button" class="btn btn-sm btn-danger" onclick="location.href='@Url.Action("DeactivateAccount", "Admin", new { username = acc.Username})'"><i class="fas fa-user-times"></i></button>
+							}
+							else
+							{
+								<button type="button" class="btn btn-sm btn-success" onclick="location.href='@Url.Action("ActivateAccount", "Admin", new { username = acc.Username})'"><i class="fas fa-user-check"></i></button>
+							}
+						</div>
+					</td>
+				</tr>
+			}
+		</tbody>
+	</table>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="addAccModal" tabindex="-1" role="dialog" aria-labelledby="addAccModalLabel" aria-hidden="true">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="addAccModalLabel">Thêm tài khoản mới</h5>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			<div class="modal-body">
+				@using (Html.BeginForm("AddNewAccount", "Admin", FormMethod.Post))
+				{
+					<fieldset>
+						@Html.AntiForgeryToken()
+						@Html.ValidationSummary(true)
+						<div style="color: red;" id="message" class="text-center">
+							@ViewBag.Message
+							@Html.ValidationMessageFor(x => x.Username)
+							@Html.ValidationMessageFor(x => x.Password)
+							@Html.ValidationMessageFor(x => x.Fullname)
+							@Html.ValidationMessageFor(x => x.Email)
+							@Html.ValidationMessageFor(x => x.PhoneNumber)
+							@Html.ValidationMessageFor(x => x.Address)
+						</div>
+						<div class="form-group">
+							@Html.LabelFor(x => x.Username)
+							@Html.TextBoxFor(x => x.Username, new
+								{
+									@class = "form-control",
+									id = "inputUsername",
+									required = "required"
+								})
+						</div>
+						<div class="form-group">
+							@Html.LabelFor(x => x.Password)
+							@Html.PasswordFor(x => x.Password, new
+								{
+									@class = "form-control",
+									required = "required"
+								})
+						</div>
+						<div class="form-group">
+							@Html.LabelFor(x => x.Role)
+							<select class="form-select" aria-label="Chọn vai trò cho tài khoản này" name="Role" id="Role">
+								<option value="@Role.Admin">Quản trị viên</option>
+								<option value="@Role.Collaborator" selected>Cộng tác viên</option>
+							</select>
+						</div>
+						<div class="form-group">
+							@Html.LabelFor(x => x.Fullname)
+							@Html.TextBoxFor(x => x.Fullname, new
+								{
+									@class = "form-control",
+									required = "required"
+								})
+						</div>
+						<div class="form-group">
+							@Html.LabelFor(x => x.Email)
+							@Html.TextBoxFor(x => x.Email, new
+							{
+								@class = "form-control"
+							})
+						</div>
+						<div class="form-group">
+							@Html.LabelFor(x => x.PhoneNumber)
+							@Html.TextBoxFor(x => x.PhoneNumber, new
+							{
+								@class = "form-control"
+							})
+						</div>
+						<div class="form-group">
+							@Html.LabelFor(x => x.Address)
+							@Html.TextAreaFor(x => x.Address, new
+							   {
+								   @class = "form-control",
+								   required = "required"
+							   })
+						</div>
+						<div class="form-group text-center">
+							<input type="submit" value="Thêm" class="btn btn-primary" />
+						</div>
+					</fieldset>
+				}
+			</div>
+		</div>
+	</div>
+</div>
+@section Scripts{
+	<script>
+		setTimeout(function () {
+			if ($('#message').length > 0) {
+				$('#message').fadeOut(500, function () { $(this).remove(); });
+			}
+
+			$(document).ready(function () {
+				$('#inputUsername').focus();
+			});
+	</script>
+	@if (!string.IsNullOrEmpty(ViewBag.Message))
+	{
+		<script>
+			alert(@ViewBag.Message);
+		</script>
+	}
 }

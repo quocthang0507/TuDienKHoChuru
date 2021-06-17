@@ -35,14 +35,15 @@ CREATE TABLE ACCOUNT
 	[Role] NVARCHAR(100) NOT NULL,
 	[Email] NVARCHAR(100) NULL,
 	[PhoneNumber] NVARCHAR(10) NULL,
-	[Address] NVARCHAR(200) NOT NULL
+	[Address] NVARCHAR(200) NOT NULL,
+	[Active] BIT DEFAULT 1
 );
 GO
 
 INSERT INTO ACCOUNT VALUES
-	(N'La Quốc Thắng', 'admin', '8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918', 'Admin', '1610207@dlu.edu.vn', '0987610260', N'Võ Trường Toản, Phường 8, Đà Lạt, Lâm Đồng')
+	(N'La Quốc Thắng', 'admin', '8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918', 'Admin', '1610207@dlu.edu.vn', '0987610260', N'Võ Trường Toản, Phường 8, Đà Lạt, Lâm Đồng', 1)
 INSERT INTO ACCOUNT VALUES
-	(N'Cộng tác viên', 'collaborator', '53adf83d9f7b4dd136fee848946a5ea6d28640406aa260d1bb6adb79dccb58ee', 'Collaborator', '', '', N'Đại học Đà Lạt, Phù Đổng Thiên Vương, Phường 8, Đà Lạt, Lâm Đồng')
+	(N'Cộng tác viên', 'collaborator', '53adf83d9f7b4dd136fee848946a5ea6d28640406aa260d1bb6adb79dccb58ee', 'Collaborator', '', '', N'Đại học Đà Lạt, Phù Đổng Thiên Vương, Phường 8, Đà Lạt, Lâm Đồng', 1)
 GO
 
 CREATE PROC proc_GET_ACCOUNTS
@@ -90,6 +91,22 @@ UPDATE ACCOUNT
 		[PhoneNumber] = @PhoneNumber,
 		[Address] = @Address
 	WHERE ID = @ID
+GO
+
+CREATE PROC proc_DEACTIVATE_ACCOUNT
+	@Username VARCHAR(50)
+AS
+	UPDATE ACCOUNT
+	SET Active = 0
+	WHERE Username = @Username
+GO
+
+CREATE PROC proc_ACTIVATE_ACCOUNT
+	@Username VARCHAR(50)
+AS
+	UPDATE ACCOUNT
+	SET Active = 1
+	WHERE Username = @Username
 GO
 
 CREATE TABLE DICT_TYPE
@@ -160,36 +177,62 @@ CREATE PROC proc_INSERT_UPDATE_WORD
 	@ImgPath NVARCHAR(MAX),
 	@Creator VARCHAR(50)
 AS
-	IF EXISTS 
-	(
-		SELECT * FROM WORD
-		WHERE Word = @Word AND DictType = @DictType
-	)
+	IF EXISTS (SELECT * FROM WORD WHERE ID = @ID)
 		BEGIN
-			UPDATE WORD
-			SET 
-				Word = @Word,
-				WordType = @WordType, 
-				PronunPath = @PronunPath,
-				ImgPath = @ImgPath,
-				Creator = @Creator,
-				UpdatedDate = GETDATE()
-			WHERE ID = @ID
+			IF (@PronunPath IS NULL) AND (@ImgPath IS NULL)
+			BEGIN
+				UPDATE WORD
+				SET 
+					Word = @Word,
+					WordType = @WordType,
+					Creator = @Creator,
+					UpdatedDate = GETDATE()
+				WHERE ID = @ID
+			END
+			ELSE IF @PronunPath IS NULL
+			BEGIN
+				UPDATE WORD
+				SET 
+					Word = @Word,
+					WordType = @WordType, 
+					ImgPath = @ImgPath,
+					Creator = @Creator,
+					UpdatedDate = GETDATE()
+				WHERE ID = @ID
+			END
+			ELSE IF @ImgPath IS NULL
+			BEGIN
+				UPDATE WORD
+				SET 
+					Word = @Word,
+					WordType = @WordType, 
+					PronunPath = @PronunPath,
+					Creator = @Creator,
+					UpdatedDate = GETDATE()
+				WHERE ID = @ID
+			END
+			ELSE
+			BEGIN
+				UPDATE WORD
+				SET 
+					Word = @Word,
+					WordType = @WordType, 
+					PronunPath = @PronunPath,
+					ImgPath = @ImgPath,
+					Creator = @Creator,
+					UpdatedDate = GETDATE()
+				WHERE ID = @ID
+			END
 		END
 	ELSE
-		BEGIN
-			INSERT INTO WORD VALUES
-			(
-				@Word,
-				@DictType,
-				@WordType,
-				@PronunPath,
-				@ImgPath,
-				GETDATE(),
-				GETDATE(),
-				@Creator
-			)
-		END
+		IF (@PronunPath IS NULL) AND (@ImgPath IS NULL)
+			INSERT INTO WORD (Word, DictType, WordType, AddedDate, UpdatedDate, Creator) VALUES (@Word, @DictType, @WordType, GETDATE(), GETDATE(), @Creator)
+		ELSE IF @PronunPath IS NULL
+			INSERT INTO WORD (Word, DictType, WordType, ImgPath, AddedDate, UpdatedDate, Creator) VALUES (@Word, @DictType, @WordType, @ImgPath, GETDATE(), GETDATE(), @Creator)
+		ELSE IF @ImgPath IS NULL
+			INSERT INTO WORD (Word, DictType, WordType, PronunPath, AddedDate, UpdatedDate, Creator) VALUES (@Word, @DictType, @WordType, @PronunPath, GETDATE(), GETDATE(), @Creator)
+		ELSE
+			INSERT INTO WORD (Word, DictType, WordType, PronunPath, ImgPath, AddedDate, UpdatedDate, Creator) VALUES (@Word, @DictType, @WordType, @PronunPath, @ImgPath, GETDATE(), GETDATE(), @Creator)
 GO
 
 CREATE PROC proc_DELETE_WORD

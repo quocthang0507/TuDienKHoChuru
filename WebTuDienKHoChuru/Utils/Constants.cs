@@ -4,6 +4,7 @@
 	{
 		public const string Title = "Từ điển K'Ho - Việt - Churu";
 		public const string ListDictionaries = "Danh sách Từ điển K'Ho - Việt - Churu";
+		public const string ListAccounts = "Danh sách tài khoản";
 		public const string KHo_Viet = "Từ điển K'Ho - Việt";
 		public const string Viet_KHo = "Từ điển Việt - K'Ho";
 		public const string Churu_Viet = "Từ điển Churu - Việt";

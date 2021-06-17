@@ -76,7 +76,7 @@ namespace WebTuDienKHoChuru.Controllers
 		[ProducesResponseType(StatusCodes.Status200OK)]
 		[ProducesResponseType(StatusCodes.Status415UnsupportedMediaType)]
 		[ProducesResponseType(StatusCodes.Status400BadRequest)]
-		public async Task<IActionResult> AddOrUpdateWord([FromForm] SubmitWordFormModel form)
+		public async Task<IActionResult> AddOrUpdateWord([FromForm] WordFormModel form)
 		{
 			if (ModelState.IsValid && form != null)
 			{

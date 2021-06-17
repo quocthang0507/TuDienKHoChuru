@@ -21,8 +21,13 @@ namespace WebTuDienKHoChuru.Models.User
 		public string Username { get; set; }
 
 		[JsonIgnore]
+		[DisplayName("Mật khẩu")]
+		[Required(ErrorMessage = "Mật khẩu là bắt buộc")]
+		[StringLength(100, MinimumLength = 5, ErrorMessage = "Mật khẩu phải có độ dài từ 5 đến 100 ký tự")]
 		public string Password { get; set; }
 
+		[DisplayName("Vai trò")]
+		[StringLength(100, ErrorMessage = "Vai trò phải có ít hơn 100 ký tự")]
 		public string Role { get; set; }
 
 		public string Token { get; set; }
@@ -41,6 +46,10 @@ namespace WebTuDienKHoChuru.Models.User
 		[Required(ErrorMessage = "Địa chỉ là bắt buộc")]
 		[StringLength(200, ErrorMessage = "Địa chỉ của bạn phải ít hơn 200 ký tự")]
 		public string Address { get; set; }
+
+		[DisplayName("Kích hoạt")]
+		[DefaultValue(true)]
+		public bool Active { get; set; }
 
 		public Account WithoutPassword()
 		{
