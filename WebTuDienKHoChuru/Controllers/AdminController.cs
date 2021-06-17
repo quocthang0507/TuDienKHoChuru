@@ -11,13 +11,15 @@ namespace WebTuDienKHoChuru.Controllers
 	[Authorize(Roles = Role.Admin)]
 	public class AdminController : Controller
 	{
+		private const string tempMessage = "errorMessage";
+
 		// GET: Admin
-		public async Task<IActionResult> Index(string errorMessage = null)
+		public async Task<IActionResult> Index()
 		{
 			List<Account> accounts = await Accounts.GetAccountsWithoutPass();
 			ViewBag.ListAccounts = accounts;
-			if (errorMessage == null)
-				ViewBag.Message = errorMessage;
+			if (TempData[tempMessage] != null)
+				ViewBag.Message = TempData[tempMessage].ToString();
 			return View();
 		}
 
@@ -30,7 +32,8 @@ namespace WebTuDienKHoChuru.Controllers
 				await Accounts.Deactivate(username);
 				return RedirectToAction("Index");
 			}
-			return RedirectToAction("Index", new { errorMessage = "Bạn không thể tự hủy kích hoạt chính tài khoản của mình" });
+			TempData[tempMessage] = "Bạn không thể tự hủy kích hoạt chính tài khoản của mình";
+			return RedirectToAction("Index");
 		}
 
 		[HttpGet]
@@ -44,15 +47,15 @@ namespace WebTuDienKHoChuru.Controllers
 		[ValidateAntiForgeryToken]
 		public async Task<IActionResult> AddNewAccount(Account account)
 		{
-			string message = null;
 			if (ModelState.IsValid)
 			{
+				account.Password = SHA256.Instance.GetSHA256(account.Password);
 				bool result = await Accounts.InsertAccount(account);
-				message = result ? "" : "Lỗi thêm tài khoản mới vào cơ sở dữ liệu, vui lòng kiểm tra dữ liệu đầu vào";
+				TempData[tempMessage] = result ? "" : "Lỗi thêm tài khoản mới vào cơ sở dữ liệu, vui lòng kiểm tra dữ liệu đầu vào";
 			}
 			else
-				message = "Lỗi do form không hợp lệ";
-			return RedirectToAction("Index", new { errorMessage = message });
+				TempData[tempMessage] = "Lỗi do form không hợp lệ";
+			return RedirectToAction("Index");
 		}
 	}
 }

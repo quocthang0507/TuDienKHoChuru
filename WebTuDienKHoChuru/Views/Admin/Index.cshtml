@@ -10,8 +10,8 @@
 	<h5 class="display-5">@Constants.ListAccounts</h5>
 </div>
 <div>
-	<p>Tài khoản nào bị tạm ngưng sẽ được <mark>hightlight</mark></p>
 	<p>
+		Tài khoản nào bị tạm ngưng sẽ được <mark>hightlight</mark>.
 		Để thêm một tài khoản mới, nhấn vào đây
 		<button type="button" class="btn btn-sm btn-success" data-toggle="modal" data-target="#addAccModal"><i class="fas fa-plus"></i></button>
 	</p>
@@ -49,7 +49,9 @@
 					<td>@acc.Address</td>
 					<td>
 						<div class="btn-group" role="group" aria-label="Action Buttons">
-							<button type="button" class="btn btn-sm btn-primary"><i class="fas fa-edit"></i></button>
+							<a class="btn btn-sm btn-primary" href="@Url.Action("AdminChangeInfo", "Login", new { username = acc.Username})">
+								<i class="fas fa-edit"></i>
+							</a>
 							@if (acc.Active)
 							{
 								<button type="button" class="btn btn-sm btn-danger" onclick="location.href='@Url.Action("DeactivateAccount", "Admin", new { username = acc.Username})'"><i class="fas fa-user-times"></i></button>
@@ -154,6 +156,7 @@
 		</div>
 	</div>
 </div>
+
 @section Scripts{
 	<script>
 		setTimeout(function () {
@@ -167,8 +170,8 @@
 	</script>
 	@if (!string.IsNullOrEmpty(ViewBag.Message))
 	{
-		<script>
-			alert(@ViewBag.Message);
+		<script type="text/javascript">
+			$('#addAccModal').modal('show');
 		</script>
 	}
 }

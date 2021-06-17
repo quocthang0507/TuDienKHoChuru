@@ -22,7 +22,6 @@ namespace WebTuDienKHoChuru.Models.User
 
 		[JsonIgnore]
 		[DisplayName("Mật khẩu")]
-		[Required(ErrorMessage = "Mật khẩu là bắt buộc")]
 		[StringLength(100, MinimumLength = 5, ErrorMessage = "Mật khẩu phải có độ dài từ 5 đến 100 ký tự")]
 		public string Password { get; set; }
 

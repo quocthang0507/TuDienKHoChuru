@@ -189,7 +189,7 @@ namespace DataAccess
 
 		public static T FillObject<T>(IDataReader dr) where T : class, new()
 		{
-			T objFillObject = new();
+			T objFillObject;
 			List<PropertyInfo> objProperties = GetPropertyInfo(typeof(T));
 			int[] arrOrdinals = GetOrdinals(objProperties, dr);
 			if (dr != null && dr.Read())

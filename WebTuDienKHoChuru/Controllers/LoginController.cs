@@ -40,10 +40,24 @@ namespace WebTuDienKHoChuru.Controllers
 		}
 
 		[Authorize]
+		[HttpGet]
 		public async Task<IActionResult> ChangeInfo()
 		{
 			string username = HttpContext.Session.GetString(Constants.USERNAME);
-			return View(await Accounts.FindOne(username));
+			Account account = await Accounts.FindOne(username);
+			if (account != null)
+				return View(account);
+			return RedirectToAction("Logout");
+		}
+
+		[Authorize(Roles = Role.Admin)]
+		[HttpGet("Login/AdminChangeInfo")]
+		public async Task<IActionResult> ChangeInfo(string username)
+		{
+			Account account = await Accounts.FindOne(username);
+			if (account != null)
+				return View(account);
+			return BadRequest("Không tìm thấy tài khoản có tên đăng nhập như thế");
 		}
 
 		[HttpPost]
@@ -86,7 +100,7 @@ namespace WebTuDienKHoChuru.Controllers
 		[HttpPost]
 		[ValidateAntiForgeryToken]
 		[Authorize]
-		public async Task<IActionResult> ChangePassword(ChangePasswordFormModel model)
+		public async Task<IActionResult> ChangeAccountPassword(ChangePasswordFormModel model)
 		{
 			if (ModelState.IsValid)
 			{
@@ -121,7 +135,7 @@ namespace WebTuDienKHoChuru.Controllers
 		[HttpPost]
 		[ValidateAntiForgeryToken]
 		[Authorize]
-		public async Task<IActionResult> ChangeInfo(Account account)
+		public async Task<IActionResult> ChangeAccountInfo(Account account)
 		{
 			if (ModelState.IsValid)
 			{
@@ -145,7 +159,7 @@ namespace WebTuDienKHoChuru.Controllers
 					return View(account);
 				}
 			}
-			return View();
+			return RedirectToAction("Logout");
 		}
 
 		[Route("Logout")]

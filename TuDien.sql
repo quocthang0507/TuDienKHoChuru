@@ -67,7 +67,8 @@ INSERT INTO ACCOUNT VALUES (
 	@Role, 
 	@Email,
 	@PhoneNumber,
-	@Address
+	@Address,
+	1
 )
 GO
 
