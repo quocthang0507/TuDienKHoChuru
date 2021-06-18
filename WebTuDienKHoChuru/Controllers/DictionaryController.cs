@@ -41,7 +41,12 @@ namespace WebTuDienKHoChuru.Controllers
 				SelectedPage = pageNumber
 			};
 
-			model.SelectedWord = model.WordList.First(w => w.ID == wordID);
+			var word = model.WordList.FirstOrDefault(w => w.ID == wordID);
+			if (word == null)
+			{
+				return BadRequest("Không tìm thấy từ có ID này trong từ điển");
+			}
+			model.SelectedWord = word;
 			model.SelectedWord.Meanings = await GetMeanings(wordID);
 			model.SelectedWord.ImgPath = ConvertRelativePath(model.SelectedWord.ImgPath);
 			model.SelectedWord.PronunPath = ConvertRelativePath(model.SelectedWord.PronunPath);
@@ -132,6 +137,10 @@ namespace WebTuDienKHoChuru.Controllers
 
 		[HttpGet("api/GetPageNumber/{dictTypeID}")]
 		public async Task<int> GetPageNumber(int dictTypeID) => await WORDs.GetPageNumbers(dictTypeID);
+
+		[HttpGet("api/DeleteWord/{wordID}")]
+		[Authorize]
+		public async Task<int> DeleteWord(int wordID) => await WORDs.DeleteWord(wordID);
 		#endregion
 
 		/// <summary>

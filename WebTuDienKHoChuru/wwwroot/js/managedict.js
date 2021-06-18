@@ -158,8 +158,31 @@ function collectData(form) {
 		formData.append('JMeanings', JSON.stringify(meanings));
 		formData.append('AudioFile', audioBlob);
 		formData.append('DictType', dictTypeID);
+		return formData;
 	}
-	return formData;
+	return null;
+}
+
+async function deleteWord(wordID) {
+	if (confirm('Bạn có chắc chắn muốn xóa từ này không? Sau khi xóa đi thì không thể khôi phục lại được')) {
+		$.ajax({
+			method: 'GET',
+			url: window.location.origin + '/api/DeleteWord/' + wordID,
+			success: function (data) {
+				if (data != -1) {
+					var url = new URL(window.location.href);
+					var params = url.searchParams;
+					params.set('wordID', data);
+					window.location.href = params.toString();
+				}
+				else
+					alert("Xóa không thành công");
+			},
+			error: function (request, status, error) {
+				alert("Đã xảy ra lỗi khi nhận yêu cầu xóa này");
+			}
+		});
+	}
 }
 
 $(document).ready(function () {
@@ -207,21 +230,22 @@ $(document).ready(function () {
 	$('#formAddOrUpdateWord').submit(async function (e) {
 		// Chuẩn bị dữ liệu
 		var data = collectData(this);
-		$.ajax({
-			method: 'POST',
-			url: $(this).attr('action'),
-			data: data,
-			cache: false,
-			contentType: false,
-			processData: false,
-			success: function (data, text) {
-				alert('Lưu thành công');
-			},
-			error: function (request, status, error) {
-				console.error('Error: ', data);
-				alert('Lỗi: ' + request.responseText);
-			}
-		});
+		if (data != null)
+			$.ajax({
+				method: 'POST',
+				url: $(this).attr('action'),
+				data: data,
+				cache: false,
+				contentType: false,
+				processData: false,
+				success: function (data, text) {
+					alert('Lưu thành công');
+				},
+				error: function (request, status, error) {
+					console.error('Error: ', data);
+					alert('Lỗi: ' + request.responseText);
+				}
+			});
 		e.preventDefault();
 	});
 });

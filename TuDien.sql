@@ -181,7 +181,7 @@ CREATE PROC proc_INSERT_UPDATE_WORD
 	@ImgPath NVARCHAR(MAX),
 	@Creator VARCHAR(50)
 AS
-	IF @ID != NULL AND EXISTS (SELECT * FROM WORD WHERE ID = @ID)
+	IF EXISTS (SELECT * FROM WORD WHERE ID = @ID)
 		BEGIN
 			IF (@PronunPath IS NULL) AND (@ImgPath IS NULL)
 			BEGIN
@@ -209,20 +209,28 @@ AS
 			END
 		END
 	ELSE
-		IF (@PronunPath IS NULL) AND (@ImgPath IS NULL)
-			INSERT INTO WORD (Word, DictType, WordType, AddedDate, UpdatedDate, Creator) VALUES (@Word, @DictType, @WordType, GETDATE(), GETDATE(), @Creator)
-		ELSE IF @PronunPath IS NULL
-			INSERT INTO WORD (Word, DictType, WordType, ImgPath, AddedDate, UpdatedDate, Creator) VALUES (@Word, @DictType, @WordType, @ImgPath, GETDATE(), GETDATE(), @Creator)
-		ELSE IF @ImgPath IS NULL
-			INSERT INTO WORD (Word, DictType, WordType, PronunPath, AddedDate, UpdatedDate, Creator) VALUES (@Word, @DictType, @WordType, @PronunPath, GETDATE(), GETDATE(), @Creator)
-		ELSE
-			INSERT INTO WORD (Word, DictType, WordType, PronunPath, ImgPath, AddedDate, UpdatedDate, Creator) VALUES (@Word, @DictType, @WordType, @PronunPath, @ImgPath, GETDATE(), GETDATE(), @Creator)
+		BEGIN
+			IF (@PronunPath IS NULL) AND (@ImgPath IS NULL)
+				INSERT INTO WORD (Word, DictType, WordType, AddedDate, UpdatedDate, Creator) VALUES (@Word, @DictType, @WordType, GETDATE(), GETDATE(), @Creator)
+			ELSE IF @PronunPath IS NULL
+				INSERT INTO WORD (Word, DictType, WordType, ImgPath, AddedDate, UpdatedDate, Creator) VALUES (@Word, @DictType, @WordType, @ImgPath, GETDATE(), GETDATE(), @Creator)
+			ELSE IF @ImgPath IS NULL
+				INSERT INTO WORD (Word, DictType, WordType, PronunPath, AddedDate, UpdatedDate, Creator) VALUES (@Word, @DictType, @WordType, @PronunPath, GETDATE(), GETDATE(), @Creator)
+			ELSE
+				INSERT INTO WORD (Word, DictType, WordType, PronunPath, ImgPath, AddedDate, UpdatedDate, Creator) VALUES (@Word, @DictType, @WordType, @PronunPath, @ImgPath, GETDATE(), GETDATE(), @Creator)
+		END
 GO
 
 CREATE PROC proc_DELETE_WORD
-	@ID INT
+	@ID INT,
+	@OutputID INT OUTPUT
 AS
-	DELETE FROM WORD WHERE ID = @ID
+BEGIN
+	DECLARE @DictTypeID INT
+	SET @DictTypeID = (SELECT DictType FROM WORD WHERE ID = @ID);
+	DELETE FROM WORD WHERE ID = @ID;
+	SET @OutputID = (SELECT TOP 1 ID FROM WORD WHERE ID < @ID AND DictType = @DictTypeID ORDER BY ID DESC)
+END
 GO
 
 EXEC dbo.proc_INSERT_UPDATE_WORD NULL, N'à wanh', 1, 'Verb', '', '', 'admin';
