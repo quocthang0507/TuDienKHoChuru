@@ -134,29 +134,29 @@ namespace WebTuDienKHoChuru.Controllers
 		[Authorize]
 		public async Task<IActionResult> ChangeAccountInfo(Account account)
 		{
-			if (ModelState.IsValid)
+			var oldAccount = await Accounts.FindOne(account.Username);
+			if (oldAccount != null)
 			{
-				string username = HttpContext.Session.GetString(Constants.USERNAME);
-				var oldAccount = await Accounts.FindOne(username);
-				if (oldAccount != null)
+				account.Password = oldAccount.Password;
+				account.Id = oldAccount.Id;
+				account.Role = oldAccount.Role;
+				account.Username = oldAccount.Username;
+				if (await Accounts.UpdateAccount(account))
 				{
-					account.Password = oldAccount.Password;
-					account.Id = oldAccount.Id;
-					account.Role = oldAccount.Role;
-					if (await Accounts.UpdateAccount(account))
+					if (HttpContext.Session.GetString(Constants.USERNAME) == oldAccount.Username)
 					{
 						HttpContext.Session.Set(Constants.FULLNAME, Encoding.UTF8.GetBytes(account.Fullname));
 						HttpContext.Session.Set(Constants.USERNAME, Encoding.UTF8.GetBytes(account.Username));
-						ViewBag.Message = "Cập nhật thông tin thành công";
 					}
-					else
-					{
-						ViewBag.Message = "Cập nhật không thông tin thành công";
-					}
-					return View("ChangeInfo", account);
+					ViewBag.Message = "Cập nhật thông tin thành công";
 				}
+				else
+				{
+					ViewBag.Message = "Cập nhật không thông tin thành công";
+				}
+				return View("ChangeInfo", account);
 			}
-			return BadRequest("Form không hợp lệ, vui lòng kiểm tra dữ liệu nhập vào");
+			return BadRequest("Không tìm thấy tài khoản này");
 		}
 
 		[Route("Logout")]
