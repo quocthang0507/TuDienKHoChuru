@@ -1,0 +1,10 @@
+﻿.full-width {
+	width: 100%;
+}
+
+.custom-control {
+	border: none;
+	padding: 2px;
+	margin: 0;
+	width: 100%;
+}

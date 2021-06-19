@@ -80,7 +80,7 @@ function removeInputMeaning() {
 	if (group.childElementCount >= 2)
 		group.removeChild(group.lastChild);
 	else
-		alert("Một từ phải có ít nhất một nghĩa");
+		showToast('Cảnh báo', 'Một từ phải có ít nhất một nghĩa');
 	group.lastChild.focus();
 }
 
@@ -97,7 +97,7 @@ function validateImageInput() {
 	var allowedExtensions = /(\.jpg|\.png)$/i;
 	if (fileInput.files && fileInput.files[0]) {
 		if (!allowedExtensions.exec(filePath)) {
-			alert('Chỉ chấp nhận hình JPG và PNG!');
+			showToast('Cảnh báo', 'Chỉ chấp nhận hình JPG và PNG!');
 			fileInput.value = '';
 			return false;
 		}
@@ -105,7 +105,7 @@ function validateImageInput() {
 		const KB = Math.round((Bytes / 1024));
 		// The size of the file. 
 		if (KB > 2048) {
-			alert('Kích thước tập tin quá lớn, vui lòng gửi tập tin nhỏ hơn 2MB.');
+			showToast('Cảnh báo', 'Kích thước tập tin quá lớn, vui lòng gửi tập tin nhỏ hơn 2MB.');
 			return false;
 		}
 		return true;
@@ -149,11 +149,11 @@ function collectData(form) {
 
 	// Kiểm tra hợp lệ
 	if (!wordID)
-		alert('Thiếu ID từ');
+		showToast('Cảnh báo', 'Thiếu ID từ');
 	else if (!word)
-		alert('Không được bỏ trống ô từ vựng');
+		showToast('Cảnh báo', 'Không được bỏ trống ô từ vựng');
 	else if (meanings.length == 0 || !meanings[0].Meaning)
-		alert('Vui lòng nhập ít nhất một nghĩa cho từ này');
+		showToast('Cảnh báo', 'Vui lòng nhập ít nhất một nghĩa cho từ này');
 	else if (image) {
 		formData.append('JMeanings', JSON.stringify(meanings));
 		formData.append('AudioFile', audioBlob);
@@ -176,10 +176,10 @@ async function deleteWord(wordID) {
 					window.location.href = params.toString();
 				}
 				else
-					alert("Xóa không thành công");
+					showToast('Lỗi', "Xóa không thành công");
 			},
 			error: function (request, status, error) {
-				alert("Đã xảy ra lỗi khi nhận yêu cầu xóa này");
+				showToast('Lỗi', 'Đã xảy ra lỗi khi nhận yêu cầu xóa này');
 			}
 		});
 	}
@@ -230,7 +230,8 @@ $(document).ready(function () {
 	$('#formAddOrUpdateWord').submit(async function (e) {
 		// Chuẩn bị dữ liệu
 		var data = collectData(this);
-		if (data != null)
+		if (data != null) {
+			loaderOn();
 			$.ajax({
 				method: 'POST',
 				url: $(this).attr('action'),
@@ -239,13 +240,16 @@ $(document).ready(function () {
 				contentType: false,
 				processData: false,
 				success: function (data, text) {
-					alert('Lưu thành công');
+					loaderOff();
+					showToast('Lưu', 'Lưu thành công vào cơ sở dữ liệu');
 				},
 				error: function (request, status, error) {
-					console.error('Error: ', data);
-					alert('Lỗi: ' + request.responseText);
+					loaderOff();
+					showToast('Lưu', request.responseText);
+					console.error('Error: ', error);
 				}
 			});
-		e.preventDefault();
+			e.preventDefault();
+		}
 	});
 });

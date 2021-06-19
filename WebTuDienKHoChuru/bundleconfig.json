@@ -27,6 +27,15 @@
 		}
 	},
 	{
+		"outputFileName": "wwwroot/css/manage.min.css",
+		"inputFiles": [
+			"wwwroot/css/manage.css"
+		],
+		"minify": {
+			"enabled": true
+		}
+	},
+	{
 		"outputFileName": "wwwroot/js/managedict.min.js",
 		"inputFiles": [
 			"wwwroot/js/managedict.js"
