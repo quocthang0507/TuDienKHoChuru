@@ -3,19 +3,21 @@
 @model WebTuDienKHoChuru.Models.User.Account
 
 @{
-	ViewData["Title"] = "Trang quản trị viên";
+	ViewData["Title"] = "Quản lý Thành viên";
 }
 
 <div class="text-center">
-	<h5 class="display-5">@Constants.ListAccounts</h5>
-</div>
-<div>
+	<h5>@Constants.ListAccounts</h5>
 	<p>
 		Tài khoản nào bị tạm ngưng sẽ được <mark>hightlight</mark>.
 		Để thêm một tài khoản mới, nhấn vào đây
-		<button type="button" class="btn btn-sm btn-success" data-toggle="modal" data-target="#addAccModal"><i class="fas fa-plus"></i></button>
+		<button type="button" class="btn btn-sm btn-success" data-toggle="modal" data-target="#addAccModal"
+				data-tooltip="tooltip" data-placement="bottom" title="Thêm một tài khoản mới" data-delay='{"show":"500", "hide":"100"}'>
+			<i class="fas fa-plus"></i>
+		</button>
 	</p>
 </div>
+
 <div class="table-responsive">
 	<table class="table table-sm table-bordered">
 		<thead class="thead-light text-center">
@@ -27,7 +29,7 @@
 				<th scope="col">Email</th>
 				<th scope="col">SĐT</th>
 				<th scope="col">Địa chỉ</th>
-				<th scope="col">Hành động</th>
+				<th scope="col">Thao tác</th>
 			</tr>
 		</thead>
 		<tbody>
@@ -47,18 +49,25 @@
 					<td>@acc.Email</td>
 					<td>@acc.PhoneNumber</td>
 					<td>@acc.Address</td>
-					<td>
+					<td class="text-center">
 						<div class="btn-group" role="group" aria-label="Action Buttons">
-							<a class="btn btn-sm btn-primary" href="@Url.Action("AdminChangeInfo", "Login", new { username = acc.Username})">
+							<a class="btn btn-md btn-primary mr-2" href="@Url.Action("AdminChangeInfo", "Login", new { username = acc.Username})"
+							   data-tooltip="tooltip" data-placement="bottom" title="Chỉnh sửa người dùng @acc.Fullname" data-delay='{"show":"500", "hide":"100"}'>
 								<i class="fas fa-edit"></i>
 							</a>
 							@if (acc.Active)
 							{
-								<button type="button" class="btn btn-sm btn-danger" onclick="location.href='@Url.Action("DeactivateAccount", "Admin", new { username = acc.Username})'"><i class="fas fa-user-times"></i></button>
+								<button type="button" class="btn btn-md btn-danger" onclick="location.href='@Url.Action("DeactivateAccount", "Admin", new { username = acc.Username})'"
+										data-tooltip="tooltip" data-placement="bottom" title="Hủy kích hoạt người dùng @acc.Fullname" data-delay='{"show":"500", "hide":"100"}'>
+									<i class="fas fa-user-times"></i>
+								</button>
 							}
 							else
 							{
-								<button type="button" class="btn btn-sm btn-success" onclick="location.href='@Url.Action("ActivateAccount", "Admin", new { username = acc.Username})'"><i class="fas fa-user-check"></i></button>
+								<button type="button" class="btn btn-md btn-success" onclick="location.href='@Url.Action("ActivateAccount", "Admin", new { username = acc.Username})'"
+										data-tooltip="tooltip" data-placement="bottom" title="Kích hoạt lại người dùng @acc.Fullname" data-delay='{"show":"500", "hide":"100"}'>
+									<i class="fas fa-user-check"></i>
+								</button>
 							}
 						</div>
 					</td>
@@ -112,7 +121,7 @@
 						</div>
 						<div class="form-group">
 							@Html.LabelFor(x => x.Role)
-							<select class="form-select" aria-label="Chọn vai trò cho tài khoản này" name="Role" id="Role">
+							<select class="form-control" aria-label="Chọn vai trò cho tài khoản này" name="Role" id="Role">
 								<option value="@Role.Admin">Quản trị viên</option>
 								<option value="@Role.Collaborator" selected>Cộng tác viên</option>
 							</select>
@@ -148,7 +157,7 @@
 							   })
 						</div>
 						<div class="form-group text-center">
-							<input type="submit" value="Thêm" class="btn btn-primary" />
+							<input type="submit" value="Thêm" class="btn btn-primary" data-tooltip="tooltip" data-placement="bottom" title="Thêm một tài khoản mới" data-delay='{"show":"500", "hide":"100"}'/>
 						</div>
 					</fieldset>
 				}
@@ -158,16 +167,12 @@
 </div>
 
 @section Scripts{
-	<script>
-		setTimeout(function () {
-			if ($('#message').length > 0) {
-				$('#message').fadeOut(500, function () { $(this).remove(); });
-			}
-
-			$(document).ready(function () {
-				$('#inputUsername').focus();
-			});
+	<script type="text/javascript">
+		$(document).ready(function () {
+			$('#inputUsername').focus();
+		});
 	</script>
+
 	@if (!string.IsNullOrEmpty(ViewBag.Message))
 	{
 		<script type="text/javascript">

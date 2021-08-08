@@ -17,15 +17,15 @@
 </head>
 <body>
 	<header>
-		<nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-			<div class="container">
+		<nav class="navbar navbar-expand-md navbar-light bg-white border-bottom box-shadow mb-3">
+			<div class="container-fluid">
 				<a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">@Constants.Title</a>
 				<button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".navbar-collapse" aria-controls="navbarSupportedContent"
 						aria-expanded="false" aria-label="Toggle navigation">
 					<span class="navbar-toggler-icon"></span>
 				</button>
-				<div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-					<ul class="navbar-nav flex-grow-1">
+				<div class="navbar-collapse collapse" id="navbarSupportedContent">
+					<ul class="navbar-nav mr-auto">
 						<li class="nav-item">
 							<a class="nav-link text-dark @Html.IsSelected(action: "Index", controller: "Home")" asp-area="" asp-controller="Home" asp-action="Index">Trang chủ</a>
 						</li>
@@ -34,25 +34,28 @@
 							if (!string.IsNullOrWhiteSpace(role))
 							{
 								<li class="nav-item">
-									<a class="nav-link text-dark @Html.IsSelected(action: "Manage", controller: "Dictionary")" asp-area="" asp-controller="Dictionary" asp-action="Manage">Quản lý từ điển</a>
+									<a class="nav-link text-dark @Html.IsSelected(action: "Index", controller: "Dictionary")" asp-area="" asp-controller="Dictionary" asp-action="Index">Thống kê</a>
+								</li>
+								<li class="nav-item dropdown">
+									<a class="nav-link dropdown-toggle text-dark" id="dictionaryDropdown" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+										Quản lý từ điển
+									</a>
+									<ul class="dropdown-menu" aria-labelledby="dictionaryDropdown">
+										<li><a class="dropdown-item @Html.IsSelected(action: "Word", controller: "Dictionary")" asp-area="" asp-controller="Dictionary" asp-action="Word">Thêm từ vựng</a></li>
+										<li><a class="dropdown-item @Html.IsSelected(action: "Example", controller: "Dictionary")" asp-area="" asp-controller="Dictionary" asp-action="Example">Ghi âm ví dụ</a></li>
+									</ul>
+								</li>
+								<li class="nav-item">
+									<a class="nav-link text-dark @Html.IsSelected(action: "Index", controller: "Passage")" asp-area="" asp-controller="Passage" asp-action="Index">Quản lý song ngữ</a>
 								</li>
 							}
-							if (role == Role.Collaborator)
+							if (role == Role.Admin)
 							{
 								<li class="nav-item">
-									<a class="nav-link text-dark @Html.IsSelected(action: "Index", controller: "Collaborator")" asp-area="" asp-controller="Collaborator" asp-action="Index">Trang người đóng góp</a>
-								</li>
-							}
-							else if (role == Role.Admin)
-							{
-								<li class="nav-item">
-									<a class="nav-link text-dark @Html.IsSelected(action: "Index", controller: "Admin")" asp-area="" asp-controller="Admin" asp-action="Index">Trang quản trị viên</a>
+									<a class="nav-link text-dark @Html.IsSelected(action: "Index", controller: "Admin")" asp-area="" asp-controller="Admin" asp-action="Index">Quản lý thành viên</a>
 								</li>
 							}
 						}
-						@*<li class="nav-item">
-								<a class="nav-link text-dark @Html.IsSelected(action: "Index", controller: "Dictionary")" asp-area="" asp-controller="Dictionary" asp-action="Index">Từ điển</a>
-							</li>*@
 					</ul>
 					<div class="d-inline my-2 my-lg-0">
 						@{
@@ -105,17 +108,10 @@
 		<main role="main" class="pb-3">
 			@RenderBody()
 		</main>
-		<!--Toast-->
-		<div class="toast" role="alert" aria-live="assertive" aria-atomic="true" data-delay="5000">
-			<div class="toast-header">
-				<i class="fas fa-bell rounded mr-2"></i>
-				<strong class="mr-auto" id="titleToast"></strong>
-				<button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close">
-					<span aria-hidden="true">&times;</span>
-				</button>
-			</div>
-			<div class="toast-body"></div>
-		</div>
+		<!--Snackbar-->
+		<div id="snackbar"></div>
+		<button onclick="topFunction()" id="btnTop" title="Go to top" class="btn btn-success"><i class="fas fa-angle-double-up"></i></button>
+
 	</div>
 	<footer class="footer border-top text-center text-lg-start bg-light text-muted">
 		<div class="text-center p-2" style="background-color: rgba(0, 0, 0, 0.05);">
@@ -123,9 +119,8 @@
 		</div>
 	</footer>
 	<script src="~/lib/jquery/dist/jquery.min.js" type="text/javascript"></script>
-	<script src="~/lib/jquery-validation/dist/jquery.validate.min.js" type="text/javascript"></script>
 	<script src="~/lib/popper/popper.min.js" type="text/javascript"></script>
-	<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js" type="text/javascript"></script>
+	<script src="~/lib/bootstrap/dist/js/bootstrap.min.js" type="text/javascript"></script>
 	<script src="~/js/site.js" type="text/javascript" asp-append-version="true"></script>
 	@await RenderSectionAsync("Scripts", required: false)
 </body>

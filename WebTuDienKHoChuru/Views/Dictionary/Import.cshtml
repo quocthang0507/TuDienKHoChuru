@@ -1,0 +1,54 @@
+﻿@using WebTuDienKHoChuru.Utils
+@{
+	ViewData["Title"] = "Nhập từ vựng";
+}
+
+<div class="text-center">
+	<h5>@Constants.ImportFile cho @ViewBag.SelectedDict.Description</h5>
+	<p>CSV (Comma Separated Values) là một loại định dạng văn bản đơn giản mà trong đó, các giá trị được ngăn cách với nhau bằng dấu phẩy</p>
+</div>
+<div>
+	<p>
+		Lưu ý: Dấu phẩy <strong>không được gõ vào</strong> nội dung vì đây là dấu ngăn cách các cột. Cần đảm bảo các cột tiêu đề theo <strong>đúng thứ tự</strong> như sau trong dòng đầu tiên:
+		<ol>
+			<li>Từ vựng</li>
+			<li>Nghĩa</li>
+			<li>[Loại từ]. Nhập 0: danh từ, 1: động từ, 2: Tính từ, 3: Trạng từ, 4: Đại từ, 5: Giới từ, 6: Khác</li>
+			<li>[Ví dụ 1]</li>
+			<li>[Nghĩa ví dụ 1]</li>
+			<li>[Ví dụ 2]</li>
+			<li>[Nghĩa ví dụ 2]</li>
+		</ol>
+		[...] là không bắt buộc phải có. Các dòng sau là nội dung cần thêm vào hệ thống. Một từ nếu có nhiều nghĩa thì ghi lại từ đó với nghĩa mới ở dòng tiếp theo.
+	</p>
+</div>
+
+<div class="justify-content-center text-center" id="dropZone" ondrop="dropHandler(event, @ViewBag.SelectedDict.DictType);" ondragover="dragOverHandler(event);"
+	 ondragleave="dropLeaveHandler(event);" onclick="$('#inputCSV')[0].click();"
+	 data-tooltip="tooltip" data-placement="bottom" title="Vùng kéo thả tập tin CSV" data-delay='{"show":"500", "hide":"100"}'>
+	<p id="captionInput">Nhấn vào đây hoặc kéo thả tập tin CSV vào chỗ này...</p>
+	<input type="file" class="form-control-file" accept=".csv, text/csv" id="inputCSV" style="display: none;" onchange="onInputChange(@ViewBag.SelectedDict.DictType);" />
+</div>
+<div id="csvTable" style="display: none;" class="text-center">
+	<button class="btn btn-success btn-md" id="btnUpload"
+			data-tooltip="tooltip" data-placement="bottom" title="Nhập dữ liệu từ tập tin lên hệ thống" data-delay='{"show":"500", "hide":"100"}'>
+		<i class="fas fa-upload"></i>Nhập
+	</button>
+	<h5>Nội dung tập tin CSV</h5>
+	<p id="totalRows"></p>
+</div>
+
+@section Styles
+{
+	<style>
+		#csvTable {
+			margin-top: 40px;
+		}
+	</style>
+}
+
+@section Scripts
+{
+	<script type="text/javascript" src="~/lib/d3/d3.v7.min.js" charset="utf-8" asp-append-version="true"></script>
+	<script type="text/javascript" src="~/js/import.js" asp-append-version="true"></script>
+}

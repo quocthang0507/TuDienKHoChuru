@@ -7,6 +7,17 @@ using System.Threading.Tasks;
 
 namespace WebTuDienKHoChuru.Models.DataAccess
 {
+	public enum WordTypeEnum
+	{
+		Noun,
+		Verb,
+		Adjective,
+		Adverb,
+		Pronoun,
+		Prep,
+		Others
+	}
+
 	public class WORD_TYPE
 	{
 		[Key]

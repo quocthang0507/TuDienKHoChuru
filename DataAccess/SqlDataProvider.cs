@@ -71,6 +71,27 @@ namespace DataAccess
 			return null;
 		}
 
+		public override async Task<object> ExecuteNonQueryWithoutAffectedRowsWithOutput(string outputParam, string spName, params object[] parameterValues)
+		{
+			if (string.IsNullOrEmpty(outputParam))
+				throw new ArgumentException("OutputParam can't be null or empty!");
+			SqlParameter[] parameters = SqlHelperParameterCache.GetSpParameterSet(connectionString, spName);
+			SqlParameter sqlParameter = null;
+			foreach (var item in parameters)
+			{
+				if (string.Compare(item.ParameterName, outputParam, true) == 0)
+				{
+					sqlParameter = item;
+					break;
+				}
+			}
+			if (sqlParameter == null)
+				throw new Exception("Parameter not found!");
+			AssignParameterValues(parameters, parameterValues);
+			int result = await Task.Run(() => SqlHelper.ExecuteNonQuery(connectionString, CommandType.StoredProcedure, spName, parameters));
+			return sqlParameter.Value;
+		}
+
 		public override async Task<IDataReader> ExecuteReader(string spName, params object[] parameterValues)
 		{
 			return await Task.Run(() => SqlHelper.ExecuteReader(connectionString, spName, parameterValues));

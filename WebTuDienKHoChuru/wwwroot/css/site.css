@@ -15,6 +15,15 @@ a.navbar-brand {
 	float: right;
 }
 
+main > div.text-center {
+	margin-bottom: 50px;
+}
+
+h1, h2, h3, h4, h5, h6 {
+	text-transform: uppercase;
+	margin: 10px;
+}
+
 /*
 	Provide sufficient contrast against white background 
 */
@@ -119,9 +128,131 @@ body {
 	height: 4rem;
 }
 
-/*
-	Toast
+/* 
+	The snackbar - position it at the bottom and in the middle of the screen 
 */
-.toast {
-	float: right;
+#snackbar {
+	visibility: hidden;
+	min-width: 250px;
+	transform: translateX(-50%);
+	background-color: #333;
+	color: #fff;
+	text-align: center;
+	border-radius: 2px;
+	padding: 16px;
+	position: fixed;
+	z-index: 1;
+	left: 50%;
+	bottom: 100px;
+}
+
+	#snackbar.show {
+		visibility: visible;
+		-webkit-animation: fadein 0.5s, fadeout 0.5s 4.5s;
+		animation: fadein 0.5s, fadeout 0.5s 4.5s;
+	}
+
+@-webkit-keyframes fadein {
+	from {
+		bottom: 0;
+		opacity: 0;
+	}
+
+	to {
+		bottom: 100px;
+		opacity: 1;
+	}
+}
+
+@keyframes fadein {
+	from {
+		bottom: 0;
+		opacity: 0;
+	}
+
+	to {
+		bottom: 100px;
+		opacity: 1;
+	}
+}
+
+@-webkit-keyframes fadeout {
+	from {
+		bottom: 100px;
+		opacity: 1;
+	}
+
+	to {
+		bottom: 0;
+		opacity: 0;
+	}
+}
+
+@keyframes fadeout {
+	from {
+		bottom: 100px;
+		opacity: 1;
+	}
+
+	to {
+		bottom: 0;
+		opacity: 0;
+	}
+}
+
+/* 
+	Fixed table head
+*/
+
+.tableFixHead {
+	overflow: auto;
+}
+
+	.tableFixHead thead th {
+		position: sticky;
+		top: 0;
+		z-index: 1;
+		background-color: white;
+	}
+
+/*
+	Drop zone
+*/
+
+#dropZone {
+	height: 100px;
+	display: flex;
+	align-items: center;
+	cursor: pointer;
+	position: relative;
+	outline: 2px dashed #92b0b3;
+}
+
+	#dropZone p {
+		margin: 0;
+	}
+
+/*
+	Carousel
+*/
+
+.carousel-inner img {
+	margin: auto;
+	max-width: 500px;
+	width: 100%;
+}
+
+/*
+	Scroll to top button
+*/
+
+#btnTop {
+	display: none; /* Hidden by default */
+	position: fixed; /* Fixed/sticky position */
+	bottom: 20px; /* Place the button at the bottom of the page */
+	right: 30px; /* Place the button 30px from the right */
+	z-index: 99; /* Make sure it does not overlap */
+	cursor: pointer; /* Add a mouse pointer on hover */
+	padding: 10px 15px 10px; /* Some padding */
+	border-radius: 5px; /* Rounded corners */
 }

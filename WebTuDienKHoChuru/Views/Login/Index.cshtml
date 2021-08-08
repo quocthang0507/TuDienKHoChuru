@@ -1,4 +1,4 @@
-﻿@using WebTuDienKHoChuru.Controllers
+﻿@using WebTuDienKHoChuru.Models.FormModel
 @using WebTuDienKHoChuru.Utils
 @model LoginFormModel
 
@@ -46,17 +46,13 @@
 	}
 </div>
 
-@section Styles{
+@section Styles
+{
 	<link rel="stylesheet" href="~/css/login.css" asp-append-version="true" />
 }
-@section Scripts{
+@section Scripts
+{
 	<script>
-		setTimeout(function () {
-			if ($('#message').length > 0) {
-				$('#message').fadeOut(500, function () { $(this).remove(); });
-			}
-		}, 5000)
-
 		$(document).ready(function () {
 			$('#inputUsername').focus();
 		});

@@ -1,69 +1,120 @@
 ﻿@using WebTuDienKHoChuru.Utils
+
 @{
-	ViewData["Title"] = "Từ điển";
-	Layout = "~/Views/Shared/_Layout.cshtml";
+	ViewData["Title"] = "Thống kê Từ điển";
 }
 
 <div class="text-center">
-	<h5 class="display-5">@Constants.ListDictionaries</h5>
+	<h5>@Constants.ListDictionaries</h5>
 </div>
 
 <div class="row justify-content-center">
 	<div class="row">
-		<div class="col-12 col-sm-6 col-lg-3">
-			<a asp-area="" asp-controller="Dictionary" asp-action="Viet_KHo">
-				<div class="single wow fadeInUp" data-wow-delay="0.2s" style="visibility: visible; animation-delay: 0.2s; animation-name: fadeInUp;">
-					<div class="thumb">
-						<img src="~/img/kho-1.jpg" alt="@Constants.Viet_KHo">
-					</div>
-					<div class="single_details_info">
-						<h6>@Constants.Viet_KHo</h6>
-					</div>
-				</div>
-			</a>
-		</div>
 
 		<div class="col-12 col-sm-6 col-lg-3">
-			<a asp-area="" asp-controller="Dictionary" asp-action="KHo_Viet">
+			<a href="@Url.Action("GoToWordPage", "Dictionary", new { dictTypeID = 1, pageNumber = 1})">
 				<div class="single wow fadeInUp" data-wow-delay="0.3s" style="visibility: visible; animation-delay: 0.3s; animation-name: fadeInUp;">
 					<div class="thumb">
 						<img src="~/img/kho-2.jpg" alt="@Constants.KHo_Viet">
 					</div>
 					<div class="single_details_info">
 						<h6>@Constants.KHo_Viet</h6>
+						<p>Có @ViewBag.KHoVietWords từ và @ViewBag.KHoVietPassages đoạn song ngữ</p>
 					</div>
 				</div>
 			</a>
 		</div>
 
 		<div class="col-12 col-sm-6 col-lg-3">
-			<a asp-area="" asp-controller="Dictionary" asp-action="Viet_Churu">
-				<div class="single wow fadeInUp" data-wow-delay="0.4s" style="visibility: visible; animation-delay: 0.4s; animation-name: fadeInUp;">
+			<a href="@Url.Action("GoToWordPage", "Dictionary", new { dictTypeID = 2, pageNumber = 1})">
+				<div class="single wow fadeInUp" data-wow-delay="0.2s" style="visibility: visible; animation-delay: 0.2s; animation-name: fadeInUp;">
 					<div class="thumb">
-						<img src="~/img/churu-1.jpg" alt="@Constants.Viet_Churu">
+						<img src="~/img/kho-1.jpg" alt="@Constants.Viet_KHo">
 					</div>
 					<div class="single_details_info">
-						<h6>@Constants.Viet_Churu</h6>
+						<h6>@Constants.Viet_KHo</h6>
+						<p>Có @ViewBag.VietKHoWords từ và @ViewBag.VietKHoPassages đoạn song ngữ</p>
 					</div>
 				</div>
 			</a>
 		</div>
 
 		<div class="col-12 col-sm-6 col-lg-3">
-			<a asp-area="" asp-controller="Dictionary" asp-action="Churu_Viet">
+			<a href="@Url.Action("GoToWordPage", "Dictionary", new { dictTypeID = 3, pageNumber = 1})">
 				<div class="single wow fadeInUp" data-wow-delay="0.5s" style="visibility: visible; animation-delay: 0.5s; animation-name: fadeInUp;">
 					<div class="thumb">
 						<img src="~/img/churu-2.jpg" alt="@Constants.Churu_Viet">
 					</div>
 					<div class="single_details_info">
 						<h6>@Constants.Churu_Viet</h6>
+						<p>Có @ViewBag.ChuruVietWords từ và @ViewBag.ChuruVietPassages đoạn song ngữ</p>
+					</div>
+				</div>
+			</a>
+		</div>
+
+		<div class="col-12 col-sm-6 col-lg-3">
+			<a href="@Url.Action("GoToWordPage", "Dictionary", new { dictTypeID = 4, pageNumber = 1})">
+				<div class="single wow fadeInUp" data-wow-delay="0.4s" style="visibility: visible; animation-delay: 0.4s; animation-name: fadeInUp;">
+					<div class="thumb">
+						<img src="~/img/churu-1.jpg" alt="@Constants.Viet_Churu">
+					</div>
+					<div class="single_details_info">
+						<h6>@Constants.Viet_Churu</h6>
+						<p>Có @ViewBag.VietChuruWords từ và @ViewBag.VietChuruPassages đoạn song ngữ</p>
 					</div>
 				</div>
 			</a>
 		</div>
 	</div>
 </div>
+<!--BIỂU ĐỒ HÌNH TRÒN-->
+<div class="justify-content-center text-center">
+	<h5 id="titleChart"></h5>
+	<div id="piechart"></div>
+</div>
 
-@section Styles{
+@section Styles
+{
 	<link rel="stylesheet" href="~/css/dictionary.css" asp-append-version="true" />
+}
+
+@section Scripts
+{
+	<script type="text/javascript" src="~/lib/charts/loader.js" asp-append-version="true"></script>
+	<script type="text/javascript">
+		google.charts.load('current', { 'packages': ['corechart'] });
+
+		google.charts.setOnLoadCallback(drawStatChart);
+		$(window).resize(function () {
+			drawStatChart();
+		});
+
+		function drawStatChart() {
+			var url = window.location.origin + '/api/GetDictionaryStat';
+			$.ajax(url, {
+				success: function (data) {
+					var responseData = data;
+					var data = google.visualization.arrayToDataTable([
+						[responseData.columnTitle.key, responseData.columnTitle.value],
+						[responseData.data[0].key, responseData.data[0].value],
+						[responseData.data[1].key, responseData.data[1].value],
+						[responseData.data[2].key, responseData.data[2].value],
+						[responseData.data[3].key, responseData.data[3].value]
+					]);
+
+					var options = {
+						is3D: true
+					};
+					var title = document.getElementById('titleChart');
+					title.innerHTML = responseData.title;
+					var chart = new google.visualization.PieChart(document.getElementById('piechart'));
+					chart.draw(data, options);
+				},
+				error: function () {
+					showSnackbar('Có lỗi xảy ra khi lấy dữ liệu thống kê');
+				}
+			});
+		}
+	</script>
 }

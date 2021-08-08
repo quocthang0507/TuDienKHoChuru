@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Text;
 using System.Threading.Tasks;
-using WebTuDienKHoChuru.Models;
+using WebTuDienKHoChuru.Models.FormModel;
 using WebTuDienKHoChuru.Models.User;
 using WebTuDienKHoChuru.Services;
 using WebTuDienKHoChuru.Utils;
@@ -22,7 +22,10 @@ namespace WebTuDienKHoChuru.Controllers
 		// GET: Login
 		public IActionResult Index()
 		{
-			if (Extensions.IsAllNullOrEmpty(HttpContext.Session.GetString(Constants.FULLNAME), HttpContext.Session.GetString(Constants.ROLE)))
+			if (Extensions.IsAllNullOrEmpty(HttpContext.Session.GetString(Constants.FULLNAME),
+				HttpContext.Session.GetString(Constants.ROLE),
+				HttpContext.Session.GetString(Constants.USERNAME),
+				HttpContext.Request.Cookies[Constants.TOKEN]))
 				return View();
 			else
 				return RedirectToAction("Index", "Home");
@@ -41,6 +44,7 @@ namespace WebTuDienKHoChuru.Controllers
 
 		[Authorize]
 		[HttpGet]
+		[ProducesResponseType(StatusCodes.Status400BadRequest)]
 		public async Task<IActionResult> ChangeInfo()
 		{
 			string username = HttpContext.Session.GetString(Constants.USERNAME);
@@ -54,6 +58,7 @@ namespace WebTuDienKHoChuru.Controllers
 
 		[Authorize(Roles = Role.Admin)]
 		[HttpGet]
+		[ProducesResponseType(StatusCodes.Status400BadRequest)]
 		public async Task<IActionResult> AdminChangeInfo(string username)
 		{
 			Account account = await Accounts.FindOne(username);
@@ -84,19 +89,14 @@ namespace WebTuDienKHoChuru.Controllers
 				}
 				else if (!result.Value.Active)
 				{
-					ViewBag.Message = "Tài khoản vẫn còn nhưng không thể đăng nhập vì bị tạm ngưng, vui lòng liên hệ quản trị viên để biết thêm thông tin";
+					ViewBag.Message = "Tài khoản vẫn còn nhưng không thể đăng nhập vì bị tạm ngưng kích hoạt, vui lòng liên hệ quản trị viên để biết thêm thông tin";
 					return View("Index", model);
 				}
 				HttpContext.Session.Set(Constants.FULLNAME, Encoding.UTF8.GetBytes(user.Fullname));
 				HttpContext.Session.Set(Constants.ROLE, Encoding.UTF8.GetBytes(user.Role));
 				HttpContext.Session.Set(Constants.USERNAME, Encoding.UTF8.GetBytes(user.Username));
 				HttpContext.Response.Cookies.Append(Constants.TOKEN, user.Token, new CookieOptions { HttpOnly = true });
-				return user.Role switch
-				{
-					Role.Admin => RedirectToAction("Index", "Admin"),
-					Role.Collaborator => RedirectToAction("Index", "Collaborator"),
-					_ => RedirectToAction("Index", "Home"),
-				};
+				return RedirectToAction("Index", "Dictionary");
 			}
 			return View("Index", model);
 		}

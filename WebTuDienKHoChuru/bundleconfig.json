@@ -27,18 +27,54 @@
 		}
 	},
 	{
-		"outputFileName": "wwwroot/css/manage.min.css",
+		"outputFileName": "wwwroot/css/word.min.css",
 		"inputFiles": [
-			"wwwroot/css/manage.css"
+			"wwwroot/css/word.css"
 		],
 		"minify": {
 			"enabled": true
 		}
 	},
 	{
-		"outputFileName": "wwwroot/js/managedict.min.js",
+		"outputFileName": "wwwroot/js/word.min.js",
 		"inputFiles": [
-			"wwwroot/js/managedict.js"
+			"wwwroot/js/word.js"
+		],
+		"minify": {
+			"enabled": true
+		}
+	},
+	{
+		"outputFileName": "wwwroot/js/example.min.js",
+		"inputFiles": [
+			"wwwroot/js/example.js"
+		],
+		"minify": {
+			"enabled": true
+		}
+	},
+	{
+		"outputFileName": "wwwroot/js/passage.min.js",
+		"inputFiles": [
+			"wwwroot/js/passage.js"
+		],
+		"minify": {
+			"enabled": true
+		}
+	},
+	{
+		"outputFileName": "wwwroot/js/site.min.js",
+		"inputFiles": [
+			"wwwroot/js/site.js"
+		],
+		"minify": {
+			"enabled": true
+		}
+	},
+	{
+		"outputFileName": "wwwroot/js/import.min.js",
+		"inputFiles": [
+			"wwwroot/js/import.js"
 		],
 		"minify": {
 			"enabled": true

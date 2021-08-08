@@ -23,6 +23,7 @@ namespace WebTuDienKHoChuru.Controllers
 		public async Task<IActionResult> DeactivateAccount(string username)
 		{
 			string currentAcc = HttpContext.Session.GetString(Constants.USERNAME);
+			// Admin không thể tự hủy kích hoạt tài khoản của mình
 			if (currentAcc != username)
 			{
 				await Accounts.Deactivate(username);

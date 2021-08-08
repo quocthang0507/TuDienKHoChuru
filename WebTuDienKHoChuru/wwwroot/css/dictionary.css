@@ -122,3 +122,16 @@
 	.single:focus .single_details_info p {
 		color: #ffffff;
 	}
+
+/*
+	Chart
+*/
+
+#titleChart {
+	text-transform: uppercase;
+}
+
+#piechart {
+	justify-content: center;
+	min-height: 500px;
+}

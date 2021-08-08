@@ -1,0 +1,328 @@
+﻿@using WebTuDienKHoChuru.Models.DataAccess
+@model WebTuDienKHoChuru.Models.DataAccess.EXAMPLE
+
+@{
+	ViewData["Title"] = "Quản lý Từ vựng";
+	string exampleLabel, meaningLabel;
+	switch (ViewBag.ViewModel.SelectedDictTypeID)
+	{
+		case 1:
+			exampleLabel = "Ví dụ trong tiếng K'Ho";
+			meaningLabel = "Nghĩa ví dụ trong tiếng Việt";
+			break;
+		case 2:
+			exampleLabel = "Ví dụ trong tiếng Việt";
+			meaningLabel = "Nghĩa ví dụ trong tiếng K'Ho";
+			break;
+		case 3:
+			exampleLabel = "Ví dụ trong tiếng Churu";
+			meaningLabel = "Nghĩa ví dụ trong tiếng Việt";
+			break;
+		case 4:
+			exampleLabel = "Ví dụ trong tiếng Việt";
+			meaningLabel = "Nghĩa ví dụ trong tiếng Churu";
+			break;
+		default:
+			exampleLabel = "Ví dụ";
+			meaningLabel = "Nghĩa ví dụ";
+			break;
+	}
+}
+
+<div class="row justify-content-center">
+	<!--CỘT BÊN TRÁI-->
+	<div class="col-12 col-md-4">
+		<!--DANH SÁCH LOẠI TỪ ĐIỂN-->
+		<div class="form-group">
+			<label for="selectDictType">Loại từ điển</label>
+			<select class="form-select form-control" id="selectDictType">
+				@foreach (DICT_TYPE t in ViewBag.ViewModel.DictTypes)
+				{
+					@if (t.DictType == ViewBag.ViewModel.SelectedDictTypeID)
+					{
+						<option value="@t.DictType" selected>@t.Description</option>
+					}
+					else
+					{
+						<option value="@t.DictType">@t.Description</option>
+					}
+				}
+			</select>
+		</div>
+		<!--NHẬP TỪ MỚI-->
+		<div class="form-group">
+			<label for="inputNewWord">Nhập để thêm từ mới</label>
+			<a asp-controller="Dictionary" asp-action="Import" asp-route-dictTypeID="@ViewBag.ViewModel.SelectedDictTypeID"><small>hoặc thêm từ tập tin .CSV</small></a>
+			<div class="input-group mb-3">
+				<input type="text" class="form-control" placeholder="Từ mới" aria-label="Nhập từ mới" id="inputNewWord" name="newWord">
+				<div class="input-group-append">
+					<button class="btn btn-outline-success" type="button" onclick="addNewWord(@ViewBag.ViewModel.SelectedDictTypeID);"
+							data-tooltip="tooltip" data-placement="bottom" title="Thêm từ mới" data-delay='{"show":"500", "hide":"100"}'>
+						<i class="fas fa-plus"></i>
+					</button>
+				</div>
+			</div>
+		</div>
+		<!--DANH SÁCH TỪ VỰNG-->
+		<div class="form-group">
+			<label for="wordList">Danh sách từ vựng</label>
+			<div class="list-group" id="wordList">
+				@foreach (WORD w in ViewBag.ViewModel.WordList)
+				{
+					@if (w.ID == ViewBag.ViewModel.SelectedWord.ID)
+					{
+						<a class="list-group-item list-group-item-action active" href="#" id="@w.ID">@w.Word</a>
+					}
+					else
+					{
+						<a class="list-group-item list-group-item-action" href="/Dictionary/Word?dictTypeID=@ViewBag.ViewModel.SelectedDictTypeID&pageNumber=@ViewBag.ViewModel.SelectedPage&wordID=@w.ID" id="@w.ID">@w.Word</a>
+					}
+				}
+			</div>
+		</div>
+		<!--SỐ TRANG-->
+		<div class="form-inline justify-content-center">
+			<div class="form-group mb-2">
+				Trang:
+			</div>
+			<div class="form-group mx-sm-3 mb-2">
+				<input type="number" class="form-control" value="@ViewBag.ViewModel.SelectedPage" id="inputPageNumber" min="1" max="@ViewBag.ViewModel.PageNumbers">
+			</div>
+			tổng số @ViewBag.ViewModel.PageNumbers trang
+		</div>
+	</div>
+	<!--CỘT BÊN PHẢI: FORM NHẬP LIỆU-->
+	<div class="col-12 col-md-8">
+		@using (Html.BeginForm("UpdateWord", "Dictionary", FormMethod.Post, new { id = "formUpdateWord" }))
+		{
+			@Html.AntiForgeryToken()
+			<div class="form-row justify-content-center" role="toolbar">
+				<!--THANH ĐIỀU HƯỚNG & NÚT SUBMIT-->
+				<div id="buttons">
+					<button type="button" class="btn btn-link mr-2" id="btnPrevWord">Từ trước đó</button>
+					<button type="submit" class="btn btn-primary mr-2" id="btnSaveWord"
+							data-tooltip="tooltip" data-placement="bottom" title="Lưu thay đổi đối với từ này" data-delay='{"show":"500", "hide":"100"}'>
+						Lưu
+					</button>
+					<button type="button" class="btn btn-danger mr-2" onclick="deleteWord(@ViewBag.ViewModel.SelectedWord.ID);"
+							data-tooltip="tooltip" data-placement="bottom" title="Xóa từ này" data-delay='{"show":"500", "hide":"100"}'>
+						Xoá
+					</button>
+					<button type="button" class="btn btn-link" id="btnNextWord">Từ kế tiếp</button>
+				</div>
+			</div>
+			<div class="form-row">
+				<!--ID TỪ-->
+				<div class="form-group col-sm-2">
+					<label for="inputWordID" class="form-label font-weight-bold">ID</label>
+					<input type="number" class="form-control" id="inputWordID" readonly value="@ViewBag.ViewModel.SelectedWord.ID" name="WordID" />
+				</div>
+				<!--TỪ VỰNG-->
+				<div class="form-group col-sm-5">
+					<label for="inputWord" class="form-label font-weight-bold">Từ vựng</label>
+					<input type="text" class="form-control" id="inputWord" placeholder="Nhập từ vựng ở đây" required value="@ViewBag.ViewModel.SelectedWord.Word" name="Word" />
+				</div>
+				<!--TỪ LOẠI-->
+				<div class="form-group col-sm-5">
+					<label for="inputWordType" class="font-weight-bold">Từ loại</label>
+					<select id="inputWordtype" class="form-control" name="WordType">
+						@foreach (WORD_TYPE w in ViewBag.ViewModel.WordTypes)
+						{
+							@if (w.WordType == ViewBag.ViewModel.SelectedWord.WordType)
+							{
+								<option value="@w.WordType" selected>@w.Description</option>
+							}
+							else
+							{
+								<option value="@w.WordType">@w.Description</option>
+							}
+						}
+					</select>
+				</div>
+			</div>
+			<!--HÌNH ẢNH-->
+			<div class="form-row">
+				<div class="form-group col-sm">
+					<label class="form-label font-weight-bold" for="inputImage">Hình ảnh</label>
+					<input type="file" class="form-control custom-control" id="inputImage" name="ImageFile"
+						   accept="image/*" placeholder="Tập tin hình ảnh" />
+				</div>
+				<div id="divImagePreview" class="col-sm">
+					<img id="imagePreview" class="imgPreview full-width" src="@ViewBag.ViewModel.SelectedWord.ImgPath" alt="" />
+				</div>
+			</div>
+			<!--ÂM THANH-->
+			<div class="form-row">
+				<div class="form-group" style="padding:0 5px 0;">
+					<label class="form-label font-weight-bold" for="inputAudio">Âm thanh</label>
+					<div id="inputAudio">
+						<div class="form-row">
+							<!--TỪ TẬP TIN-->
+							<div class="form-group col-sm">
+								<label class="form-label" for="inputAudioFile">Chọn tập tin âm thanh</label>
+								<input type="file" class="form-control custom-control" id="inputAudioFile"
+									   accept="audio/*" capture placeholder="Tập tin âm thanh" />
+							</div>
+							<!--GHI ÂM-->
+							<div class="form-group col-sm">
+								<label class="form-label" for="inputRecorder">Hoặc ghi âm trực tiếp</label>
+								<div class="form-inline" id="inputRecorder">
+									<button onclick="startRecording(this);" class="btn btn-success mb-2"
+											data-tooltip="tooltip" data-placement="bottom" title="Bắt đầu ghi âm" data-delay='{"show":"500", "hide":"100"}'>
+										<i class="fas fa-microphone"></i>
+										Ghi âm
+									</button>
+									<button onclick="stopRecording(this);" class="btn btn-danger mx-sm-3 mb-2" disabled
+											data-tooltip="tooltip" data-placement="bottom" title="Dừng ghi âm tại đây" data-delay='{"show":"500", "hide":"100"}'>
+										<i class="fas fa-stop"></i>
+										Dừng
+									</button>
+								</div>
+							</div>
+						</div>
+						<audio id="audioPreview" controls class="custom-control">
+							<source id="audioSource" src="@ViewBag.ViewModel.SelectedWord.PronunPath" />
+							Trình duyệt của bạn không hỗ trợ định dạng âm thanh này!
+						</audio>
+					</div>
+				</div>
+			</div>
+			<!--CÁC NGHĨA CỦA TỪ-->
+			<div class="form-row">
+				<div class="form-group full-width" style="padding:0 5px 0;">
+					<div class="form-inline">
+						<label class="form-label font-weight-bold mb-2" for="inputMeanings">Nghĩa của từ</label>
+						<button type="button" class="btn btn-sm btn-outline-primary mx-sm-2 mb-2" onclick="addInputMeaning();"
+								data-tooltip="tooltip" data-placement="bottom" title="Thêm ô nhập nghĩa mới" data-delay='{"show":"500", "hide":"100"}'>
+							<i class="fas fa-plus"></i>
+						</button>
+						<button type="button" class="btn btn-sm btn-outline-danger mx-sm-1 mb-2" onclick="removeInputMeaning();"
+								data-tooltip="tooltip" data-placement="bottom" title="Xóa ô nhập nghĩa cuối cùng, nhưng ít nhất phải có một nghĩa" data-delay='{"show":"500", "hide":"100"}'>
+							<i class="fas fa-minus"></i>
+						</button>
+						<small class="form-text text-muted mx-sm-1 mb-2">Để thêm một nghĩa khác của từ, nhấn <i class="fas fa-plus"></i>. Để xóa, nhấn <i class="fas fa-minus"></i></small>
+					</div>
+					<div class="form-group" id="inputMeanings">
+						@foreach (var meaning in ViewBag.ViewModel.SelectedWord.Meanings)
+						{
+							<input type="text" class="form-control" placeholder="Nhập nghĩa tại đây" required value="@meaning.Meaning" name="WordMeaning">
+						}
+					</div>
+				</div>
+			</div>
+		}
+		<div class="form-inline">
+			<label class="form-label font-weight-bold mb-2" for="inputMeanings">Ví dụ</label>
+			<small class="form-text text-muted mx-sm-3 mb-2">
+				Vui lòng nhấn nút
+				<button type="button" onclick="goToSaveButton();" class="btn btn-outline-primary btn-sm mx-sm-1"
+						data-tooltip="tooltip" data-placement="bottom" title="Nhấn để di chuyển đến nút Lưu" data-delay='{"show":"500", "hide":"100"}'>
+					Lưu
+				</button> ở trên trước khi thêm các ví dụ
+			</small>
+			<button type="button" class="btn btn-success btn-md" data-toggle="modal" data-target="#addNewExampleModal"
+					data-tooltip="tooltip" data-placement="bottom" title="Thêm ví dụ mới" data-delay='{"show":"500", "hide":"100"}'>
+				Thêm ví dụ mới
+			</button>
+		</div>
+		<div class="form-group mt-2">
+			<table class="table table-bordered table-hover">
+				<thead>
+					<tr class="text-center">
+						<th scope="col">Nghĩa</th>
+						<th scope="col">@exampleLabel</th>
+						<th scope="col">@meaningLabel</th>
+						<th scope="col">Xóa</th>
+					</tr>
+				</thead>
+				<tbody>
+					@foreach (MEANING meaning in ViewBag.ViewModel.Meanings)
+					{
+						<tr>
+							@foreach (EXAMPLE example in meaning.Examples)
+							{
+								<th scope="row">@meaning.Meaning</th>
+								<td>@example.Example</td>
+								<td>@example.Meaning</td>
+								<td class="text-center">
+									<button type="button" class="btn btn-outline-danger btn-sm" onclick="deleteExample(@example.ID);"
+											data-tooltip="tooltip" data-placement="bottom" title="Xóa ví dụ này" data-delay='{"show":"500", "hide":"100"}'>
+										<i class="fas fa-trash"></i>
+									</button>
+								</td>
+							}
+						</tr>
+					}
+				</tbody>
+			</table>
+		</div>
+	</div>
+</div>
+
+<!--MODAL FORM NHẬP VÍ DỤ-->
+<div class="modal fade" id="addNewExampleModal" tabindex="-1" role="dialog" aria-labelledby="addNewExampleLabel" aria-hidden="true">
+	<div class="modal-dialog modal-lg" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="addNewExampleLabel">Thêm ví dụ</h5>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			<div class="modal-body">
+				@using (Html.BeginForm("InsertExample", "Dictionary", FormMethod.Post, new { id = "formInsertExample" }))
+				{
+					<fieldset>
+						@Html.AntiForgeryToken()
+						@Html.ValidationSummary(true)
+						<div style="color: red;" id="message" class="text-center">
+							@ViewBag.Message
+							@Html.ValidationMessageFor(x => x.Example)
+							@Html.ValidationMessageFor(x => x.Meaning)
+						</div>
+						<div class="form-group">
+							<label for="selectMeaning">Chọn nghĩa để thêm ví dụ</label>
+							<select id="selectMeaning" class="form-control" aria-label="Chọn nghĩa" name="MeaningID">
+								@foreach (MEANING meaning in ViewBag.ViewModel.Meanings)
+								{
+									<option value="@meaning.ID">@meaning.Meaning</option>
+								}
+							</select>
+						</div>
+						<div class="form-group">
+							@Html.LabelFor(x => x.Example, exampleLabel)
+							@Html.TextBoxFor(x => x.Example, new
+						   {
+							   @class = "form-control",
+							   required = "required"
+					   })
+						</div>
+						<div class="form-group">
+							@Html.LabelFor(x => x.Meaning, meaningLabel)
+							@Html.TextBoxFor(x => x.Meaning, new
+						   {
+							   @class = "form-control",
+							   required = "required"
+						   })
+						</div>
+						<div class="form-group text-center">
+							<input type="submit" value="Thêm" class="btn btn-primary" 
+								   data-tooltip="tooltip" data-placement="bottom" title="Thêm một ví dụ mới" data-delay='{"show":"500", "hide":"100"}'/>
+						</div>
+					</fieldset>
+				}
+			</div>
+		</div>
+	</div>
+</div>
+
+@section Scripts
+{
+	<script src="~/js/recorder.js" type="text/javascript" asp-append-version="true"></script>
+	<script src="~/js/word.js" type="text/javascript" asp-append-version="true"></script>
+}
+
+@section Styles
+{
+	<link rel="stylesheet" type="text/css" href="~/css/word.css" asp-append-version="true" />
+}

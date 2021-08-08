@@ -1,7 +1,9 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
@@ -71,6 +73,26 @@ namespace WebTuDienKHoChuru.Utils
 			return true;
 		}
 
+		public static bool EqualOne<T>(this T obj, params T[] values)
+		{
+			foreach (var value in values)
+			{
+				if (obj.Equals(value))
+					return true;
+			}
+			return false;
+		}
+
+		public static bool EqualAll<T>(this T obj, params T[] values)
+		{
+			foreach (var value in values)
+			{
+				if (!obj.Equals(value))
+					return false;
+			}
+			return true;
+		}
+
 		/// <summary>
 		/// Return a random filename with specifc length (with extension part)
 		/// </summary>
@@ -93,7 +115,7 @@ namespace WebTuDienKHoChuru.Utils
 		/// <returns></returns>
 		public static string GetDateTimeFilename(string ext)
 		{
-			return string.Concat(DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss"), ext.Contains('.') ? ext : "." + ext);
+			return string.Concat(DateTime.Now.ToString("yyyyMMdd_HHmmss.fff"), ext.Contains('.') ? ext : "." + ext);
 		}
 
 		/// <summary>
@@ -140,6 +162,59 @@ namespace WebTuDienKHoChuru.Utils
 				return ImageFormat.Jpeg;
 
 			return null;
+		}
+
+		public static string ConvertRelativePath(this IWebHostEnvironment webHost, string absolutePath)
+		{
+			return string.IsNullOrWhiteSpace(absolutePath) ? null : absolutePath.Replace(webHost.WebRootPath, "").Replace(@"\", "/");
+		}
+
+		public static DataTable ReadAsDataTable(this IFormFile file)
+		{
+			DataTable dt = new();
+			using (StreamReader reader = new(file.OpenReadStream()))
+			{
+				for (int i = 0; reader.Peek() >= 0; i++)
+				{
+					string line = reader.ReadLine();
+					if (!string.IsNullOrWhiteSpace(line))
+					{
+						string[] values = line.Split(',');
+						if (!values.Length.EqualOne(2, 3, 5, 7))
+							throw new FormatException("Accepts only these columns");
+						// Column names
+						if (i == 0)
+						{
+							DataColumn[] columns = values.Select(h => new DataColumn(h.Trim(), typeof(string))).ToArray();
+							dt.Columns.AddRange(columns);
+						}
+						// Data
+						else
+						{
+							if (values.Length != dt.Columns.Count)
+								throw new InvalidCastException("There are row(s) that not fit the number of the headers");
+							else if (Extensions.IsOneNullOrEmpty(values[0], values[1]))
+								throw new NoNullAllowedException("Two first cells in this row should not be blank");
+							else
+							{
+								DataRow row = dt.NewRow();
+								for (int j = 0; j < values.Length; j++)
+								{
+									if (j == 2)
+									{
+										bool result = int.TryParse(values[j].ToString(), out int num);
+										if (!result || num > 6 || num < 0)
+											throw new InvalidDataException("WordType column contains a invalid value");
+									}
+									row[j] = values[j].Trim();
+								}
+								dt.Rows.Add(row);
+							}
+						}
+					}
+				}
+			}
+			return dt;
 		}
 	}
 }

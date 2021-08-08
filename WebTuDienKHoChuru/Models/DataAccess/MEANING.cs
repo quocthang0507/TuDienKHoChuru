@@ -1,4 +1,5 @@
 ﻿using DataAccess;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -19,9 +20,15 @@ namespace WebTuDienKHoChuru.Models.DataAccess
 
 		[DisplayName("Nghĩa")]
 		public string Meaning { get; set; }
+
+		[DisplayName("Đã xóa")]
+		[DefaultValue(false)]
+		public bool Deleted { get; set; }
+
+		public List<EXAMPLE> Examples { get; set; }
 	}
 
-	public class MEANINGS
+	public class MEANINGs
 	{
 		public static async Task<List<MEANING>> GetMeanings(int wordID)
 		{
@@ -32,6 +39,19 @@ namespace WebTuDienKHoChuru.Models.DataAccess
 			catch (Exception)
 			{
 				return new List<MEANING>();
+			}
+		}
+
+		private static async Task<bool> InsertMeaning(MEANING meaning)
+		{
+			try
+			{
+				int result = await SqlDataProvider.Instance.ExecuteNonQuery("proc_INSERT_MEANING", meaning.WordID, meaning.Meaning);
+				return result > 0;
+			}
+			catch (Exception)
+			{
+				return false;
 			}
 		}
 
@@ -48,10 +68,7 @@ namespace WebTuDienKHoChuru.Models.DataAccess
 				// Thêm các nghĩa mới vào
 				foreach (var meaning in meanings)
 				{
-					bool result = await InsertMeaning(meaning);
-					// Nếu lỗi thì thoát luôn
-					if (!result)
-						return false;
+					await InsertMeaning(meaning);
 				}
 				return true;
 			}
@@ -61,24 +78,41 @@ namespace WebTuDienKHoChuru.Models.DataAccess
 			}
 		}
 
+		public static async Task<MEANING> InsertAndReturnMeaningWithID(MEANING meaning)
+		{
+			try
+			{
+				int id = Convert.ToInt32(await SqlDataProvider.Instance.ExecuteNonQueryWithOutput("@ID", "proc_INSERT_MEANING_OUTPUT", null, meaning.WordID, meaning.Meaning));
+				meaning.ID = id;
+				return meaning;
+			}
+			catch (Exception)
+			{
+				return null;
+			}
+		}
+
+		public static void InsertMeanings(ref List<MEANING> meaningList)
+		{
+			try
+			{
+				for (int i = 0; i < meaningList.Count; i++)
+				{
+					MEANING @new = InsertAndReturnMeaningWithID(meaningList[i]).Result;
+					meaningList[i] = @new;
+				}
+			}
+			catch (Exception)
+			{
+				meaningList = null;
+			}
+		}
+
 		private static async Task<bool> DeleteAllMeanings(int wordID)
 		{
 			try
 			{
 				int result = await SqlDataProvider.Instance.ExecuteNonQuery("proc_DELETE_ALL_MEANINGS", wordID);
-				return result > 0;
-			}
-			catch (Exception)
-			{
-				return false;
-			}
-		}
-
-		private static async Task<bool> InsertMeaning(MEANING glossary)
-		{
-			try
-			{
-				int result = await SqlDataProvider.Instance.ExecuteNonQuery("proc_INSERT_MEANING", glossary.WordID, glossary.Meaning);
 				return result > 0;
 			}
 			catch (Exception)

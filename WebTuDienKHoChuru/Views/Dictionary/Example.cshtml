@@ -1,0 +1,120 @@
+﻿@using WebTuDienKHoChuru.Models.DataAccess
+@using WebTuDienKHoChuru.Utils
+@{
+	ViewData["Title"] = "Âm thanh phát âm cho ví dụ";
+	string exampleLabel, meaningLabel;
+	switch (ViewBag.SelectedDictTypeID)
+	{
+		case 1:
+			exampleLabel = "Ví dụ trong tiếng K'Ho";
+			meaningLabel = "Nghĩa ví dụ trong tiếng Việt";
+			break;
+		case 2:
+			exampleLabel = "Ví dụ trong tiếng Việt";
+			meaningLabel = "Nghĩa ví dụ trong tiếng K'Ho";
+			break;
+		case 3:
+			exampleLabel = "Ví dụ trong tiếng Churu";
+			meaningLabel = "Nghĩa ví dụ trong tiếng Việt";
+			break;
+		case 4:
+			exampleLabel = "Ví dụ trong tiếng Việt";
+			meaningLabel = "Nghĩa ví dụ trong tiếng Churu";
+			break;
+		default:
+			exampleLabel = "Ví dụ";
+			meaningLabel = "Nghĩa ví dụ";
+			break;
+	}
+}
+
+<div class="text-center">
+	<h5>@Constants.ListExamples</h5>
+	<p>Lưu ý: Ghi âm xong từ nào, phải nhấn nút <i class="fas fa-file-upload"></i> thì mới cập nhật âm thanh của từ đó vào cơ sở dữ liệu.</p>
+</div>
+<!--DANH SÁCH LOẠI TỪ ĐIỂN-->
+<div class="form-group">
+	<label for="selectDictType">Chọn từ điển từ danh sách dưới đây</label>
+	<select class="form-control" aria-label="Dictionary types" id="selectDictType">
+		@foreach (DICT_TYPE item in ViewBag.DictTypes)
+		{
+			if (item.DictType == ViewBag.SelectedDictTypeID)
+			{
+				<option value="@item.DictType" selected>@item.Description</option>
+			}
+			else
+			{
+				<option value="@item.DictType">@item.Description</option>
+			}
+		}
+	</select>
+</div>
+<!--SỐ TRANG-->
+<div class="form-inline justify-content-center">
+	<div class="form-group mb-2">
+		Trang:
+	</div>
+	<div class="form-group mx-sm-3 mb-2">
+		<input type="number" class="form-control" value="@ViewBag.SelectedPage" id="inputPageNumber" min="1" max="@ViewBag.PageNumbers">
+	</div>
+	tổng số @ViewBag.PageNumbers trang
+</div>
+<!--BẢNG VÍ DỤ-->
+<table class="table table-bordered">
+	<thead>
+		<tr class="text-center">
+			<th scope="col">#</th>
+			<th scope="col">@exampleLabel</th>
+			<th scope="col">@meaningLabel</th>
+			<th scope="col">Âm thanh</th>
+			<th scope="col">Thao tác</th>
+		</tr>
+	</thead>
+	<tbody>
+		@foreach (EXAMPLE item in ViewBag.ExampleList)
+		{
+			string idAudio = "audioPreview" + item.ID;
+			string idSource = "audioSource" + item.ID;
+			<tr>
+				<th scope="row" class="text-center">@item.ID</th>
+				<td>@item.Example</td>
+				<td>@item.Meaning</td>
+				<td>
+					<audio id="@idAudio" controls class="custom-control">
+						<source id="@idSource" src="@item.PronunPath" />
+						Trình duyệt của bạn không hỗ trợ định dạng âm thanh này!
+					</audio>
+				</td>
+				<td class="text-center">
+					<button onclick="startRecording(this);" class="btn btn-outline-primary btn-md"
+							data-tooltip="tooltip" data-placement="bottom" title="Bắt đầu ghi âm cho ví dụ này" data-delay='{"show":"500", "hide":"100"}'>
+						<i class="fas fa-microphone"></i>
+					</button>
+					<button onclick="stopRecording(this, @item.ID);" class="btn btn-outline-danger btn-md" style="display: none;"
+							data-tooltip="tooltip" data-placement="bottom" title="Kết thúc ghi âm tại đây" data-delay='{"show":"500", "hide":"100"}'>
+						<i class="fas fa-stop"></i>
+					</button>
+					<div class="btn-group" role="group" aria-label="Action buttons">
+						<button onclick="uploadAudio(@item.ID);" class="btn btn-outline-success btn-md mr-2" style="display: none;"
+								data-tooltip="tooltip" data-placement="bottom" title="Lưu ghi âm của ví dụ này" data-delay='{"show":"500", "hide":"100"}'>
+							<i class="fas fa-save"></i>
+						</button>
+						@if (!string.IsNullOrEmpty(item.PronunPath))
+						{
+							<button onclick="deleteAudio(@item.ID);" class="btn btn-outline-danger btn-md"
+									data-tooltip="tooltip" data-placement="bottom" title="Xóa âm thanh của ví dụ này" data-delay='{"show":"500", "hide":"100"}'>
+								<i class="fas fa-trash"></i>
+							</button>
+						}
+					</div>
+				</td>
+			</tr>
+		}
+	</tbody>
+</table>
+
+@section Scripts
+{
+	<script src="~/js/recorder.js" type="text/javascript" asp-append-version="true"></script>
+	<script src="~/js/example.js" type="text/javascript" asp-append-version="true"></script>
+}
