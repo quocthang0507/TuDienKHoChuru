@@ -108,6 +108,19 @@ namespace WebTuDienKHoChuru.Models.DataAccess
 			}
 		}
 
+		public static async Task<bool> DeleteMeaning(int meaningID)
+		{
+			try
+			{
+				int result = await SqlDataProvider.Instance.ExecuteNonQuery("proc_DELETE_MEANING", meaningID);
+				return result > 0;
+			}
+			catch (Exception)
+			{
+				return false;
+			}
+		}
+		
 		private static async Task<bool> DeleteAllMeanings(int wordID)
 		{
 			try

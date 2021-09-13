@@ -127,5 +127,18 @@ namespace WebTuDienKHoChuru.Models.DataAccess
 				return false;
 			}
 		}
+		
+		public static async Task<bool> DeleteAllExamples(int wordID)
+		{
+			try
+			{
+				int result = await SqlDataProvider.Instance.ExecuteNonQuery("proc_DELETE_ALL_EXAMPLES", wordID);
+				return result > 0;
+			}
+			catch (Exception)
+			{
+				return false;
+			}
+		}
 	}
 }

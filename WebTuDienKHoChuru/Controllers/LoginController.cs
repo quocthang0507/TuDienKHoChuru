@@ -152,7 +152,7 @@ namespace WebTuDienKHoChuru.Controllers
 				}
 				else
 				{
-					ViewBag.Message = "Cập nhật không thông tin thành công";
+					ViewBag.Message = "Cập nhật thông tin không thành công";
 				}
 				return View("ChangeInfo", account);
 			}
