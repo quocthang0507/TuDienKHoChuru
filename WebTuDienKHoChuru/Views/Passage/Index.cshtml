@@ -1,4 +1,4 @@
-﻿@using WebTuDienKHoChuru.Utils
+@using WebTuDienKHoChuru.Utils
 @using WebTuDienKHoChuru.Models.DataAccess
 @{
 	ViewData["Title"] = "Quản lý song ngữ";
@@ -29,121 +29,142 @@
 }
 
 <div class="text-center">
-	<h5>@Constants.ListPassages</h5>
+ <h5>@Constants.ListPassages</h5>
 </div>
 <!--DANH SÁCH LOẠI TỪ ĐIỂN-->
 <div class="form-group">
-	<label for="selectDictType">Chọn từ điển từ danh sách dưới đây</label>
-	<select class="form-control" aria-label="Dictionary types" id="selectDictType">
+ <label for="selectDictType">Chọn từ điển từ danh sách dưới đây</label>
+ <select class="form-control" aria-label="Dictionary types" id="selectDictType">
 		@foreach (DICT_TYPE item in ViewBag.DictTypes)
 		{
 			if (item.DictType == ViewBag.SelectedDictTypeID)
 			{
-				<option value="@item.DictType" selected>@item.Description</option>
+		  <option value="@item.DictType" selected>@item.Description</option>
 			}
 			else
 			{
-				<option value="@item.DictType">@item.Description</option>
+		  <option value="@item.DictType">@item.Description</option>
 			}
 		}
-	</select>
+ </select>
 </div>
+<!--NHẬP ĐOẠN SONG NGỮ-->
+<a asp-controller="Passage" asp-action="Import" asp-route-dictTypeID="@ViewBag.SelectedDictTypeID"><small>hoặc thêm từ tập tin .CSV</small></a>
 <!--SỐ TRANG-->
 <div class="form-inline justify-content-center">
-	<div class="form-group mb-2">
-		Trang:
-	</div>
-	<div class="form-group mx-sm-3 mb-2">
-		<input type="number" class="form-control" value="@ViewBag.SelectedPage" id="inputPageNumber" min="1" max="@ViewBag.PageNumbers">
-	</div>
-	tổng số @ViewBag.PageNumbers trang
+ <div class="form-group mb-2">
+  Trang:
+ </div>
+ <div class="form-group mx-sm-3 mb-2">
+  <input type="number" class="form-control" value="@ViewBag.SelectedPage" id="inputPageNumber" min="1" max="@ViewBag.PageNumbers">
+ </div>
+ tổng số @ViewBag.PageNumbers trang
 </div>
 <!--BẢNG ĐOẠN VĂN-->
 <div class="tableFixHead">
-	<table class="table table-hover table-bordered table-hover" data-resizable="true">
-		<thead class="text-center">
-			<tr>
-				<th scope="col">#</th>
-				<th scope="col">Thể loại</th>
-				<th scope="col">@sourceLabel</th>
-				<th scope="col">@destinationLabel</th>
-				<th scope="col">Hành động</th>
-			</tr>
-		</thead>
-		<tbody>
-			<tr>
-				<th scope="row" id="ID" class="text-center">NaN</th>
-				<td>
-					<select class="form-control" name="PassageType">
+ <table class="table table-hover table-bordered table-hover" data-resizable="true">
+  <thead class="text-center">
+   <tr>
+	<th scope="col">ID</th>
+	<th scope="col">Thể loại</th>
+	<th scope="col">@sourceLabel</th>
+	<th scope="col">@destinationLabel</th>
+	<th scope="col">Thao tác</th>
+   </tr>
+  </thead>
+  <tbody>
+   <tr>
+	<th scope="row" id="ID" class="text-center">NaN</th>
+	<td>
+	 <select class="form-control" name="PassageType">
 						@foreach (PASSAGE_TYPE item in ViewBag.PassageTypes)
 						{
 							if (item.PassageType == "KHAC")
 							{
-								<option value="@item.PassageType" selected>@item.Description</option>
+			  <option value="@item.PassageType" selected>@item.Description</option>
 							}
 							else
 							{
-								<option value="@item.PassageType">@item.Description</option>
+			  <option value="@item.PassageType">@item.Description</option>
 							}
 						}
-					</select>
-				</td>
-				<td>
-					<textarea class="form-control" rows="5" placeholder="Nhập đoạn văn" name="Source"></textarea>
-				</td>
-				<td>
-					<textarea class="form-control" rows="5" placeholder="Nhập đoạn văn" name="Destination"></textarea>
-				</td>
-				<td class="text-center">
-					<button onclick="insertPassage();" class="btn btn-outline-success btn-md" id="btnInsert" 
-							data-tooltip="tooltip" data-placement="bottom" title="Thêm đoạn văn vừa nhập" data-delay='{"show":"500", "hide":"100"}'>
-						<i class="fas fa-file-upload"></i>
-					</button>
-					<button onclick="insertPassage();" class="btn btn-outline-success btn-md" id="btnSave" style="display: none;" 
-							data-tooltip="tooltip" data-placement="bottom" title="Cập nhật đoạn văn" data-delay='{"show":"500", "hide":"100"}'>
-						<i class="fas fa-save"></i>
-					</button>
-				</td>
-			</tr>
+	 </select>
+	</td>
+	<td>
+	 <textarea class="form-control" rows="5" placeholder="Nhập đoạn văn" name="Source"></textarea>
+	</td>
+	<td>
+	 <textarea class="form-control" rows="5" placeholder="Nhập đoạn văn" name="Destination"></textarea>
+	</td>
+	<td class="text-center">
+	 <audio id="audioPreview" controls class="custom-control">
+	  <source id="audioSource" src="" name="PronouncePath" />
+	  Trình duyệt của bạn không hỗ trợ định dạng âm thanh này!
+	 </audio>
+	 <div class="btn-group mt-2" role="group">
+	  <button onclick="startRecording(this);" class="btn btn-success mr-2" id="btnStart"
+								data-tooltip="tooltip" data-placement="bottom" title="Bắt đầu ghi âm" data-delay='{"show":"500", "hide":"100"}'>
+	   <i class="fas fa-microphone"></i>
+	  </button>
+	  <button onclick="stopRecording(this);" class="btn btn-danger mr-2" id="btnStop" style="display: none;"
+								data-tooltip="tooltip" data-placement="bottom" title="Dừng ghi âm tại đây" data-delay='{"show":"500", "hide":"100"}'>
+	   <i class="fas fa-stop"></i>
+	  </button>
+	  <button onclick="insertPassage();" class="btn btn-primary" id="btnInsert"
+								data-tooltip="tooltip" data-placement="bottom" title="Thêm đoạn văn vừa nhập" data-delay='{"show":"500", "hide":"100"}'>
+	   <i class="fas fa-file-upload"></i>
+	  </button>
+	  <button onclick="insertPassage();" class="btn btn-success" id="btnSave" style="display: none;"
+								data-tooltip="tooltip" data-placement="bottom" title="Cập nhật đoạn văn" data-delay='{"show":"500", "hide":"100"}'>
+	   <i class="fas fa-save"></i>
+	  </button>
+	 </div>
+	</td>
+   </tr>
 			@foreach (BILINGUAL_PASSAGE passage in ViewBag.PassageList)
 			{
-				string ID = "ID" + passage.ID, sourceID = "source" + passage.ID, destinationID = "destination" + passage.ID;
-				<tr>
-					<th scope="row" id="@ID" class="text-center">@passage.ID</th>
-					<td>
+				string ID = "ID" + passage.ID, sourceID = "source" + passage.ID, destinationID = "destination" + passage.ID, pronounceID = "pronounce" + passage.ID;
+	   <tr>
+		<th scope="row" id="@ID" class="text-center">@passage.ID</th>
+		<td>
 						@foreach (PASSAGE_TYPE type in ViewBag.PassageTypes)
 						{
 							if (type.PassageType == passage.PassageType)
 							{
-								<p>@type.Description</p>
+				 <p>@type.Description</p>
 							}
 						}
-					</td>
-					<td>
-						<p id="@sourceID">@passage.Source</p>
-					</td>
-					<td>
-						<p id="@destinationID">@passage.Destination</p>
-					</td>
-					<td class="text-center">
-						<div class="btn-group" role="group" aria-label="Action buttons">
-							<button onclick="updatePassage(@passage.ID, '@passage.PassageType');" class="btn btn-outline-primary btn-md mr-2" 
-									data-tooltip="tooltip" data-placement="bottom" title="Chỉnh sửa đoạn văn này" data-delay='{"show":"500", "hide":"100"}'>
-								<i class="fas fa-edit"></i>
-							</button>
-							<button onclick="deletePassage(@passage.ID);" class="btn btn-outline-danger btn-md"
-									data-tooltip="tooltip" data-placement="bottom" title="Xóa đoạn văn này" data-delay='{"show":"500", "hide":"100"}'>
-								<i class="fas fa-trash"></i>
-							</button>
-						</div>
-					</td>
-				</tr>
+		</td>
+		<td>
+		 <p id="@sourceID">@passage.Source</p>
+		</td>
+		<td>
+		 <p id="@destinationID">@passage.Destination</p>
+		</td>
+		<td class="text-center">
+		 <audio controls class="custom-control">
+		  <source src="@passage.PronouncePath" id="@pronounceID" />
+		  Trình duyệt của bạn không hỗ trợ định dạng âm thanh này!
+		 </audio>
+		 <div class="btn-group mt-2" role="group" aria-label="Action buttons">
+		  <button onclick="updatePassage(@passage.ID, '@passage.PassageType');" class="btn btn-outline-primary mr-2"
+								data-tooltip="tooltip" data-placement="bottom" title="Chỉnh sửa đoạn văn này" data-delay='{"show":"500", "hide":"100"}'>
+		   <i class="fas fa-edit"></i>
+		  </button>
+		  <button onclick="deletePassage(@passage.ID);" class="btn btn-outline-danger"
+								data-tooltip="tooltip" data-placement="bottom" title="Xóa đoạn văn này" data-delay='{"show":"500", "hide":"100"}'>
+		   <i class="fas fa-trash"></i>
+		  </button>
+		 </div>
+		</td>
+	   </tr>
 			}
-		</tbody>
-	</table>
+  </tbody>
+ </table>
 </div>
 
 @section Scripts
 {
-	<script src="~/js/passage.js" type="text/javascript" asp-append-version="true"></script>
+<script src="~/js/recorder.js" type="text/javascript" asp-append-version="true"></script>
+<script src="~/js/passage.js" type="text/javascript" asp-append-version="true"></script>
 }

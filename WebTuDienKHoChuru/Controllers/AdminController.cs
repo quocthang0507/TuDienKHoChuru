@@ -19,6 +19,7 @@ namespace WebTuDienKHoChuru.Controllers
 			return View();
 		}
 
+		#region APIs
 		[HttpGet]
 		public async Task<IActionResult> DeactivateAccount(string username)
 		{
@@ -54,5 +55,6 @@ namespace WebTuDienKHoChuru.Controllers
 				ViewBag.Message = "Lỗi do form không hợp lệ";
 			return View("Index");
 		}
+		#endregion
 	}
 }

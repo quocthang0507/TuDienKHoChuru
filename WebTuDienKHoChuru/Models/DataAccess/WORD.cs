@@ -29,7 +29,7 @@ namespace WebTuDienKHoChuru.Models.DataAccess
 		public string WordType { get; set; }
 
 		[DisplayName("Phát âm")]
-		public string PronunPath { get; set; }
+		public string PronouncePath { get; set; }
 
 		[DisplayName("Hình ảnh")]
 		public string ImgPath { get; set; }
@@ -59,7 +59,7 @@ namespace WebTuDienKHoChuru.Models.DataAccess
 				Word = string.Empty,
 				DictType = dictTypeID,
 				WordType = "Others",
-				PronunPath = string.Empty,
+				PronouncePath = string.Empty,
 				ImgPath = string.Empty,
 				AddedDate = DateTime.Now,
 				UpdatedDate = DateTime.Now,
@@ -112,7 +112,7 @@ namespace WebTuDienKHoChuru.Models.DataAccess
 		{
 			try
 			{
-				int result = await SqlDataProvider.Instance.ExecuteNonQuery("proc_UPDATE_WORD", word.ID, word.Word, word.DictType, word.WordType, word.PronunPath, word.ImgPath, word.Creator);
+				int result = await SqlDataProvider.Instance.ExecuteNonQuery("proc_UPDATE_WORD", word.ID, word.Word, word.DictType, word.WordType, word.PronouncePath, word.ImgPath, word.Creator);
 				return result > 0;
 			}
 			catch (Exception)
@@ -125,7 +125,7 @@ namespace WebTuDienKHoChuru.Models.DataAccess
 		{
 			try
 			{
-				int result = await SqlDataProvider.Instance.ExecuteNonQuery("proc_INSERT_WORD", word.Word, word.DictType, word.WordType, word.PronunPath, word.ImgPath, word.Creator);
+				int result = await SqlDataProvider.Instance.ExecuteNonQuery("proc_INSERT_WORD", word.Word, word.DictType, word.WordType, word.PronouncePath, word.ImgPath, word.Creator);
 				return result > 0;
 			}
 			catch (Exception)
@@ -138,7 +138,7 @@ namespace WebTuDienKHoChuru.Models.DataAccess
 		{
 			try
 			{
-				int id = Convert.ToInt32(await SqlDataProvider.Instance.ExecuteNonQueryWithoutAffectedRowsWithOutput("@ID", "proc_INSERT_WORD_OUTPUT", null, word.Word, word.DictType, word.WordType, word.PronunPath, word.ImgPath, word.Creator));
+				int id = Convert.ToInt32(await SqlDataProvider.Instance.ExecuteNonQueryWithoutAffectedRowsWithOutput("@ID", "proc_INSERT_WORD_OUTPUT", null, word.Word, word.DictType, word.WordType, word.PronouncePath, word.ImgPath, word.Creator));
 				word.ID = id;
 				return word;
 			}
@@ -184,15 +184,14 @@ namespace WebTuDienKHoChuru.Models.DataAccess
 				string ex1_e, ex1_m, ex2_e, ex2_m, word_w, word_m, word_t;
 				switch (dt.Columns.Count)
 				{
-					case 7:
+					case 6:
 						// Thêm hai ví dụ
 						word_w = row[0].ToString();
 						word_m = row[1].ToString();
-						word_t = row[2].ToString();
-						ex1_e = row[3].ToString();
-						ex1_m = row[4].ToString();
-						ex2_e = row[5].ToString();
-						ex2_m = row[6].ToString();
+\						ex1_e = row[2].ToString();
+						ex1_m = row[3].ToString();
+						ex2_e = row[4].ToString();
+						ex2_m = row[5].ToString();
 						ex2 = new()
 						{
 							Example = ex2_e,
@@ -217,20 +216,19 @@ namespace WebTuDienKHoChuru.Models.DataAccess
 						word = new()
 						{
 							Word = word_w,
-							WordType = Enum.GetName(typeof(WordTypeEnum), int.Parse(word_t)),
+							WordType = Enum.GetName(typeof(WordTypeEnum), int.Parse(6)),
 							Meanings = new(),
 							Creator = creator,
 							DictType = dictTypeID
 						};
 						word.Meanings.Add(meaning);
 						break;
-					case 5:
+					case 4:
 						// Thêm ví dụ
 						word_w = row[0].ToString();
 						word_m = row[1].ToString();
-						word_t = row[2].ToString();
-						ex1_e = row[3].ToString();
-						ex1_m = row[4].ToString();
+						ex1_e = row[2].ToString();
+						ex1_m = row[3].ToString();
 						ex1 = new()
 						{
 							Example = ex1_e,
@@ -248,27 +246,7 @@ namespace WebTuDienKHoChuru.Models.DataAccess
 						word = new()
 						{
 							Word = word_w,
-							WordType = Enum.GetName(typeof(WordTypeEnum), int.Parse(word_t)),
-							Meanings = new(),
-							Creator = creator,
-							DictType = dictTypeID
-						};
-						word.Meanings.Add(meaning);
-						break;
-					case 3:
-						// Thêm nghĩa
-						word_w = row[0].ToString();
-						word_m = row[1].ToString();
-						word_t = row[2].ToString();
-						meaning = new()
-						{
-							Meaning = word_m
-						};
-						// Thêm từ cùng với nghĩa ở trên
-						word = new()
-						{
-							Word = word_w,
-							WordType = Enum.GetName(typeof(WordTypeEnum), int.Parse(word_t)),
+							WordType = Enum.GetName(typeof(WordTypeEnum), int.Parse(6)),
 							Meanings = new(),
 							Creator = creator,
 							DictType = dictTypeID
@@ -311,7 +289,7 @@ namespace WebTuDienKHoChuru.Models.DataAccess
 		{
 			try
 			{
-				int result = await SqlDataProvider.Instance.ExecuteNonQuery("proc_INSERT_WORD_TEST", word.Word, word.DictType, word.WordType, word.PronunPath, word.ImgPath, word.Creator);
+				int result = await SqlDataProvider.Instance.ExecuteNonQuery("proc_INSERT_WORD_TEST", word.Word, word.DictType, word.WordType, word.PronouncePath, word.ImgPath, word.Creator);
 				return result > 0;
 			}
 			catch (Exception)

@@ -1,5 +1,4 @@
-﻿
-function loaderOn() {
+﻿function loaderOn() {
 	document.getElementById("overlay").style.display = "block";
 }
 

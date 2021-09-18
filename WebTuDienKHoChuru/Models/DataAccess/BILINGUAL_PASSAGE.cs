@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using System.Data;
 using System.Threading.Tasks;
 using WebTuDienKHoChuru.Utils;
 
@@ -27,6 +28,9 @@ namespace WebTuDienKHoChuru.Models.DataAccess
 		[Required]
 		[DisplayName("Đoạn ngôn ngữ đích")]
 		public string Destination { get; set; }
+
+		[DisplayName("Phát âm")]
+		public string PronouncePath { get; set; }
 
 		[DisplayName("Ngày thêm")]
 		public DateTime AddedDate { get; set; }
@@ -99,7 +103,7 @@ namespace WebTuDienKHoChuru.Models.DataAccess
 		{
 			try
 			{
-				int result = await SqlDataProvider.Instance.ExecuteNonQuery("proc_INSERT_PASSAGE", passage.DictType, passage.PassageType, passage.Source, passage.Destination, passage.Creator);
+				int result = await SqlDataProvider.Instance.ExecuteNonQuery("proc_INSERT_PASSAGE", passage.DictType, passage.PassageType, passage.Source, passage.Destination, passage.PronouncePath, passage.Creator);
 				return result > 0;
 			}
 			catch (Exception)
@@ -108,11 +112,19 @@ namespace WebTuDienKHoChuru.Models.DataAccess
 			}
 		}
 
+		public static async void InsertPassages(List<BILINGUAL_PASSAGE> passageList)
+		{
+			foreach (var passage in passageList)
+			{
+				await InsertPassage(passage);
+			}
+		}
+
 		public static async Task<bool> UpdatePassage(BILINGUAL_PASSAGE passage)
 		{
 			try
 			{
-				int result = await SqlDataProvider.Instance.ExecuteNonQuery("proc_UPDATE_PASSAGE", passage.ID, passage.PassageType, passage.Source, passage.Destination);
+				int result = await SqlDataProvider.Instance.ExecuteNonQuery("proc_UPDATE_PASSAGE", passage.ID, passage.PassageType, passage.Source, passage.Destination, passage.PronouncePath);
 				return result > 0;
 			}
 			catch (Exception)
@@ -132,6 +144,77 @@ namespace WebTuDienKHoChuru.Models.DataAccess
 			{
 				return false;
 			}
+		}
+
+		public static async Task<int> GetMaxID()
+		{
+			try
+			{
+				return Convert.ToInt32(await SqlDataProvider.Instance.ExecuteNonQueryWithoutAffectedRowsWithOutput("@MAX", "proc_GET_MAX_ID_PASSAGE", null));
+			}
+			catch (Exception)
+			{
+				return -1;
+			}
+		}
+
+		public static async Task<bool> TryInsertingPassage(BILINGUAL_PASSAGE passage)
+		{
+			try
+			{
+				int result = await SqlDataProvider.Instance.ExecuteNonQuery("proc_INSERT_PASSAGE_TEST", passage.DictType, passage.PassageType, passage.Source, passage.Destination, passage.PronouncePath, passage.Creator);
+				return result > 0;
+			}
+			catch (Exception)
+			{
+				return false;
+			}
+		}
+
+		public static async Task<bool> ResetID(int newIdentity)
+		{
+			try
+			{
+				int result = await SqlDataProvider.Instance.ExecuteNonQuery("proc_RESET_IDENTITY_PASSAGE", newIdentity);
+				return result > 0;
+			}
+			catch (Exception)
+			{
+				return false;
+			}
+		}
+
+		public static async Task<List<int>> TryInsertingPassages(List<BILINGUAL_PASSAGE> passageList)
+		{
+			int oldMaxID = await GetMaxID();
+			if (oldMaxID == -1)
+				return null;
+			List<int> result = new();
+			for (int i = 0; i < passageList.Count; i++)
+			{
+				if (!await TryInsertingPassage(passageList[i]))
+					result.Add(i);
+			}
+			await ResetID(oldMaxID);
+			return result;
+		}
+
+		public static List<BILINGUAL_PASSAGE> ConvertDtToPassageList(DataTable dt, int dictTypeID, string creator)
+		{
+			List<BILINGUAL_PASSAGE> passageList = new();
+			if (dt.Columns.Count == 2)
+			{
+				foreach (DataRow row in dt.Rows)
+				{
+					BILINGUAL_PASSAGE passage = new()
+					{
+						Source = row[0].ToString(),
+						Destination = row[1].ToString()
+					};
+					passageList.Add(passage);
+				}
+			}
+			return passageList;
 		}
 	}
 }

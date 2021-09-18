@@ -169,7 +169,7 @@ namespace WebTuDienKHoChuru.Utils
 			return string.IsNullOrWhiteSpace(absolutePath) ? null : absolutePath.Replace(webHost.WebRootPath, "").Replace(@"\", "/");
 		}
 
-		public static DataTable ReadAsDataTable(this IFormFile file)
+		public static DataTable ReadAsDataTable(this IFormFile file, char delimiter = '\t')
 		{
 			DataTable dt = new();
 			using (StreamReader reader = new(file.OpenReadStream()))
@@ -179,8 +179,8 @@ namespace WebTuDienKHoChuru.Utils
 					string line = reader.ReadLine();
 					if (!string.IsNullOrWhiteSpace(line))
 					{
-						string[] values = line.Split(',');
-						if (!values.Length.EqualOne(2, 3, 5, 7))
+						string[] values = line.Split(delimiter);
+						if (!values.Length.EqualOne(2, 4, 6))
 							throw new FormatException("Accepts only these columns");
 						// Column names
 						if (i == 0)

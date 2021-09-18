@@ -11,10 +11,12 @@ function startUserMedia(stream) {
 }
 
 function startRecording(button) {
-	recorder && recorder.record();
-	button.disabled = true;
-	button.nextElementSibling.disabled = false;
-	console.log('Recording...');
+	if (audio_context) {
+		recorder && recorder.record();
+		button.disabled = true;
+		button.nextElementSibling.disabled = false;
+		console.log('Recording...');
+	}
 }
 
 function stopRecording(button) {
@@ -239,7 +241,7 @@ function addNewWord(dictTypeID) {
 			},
 			error: function (request, status, error) {
 				loaderOff();
-				showSnackbar('Lỗi: ' + equest.responseText);
+				showSnackbar('Lỗi: ' + request.responseText);
 				console.error('Error: ', error);
 			}
 		});
@@ -255,6 +257,36 @@ function goToSaveButton() {
 		element.addClass('jump');
 		element.addClass('start-now');
 	}, 0);
+}
+
+function initializeAudio() {
+	// Khởi tạo Audio
+	try {
+		// webkit shim
+		window.AudioContext = window.AudioContext || window.webkitAudioContext;
+		navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia;
+		window.URL = window.URL || window.webkitURL;
+
+		audio_context = new AudioContext();
+		console.log('AudioContext set up.');
+		console.log('Navigator.getUserMedia ' + (navigator.getUserMedia ? 'available.' : 'not present!'));
+	} catch (e) {
+		alert('Trình duyệt này không hỗ trợ web audio!');
+		return false;
+	}
+
+	navigator.getUserMedia({ audio: true }, startUserMedia, function (e) {
+		console.log('No live audio input: ' + e);
+		alert('Vui lòng cho chép trang web này sử dụng microphone của bạn, sau đó tải lại trang để cập nhật trạng thái.');
+		return false;
+	});
+	return true;
+}
+
+window.onload = function init() {
+	if (!initializeAudio()) {
+		audio_context = null;
+	}
 }
 
 $(document).ready(function () {
@@ -278,25 +310,6 @@ $(document).ready(function () {
 
 	// Xử lý khi chọn hình ảnh từ tập tin
 	$('#inputImage').on('change', showImagePreview());
-
-	// Khởi tạo Audio
-	try {
-		// webkit shim
-		window.AudioContext = window.AudioContext || window.webkitAudioContext;
-		navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia;
-		window.URL = window.URL || window.webkitURL;
-
-		audio_context = new AudioContext();
-		console.log('AudioContext set up.');
-		console.log('Navigator.getUserMedia ' + (navigator.getUserMedia ? 'available.' : 'not present!'));
-	} catch (e) {
-		alert('Trình duyệt này không hỗ trợ web audio!');
-	}
-
-	navigator.getUserMedia({ audio: true }, startUserMedia, function (e) {
-		console.log('No live audio input: ' + e);
-		alert('Vui lòng cho chép trang web này sử dụng microphone của bạn, sau đó tải lại trang để cập nhật trạng thái.');
-	});
 
 	// Load audio từ tập tin
 	inputAudioFile.addEventListener('change', e => validateAudio(e.target.files[0]));

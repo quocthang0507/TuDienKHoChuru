@@ -51,20 +51,20 @@
 					<td>@acc.Address</td>
 					<td class="text-center">
 						<div class="btn-group" role="group" aria-label="Action Buttons">
-							<a class="btn btn-md btn-primary mr-2" href="@Url.Action("AdminChangeInfo", "Login", new { username = acc.Username})"
+							<a class="btn btn-primary mr-2" href="@Url.Action("AdminChangeInfo", "Login", new { username = acc.Username})"
 							   data-tooltip="tooltip" data-placement="bottom" title="Chỉnh sửa người dùng @acc.Fullname" data-delay='{"show":"500", "hide":"100"}'>
 								<i class="fas fa-edit"></i>
 							</a>
 							@if (acc.Active)
 							{
-								<button type="button" class="btn btn-md btn-danger" onclick="location.href='@Url.Action("DeactivateAccount", "Admin", new { username = acc.Username})'"
+								<button type="button" class="btn btn-danger" onclick="location.href='@Url.Action("DeactivateAccount", "Admin", new { username = acc.Username})'"
 										data-tooltip="tooltip" data-placement="bottom" title="Hủy kích hoạt người dùng @acc.Fullname" data-delay='{"show":"500", "hide":"100"}'>
 									<i class="fas fa-user-times"></i>
 								</button>
 							}
 							else
 							{
-								<button type="button" class="btn btn-md btn-success" onclick="location.href='@Url.Action("ActivateAccount", "Admin", new { username = acc.Username})'"
+								<button type="button" class="btn btn-success" onclick="location.href='@Url.Action("ActivateAccount", "Admin", new { username = acc.Username})'"
 										data-tooltip="tooltip" data-placement="bottom" title="Kích hoạt lại người dùng @acc.Fullname" data-delay='{"show":"500", "hide":"100"}'>
 									<i class="fas fa-user-check"></i>
 								</button>

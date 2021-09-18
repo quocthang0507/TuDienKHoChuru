@@ -10,10 +10,12 @@ function startUserMedia(stream) {
 }
 
 function startRecording(button) {
-	recorder && recorder.record();
-	button.style.display = 'none';
-	button.nextElementSibling.style.display = 'initial';
-	console.log('Recording...');
+	if (audio_context) {
+		recorder && recorder.record();
+		button.style.display = 'none';
+		button.nextElementSibling.style.display = 'initial';
+		console.log('Recording...');
+	}
 }
 
 function stopRecording(button, exampleID) {
@@ -103,18 +105,7 @@ function uploadAudio(exampleID) {
 	}
 }
 
-$(document).ready(function () {
-	// Thêm sự kiện đổi loại từ điển
-	$('#selectDictType').change(eventChangeDictType());
-
-	$('#inputPageNumber').change(function () {
-		var pageNumber = $(this).value;
-		var dictTypeID = $('#selectDictType').get(0).value;
-		if (pageNumber && dictTypeID) {
-			window.location.href = window.location.origin + `/api/GoToExamplePage/${dictTypeID}/${pageNumber}`;
-		}
-	});
-
+function initializeAudio() {
 	// Khởi tạo Audio
 	try {
 		// webkit shim
@@ -127,10 +118,32 @@ $(document).ready(function () {
 		console.log('Navigator.getUserMedia ' + (navigator.getUserMedia ? 'available.' : 'not present!'));
 	} catch (e) {
 		alert('Trình duyệt này không hỗ trợ web audio!');
+		return false;
 	}
 
 	navigator.getUserMedia({ audio: true }, startUserMedia, function (e) {
 		console.log('No live audio input: ' + e);
 		alert('Vui lòng cho chép trang web này sử dụng microphone của bạn, sau đó tải lại trang để cập nhật trạng thái.');
+		return false;
+	});
+	return true;
+}
+
+window.onload = function init() {
+	if (!initializeAudio()) {
+		audio_context = null;
+	}
+}
+
+$(document).ready(function () {
+	// Thêm sự kiện đổi loại từ điển
+	$('#selectDictType').change(eventChangeDictType());
+
+	$('#inputPageNumber').change(function () {
+		var pageNumber = $(this).value;
+		var dictTypeID = $('#selectDictType').get(0).value;
+		if (pageNumber && dictTypeID) {
+			window.location.href = window.location.origin + `/api/GoToExamplePage/${dictTypeID}/${pageNumber}`;
+		}
 	});
 });

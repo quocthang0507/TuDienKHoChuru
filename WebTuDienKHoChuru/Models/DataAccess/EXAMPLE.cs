@@ -27,7 +27,7 @@ namespace WebTuDienKHoChuru.Models.DataAccess
 		public string Meaning { get; set; }
 
 		[DisplayName("Phát âm")]
-		public string PronunPath { get; set; }
+		public string PronouncePath { get; set; }
 
 		[DisplayName("Đã xóa")]
 		[DefaultValue(false)]
@@ -77,7 +77,7 @@ namespace WebTuDienKHoChuru.Models.DataAccess
 		{
 			try
 			{
-				int result = await SqlDataProvider.Instance.ExecuteNonQuery("proc_INSERT_EXAMPLE", example.MeaningID, example.Example, example.Meaning, example.PronunPath);
+				int result = await SqlDataProvider.Instance.ExecuteNonQuery("proc_INSERT_EXAMPLE", example.MeaningID, example.Example, example.Meaning, example.PronouncePath);
 				return result > 0;
 			}
 			catch (Exception)

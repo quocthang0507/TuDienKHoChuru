@@ -170,16 +170,16 @@ GO
 
 --DROP TABLE [dbo].[WORD]
 CREATE TABLE [dbo].[WORD] (
-    [ID]          INT            IDENTITY (1, 1) NOT NULL,
-    [Word]        NVARCHAR (MAX) NOT NULL,
-    [DictType]    TINYINT        NULL,
-    [WordType]    VARCHAR (10)   DEFAULT ('Others') NULL,
-    [PronunPath]  NVARCHAR (MAX) NULL,
-    [ImgPath]     NVARCHAR (MAX) NULL,
-    [AddedDate]   DATETIME       NULL,
-    [UpdatedDate] DATETIME       NULL,
-    [Creator]     VARCHAR (50)   NOT NULL,
-	[Deleted]	  BIT			 NOT NULL DEFAULT 0,
+    [ID]			INT            IDENTITY (1, 1) NOT NULL,
+    [Word]			NVARCHAR (MAX) NOT NULL,
+    [DictType]		TINYINT        NULL,
+    [WordType]		VARCHAR (10)   DEFAULT ('Others') NULL,
+    [PronouncePath]	NVARCHAR (MAX) NULL,
+    [ImgPath]		NVARCHAR (MAX) NULL,
+    [AddedDate]		DATETIME       NULL,
+    [UpdatedDate]	DATETIME       NULL,
+    [Creator]		VARCHAR (50)   NOT NULL,
+	[Deleted]		BIT			 NOT NULL DEFAULT 0,
     PRIMARY KEY CLUSTERED ([ID] ASC),
     FOREIGN KEY ([DictType]) REFERENCES [dbo].[DICT_TYPE] ([DictType]),
     FOREIGN KEY ([WordType]) REFERENCES [dbo].[WORD_TYPE] ([WordType]),
@@ -195,12 +195,12 @@ CREATE PROC proc_INSERT_WORD
 	@Word NVARCHAR(MAX),
 	@DictType TINYINT,
 	@WordType VARCHAR(10),
-	@PronunPath NVARCHAR(MAX),
+	@PronouncePath NVARCHAR(MAX),
 	@ImgPath NVARCHAR(MAX),
 	@Creator VARCHAR(50)
 AS
 	IF NOT EXISTS (SELECT * FROM WORD WHERE [Word] = @Word AND [DictType] = @DictType AND [WordType] = @WordType AND [Deleted] = 0)
-		INSERT INTO WORD (Word, DictType, WordType, PronunPath, ImgPath, AddedDate, UpdatedDate, Creator) VALUES (@Word, @DictType, @WordType, @PronunPath, @ImgPath, GETDATE(), GETDATE(), @Creator);
+		INSERT INTO WORD (Word, DictType, WordType, PronouncePath, ImgPath, AddedDate, UpdatedDate, Creator) VALUES (@Word, @DictType, @WordType, @PronouncePath, @ImgPath, GETDATE(), GETDATE(), @Creator);
 GO
 
 CREATE PROC proc_INSERT_WORD_OUTPUT
@@ -209,7 +209,7 @@ CREATE PROC proc_INSERT_WORD_OUTPUT
 	@Word NVARCHAR(MAX),
 	@DictType TINYINT,
 	@WordType VARCHAR(10),
-	@PronunPath NVARCHAR(MAX),
+	@PronouncePath NVARCHAR(MAX),
 	@ImgPath NVARCHAR(MAX),
 	@Creator VARCHAR(50)
 AS
@@ -217,7 +217,7 @@ AS
 		SET @ID = (SELECT TOP(1) ID FROM WORD WHERE [Word] = @Word AND [DictType] = @DictType AND [WordType] = @WordType AND [Deleted] = 0)
 	ELSE
 	BEGIN
-		INSERT INTO WORD (Word, DictType, WordType, PronunPath, ImgPath, AddedDate, UpdatedDate, Creator) VALUES (@Word, @DictType, @WordType, @PronunPath, @ImgPath, GETDATE(), GETDATE(), @Creator);
+		INSERT INTO WORD (Word, DictType, WordType, PronouncePath, ImgPath, AddedDate, UpdatedDate, Creator) VALUES (@Word, @DictType, @WordType, @PronouncePath, @ImgPath, GETDATE(), GETDATE(), @Creator);
 		SET @ID = @@IDENTITY
 	END
 GO
@@ -234,20 +234,12 @@ BEGIN
 END
 GO
 
-CREATE PROC proc_RESET_IDENTITY_WORD
--- ALTER PROC proc_RESET_IDENTITY_WORD
-	@ID INT
-AS
-	DBCC CHECKIDENT('[WORD]', RESEED, @ID)
-	RETURN 1
-GO
-
 CREATE PROC proc_INSERT_WORD_TEST
 -- ALTER PROC proc_INSERT_WORD_TEST
 	@Word NVARCHAR(MAX),
 	@DictType TINYINT,
 	@WordType VARCHAR(10),
-	@PronunPath NVARCHAR(MAX),
+	@PronouncePath NVARCHAR(MAX),
 	@ImgPath NVARCHAR(MAX),
 	@Creator VARCHAR(50)
 AS
@@ -255,7 +247,7 @@ BEGIN
 	DECLARE @KQ BIT
 	BEGIN TRANSACTION INSERT_WORD
 		BEGIN TRY
-			EXEC proc_INSERT_WORD @Word, @DictType, @WordType, @PronunPath, @ImgPath, @Creator
+			EXEC proc_INSERT_WORD @Word, @DictType, @WordType, @PronouncePath, @ImgPath, @Creator
 		END TRY
 		BEGIN CATCH
 		END CATCH
@@ -269,56 +261,41 @@ CREATE PROC proc_UPDATE_WORD
 	@Word NVARCHAR(MAX),
 	@DictType TINYINT,
 	@WordType VARCHAR(10),
-	@PronunPath NVARCHAR(MAX),
+	@PronouncePath NVARCHAR(MAX),
 	@ImgPath NVARCHAR(MAX),
 	@Creator VARCHAR(50)
 AS
 	IF EXISTS (SELECT * FROM WORD WHERE ID = @ID)
 		--Chỉ cập nhật các thông tin thay đổi thôi
 		BEGIN
-			IF (@PronunPath IS NULL) AND (@ImgPath IS NULL)
+			IF (@PronouncePath IS NULL) AND (@ImgPath IS NULL)
 			BEGIN
 				UPDATE WORD
 				SET Word = @Word, WordType = @WordType, Creator = @Creator, UpdatedDate = GETDATE()
 				WHERE ID = @ID AND Deleted = 0
 			END
-			ELSE IF (@PronunPath IS NULL) AND (@ImgPath IS NOT NULL)
+			ELSE IF (@PronouncePath IS NULL) AND (@ImgPath IS NOT NULL)
 			BEGIN
 				UPDATE WORD
 				SET Word = @Word, WordType = @WordType, ImgPath = @ImgPath, Creator = @Creator, UpdatedDate = GETDATE()
 				WHERE ID = @ID AND Deleted = 0
 			END
-			ELSE IF (@ImgPath IS NULL) AND (@PronunPath IS NOT NULL)
+			ELSE IF (@ImgPath IS NULL) AND (@PronouncePath IS NOT NULL)
 			BEGIN
 				UPDATE WORD
-				SET Word = @Word, WordType = @WordType, PronunPath = @PronunPath, Creator = @Creator, UpdatedDate = GETDATE()
+				SET Word = @Word, WordType = @WordType, PronouncePath = @PronouncePath, Creator = @Creator, UpdatedDate = GETDATE()
 				WHERE ID = @ID AND Deleted = 0
 			END
 			ELSE
 			BEGIN
 				UPDATE WORD
-				SET Word = @Word, WordType = @WordType, PronunPath = @PronunPath, ImgPath = @ImgPath, Creator = @Creator, UpdatedDate = GETDATE()
+				SET Word = @Word, WordType = @WordType, PronouncePath = @PronouncePath, ImgPath = @ImgPath, Creator = @Creator, UpdatedDate = GETDATE()
 				WHERE ID = @ID AND Deleted = 0
 			END
 		END
 GO
 
-CREATE PROC proc_DELETE_WORD
--- ALTER PROC proc_DELETE_WORD
-	@ID INT,
-	@OutputID INT OUTPUT
-AS
-BEGIN
-	DECLARE @DictTypeID INT
-	SET @DictTypeID = (SELECT DictType FROM WORD WHERE ID = @ID);
-	--DELETE FROM WORD WHERE ID = @ID;
-	UPDATE WORD SET Deleted = 1 WHERE ID = @ID;
-	SET @OutputID = (SELECT TOP 1 ID FROM WORD WHERE ID < @ID AND DictType = @DictTypeID AND Deleted = 0 ORDER BY ID DESC)
-	EXEC proc_DELETE_ALL_MEANINGS @ID
-	EXEC proc_DELETE_ALL_EXAMPLES @ID 
-END
-GO
-
+/*
 EXEC dbo.proc_INSERT_WORD N'à wanh', 1, 'Verb', '', '', 'admin';
 EXEC dbo.proc_INSERT_WORD N'ada', 1, 'Noun', '', '', 'admin';
 EXEC dbo.proc_INSERT_WORD N'ada prum', 1, 'Noun', '', '', 'admin';
@@ -331,6 +308,7 @@ EXEC dbo.proc_INSERT_WORD N'á', 2, 'Others', '', '', 'admin';
 EXEC dbo.proc_INSERT_WORD N'à', 2, 'Others', '', '', 'admin';
 EXEC dbo.proc_INSERT_WORD N'ả', 2, 'Pronoun', '', '', 'admin';
 EXEC dbo.proc_INSERT_WORD N'ạ', 2, 'Others', '', '', 'admin';
+*/
 GO
 
 CREATE PROC proc_GET_TOTAL_WORDS
@@ -433,12 +411,12 @@ GO
 
 --DROP TABLE [dbo].[EXAMPLE]
 CREATE TABLE [dbo].[EXAMPLE] (
-    [ID]         INT            IDENTITY (1, 1) NOT NULL,
-    [MeaningID]  INT            NOT NULL,
-    [Example]    NVARCHAR (MAX) NOT NULL,
-    [Meaning]    NVARCHAR (MAX) NOT NULL,
-    [PronunPath] NVARCHAR (MAX) NULL,
-	[Deleted]	 BIT			NOT NULL DEFAULT 0,
+    [ID]			INT            IDENTITY (1, 1) NOT NULL,
+    [MeaningID]		INT            NOT NULL,
+    [Example]		NVARCHAR (MAX) NOT NULL,
+    [Meaning]		NVARCHAR (MAX) NOT NULL,
+    [PronouncePath] NVARCHAR (MAX) NULL,
+	[Deleted]		BIT			NOT NULL DEFAULT 0,
     FOREIGN KEY ([MeaningID]) REFERENCES [dbo].[MEANING] ([ID]),
 	PRIMARY KEY CLUSTERED ([ID] ASC)
 );
@@ -459,18 +437,18 @@ CREATE PROC proc_INSERT_EXAMPLE
 	@MeaningID INT,
 	@Example NVARCHAR(MAX),
 	@Meaning NVARCHAR(MAX),
-	@PronunPath NVARCHAR(MAX)
+	@PronouncePath NVARCHAR(MAX)
 AS
-	INSERT INTO EXAMPLE VALUES (@MeaningID, @Example, @Meaning, @PronunPath, 0);
+	INSERT INTO EXAMPLE VALUES (@MeaningID, @Example, @Meaning, @PronouncePath, 0);
 GO
 
 CREATE PROC proc_UPDATE_AUDIO_EXAMPLE
 -- ALTER PROC proc_UPDATE_AUDIO_EXAMPLE
 	@ID INT,
-	@PronunPath NVARCHAR(MAX)
+	@PronouncePath NVARCHAR(MAX)
 AS
 	UPDATE EXAMPLE
-	SET PronunPath = @PronunPath
+	SET PronouncePath = @PronouncePath
 	WHERE ID = @ID AND Deleted = 0
 GO
 
@@ -496,7 +474,7 @@ CREATE PROC proc_GET_EXAMPLES_PAGINATION
 	@PageNumber INT,
 	@RowsOfPage INT
 AS
-	SELECT E.ID, E.MeaningID, EXAMPLE, E.Meaning, E.PronunPath FROM EXAMPLE E, MEANING M, WORD W
+	SELECT E.ID, E.MeaningID, EXAMPLE, E.Meaning, E.PronouncePath FROM EXAMPLE E, MEANING M, WORD W
 	WHERE E.MeaningID = M.ID AND W.ID = M.WordID AND DictType = @DictType AND E.Deleted = 0
 	ORDER BY ID OFFSET (@PageNumber - 1) * @RowsOfPage ROWS
 	FETCH NEXT @RowsOfPage ROWS ONLY;
@@ -552,15 +530,16 @@ GO
 
 --DROP TABLE [dbo].[BILINGUAL_PASSAGE]
 CREATE TABLE [dbo].[BILINGUAL_PASSAGE] (
-    [ID]          INT            IDENTITY (1, 1) NOT NULL,
-    [DictType]    TINYINT        NOT NULL,
-    [PassageType] VARCHAR (10)   NOT NULL DEFAULT 'OTHERS',
-    [Source]      NVARCHAR (MAX) NULL,
-    [Destination] NVARCHAR (MAX) NULL,
-	[AddedDate]   DATETIME       NULL,
-    [UpdatedDate] DATETIME       NULL,
-    [Creator]     VARCHAR (50)   NOT NULL,
-	[Deleted]	  BIT			 NOT NULL DEFAULT 0,
+    [ID]			INT            IDENTITY (1, 1) NOT NULL,
+    [DictType]		TINYINT        NOT NULL,
+    [PassageType]	VARCHAR (10)   NOT NULL DEFAULT 'OTHERS',
+    [Source]		NVARCHAR (MAX) NULL,
+    [Destination]	NVARCHAR (MAX) NULL,
+    [PronouncePath]	NVARCHAR (MAX) NULL,
+	[AddedDate]		DATETIME       NULL,
+    [UpdatedDate]	DATETIME       NULL,
+    [Creator]		VARCHAR (50)   NOT NULL,
+	[Deleted]		BIT			 NOT NULL DEFAULT 0,
     PRIMARY KEY CLUSTERED ([ID] ASC),
     FOREIGN KEY ([DictType]) REFERENCES [dbo].[DICT_TYPE] ([DictType]),
     FOREIGN KEY ([PassageType]) REFERENCES [dbo].[PASSAGE_TYPE] ([PassageType]),
@@ -577,10 +556,36 @@ CREATE PROC proc_INSERT_PASSAGE
 	@PassageType VARCHAR(10),
 	@Source NVARCHAR(MAX),
 	@Destination NVARCHAR(MAX),
+	@PronouncePath NVARCHAR (MAX),
 	@Creator VARCHAR(50)
 AS
-	INSERT INTO BILINGUAL_PASSAGE (DictType, PassageType, Source, Destination, AddedDate, UpdatedDate, Creator, Deleted)
-	VALUES (@DictType, @PassageType, @Source, @Destination, GETDATE(), GETDATE(), @Creator, 0);
+	IF @PronouncePath IS NOT NULL
+		INSERT INTO BILINGUAL_PASSAGE (DictType, PassageType, Source, Destination, PronouncePath, AddedDate, UpdatedDate, Creator, Deleted)
+		VALUES (@DictType, @PassageType, @Source, @Destination, @PronouncePath, GETDATE(), GETDATE(), @Creator, 0);
+	ELSE
+		INSERT INTO BILINGUAL_PASSAGE (DictType, PassageType, Source, Destination, AddedDate, UpdatedDate, Creator, Deleted)
+		VALUES (@DictType, @PassageType, @Source, @Destination, GETDATE(), GETDATE(), @Creator, 0);
+GO
+
+CREATE PROC proc_INSERT_PASSAGE_TEST
+-- ALTER PROC proc_INSERT_PASSAGE_TEST
+	@DictType TINYINT,
+	@PassageType VARCHAR(10),
+	@Source NVARCHAR(MAX),
+	@Destination NVARCHAR(MAX),
+	@PronouncePath NVARCHAR (MAX),
+	@Creator VARCHAR(50)
+AS
+BEGIN
+	DECLARE @KQ BIT
+	BEGIN TRANSACTION INSERT_PASSAGE
+		BEGIN TRY
+			EXEC proc_INSERT_PASSAGE @DictType, @PassageType, @Source, @Destination, @PronouncePath, @Creator
+		END TRY
+		BEGIN CATCH
+		END CATCH
+	ROLLBACK TRANSACTION INSERT_PASSAGE
+END
 GO
 
 CREATE PROC proc_UPDATE_PASSAGE
@@ -588,11 +593,17 @@ CREATE PROC proc_UPDATE_PASSAGE
 	@ID INT,
 	@PassageType VARCHAR(10),
 	@Source NVARCHAR(MAX),
-	@Destination NVARCHAR(MAX)
+	@Destination NVARCHAR(MAX),
+	@PronouncePath NVARCHAR (MAX)
 AS
-	UPDATE BILINGUAL_PASSAGE
-	SET PassageType = @PassageType, Source = @Source, Destination = @Destination, UpdatedDate = GETDATE()
-	WHERE ID = @ID AND Deleted = 0
+	IF @PronouncePath IS NOT NULL
+		UPDATE BILINGUAL_PASSAGE
+		SET PassageType = @PassageType, Source = @Source, Destination = @Destination, PronouncePath = @PronouncePath, UpdatedDate = GETDATE()
+		WHERE ID = @ID AND Deleted = 0
+	ELSE
+		UPDATE BILINGUAL_PASSAGE
+		SET PassageType = @PassageType, Source = @Source, Destination = @Destination, UpdatedDate = GETDATE()
+		WHERE ID = @ID AND Deleted = 0
 GO
 
 CREATE PROC proc_DELETE_PASSAGE
@@ -643,18 +654,70 @@ AS
 	SET @Total = (SELECT COUNT(*) FROM BILINGUAL_PASSAGE WHERE DictType = @DictType AND Deleted = 0)
 GO
 
+CREATE PROC proc_GET_MAX_ID_PASSAGE
+-- ALTER PROC proc_GET_MAX_ID_PASSAGE
+	@MAX INT OUTPUT
+AS
+BEGIN
+	IF EXISTS (SELECT TOP(1) ID FROM BILINGUAL_PASSAGE ORDER BY ID DESC)
+		SET @MAX = (SELECT TOP(1) ID FROM BILINGUAL_PASSAGE ORDER BY ID DESC)
+	ELSE
+		SET @MAX = 0
+END
+GO
+
 /**************************************
 	RESET ALL
 ***************************************/
 
 CREATE PROC proc_RESET_ALL
+-- ALTER PROC proc_RESET_ALL
 AS
 	DELETE FROM [EXAMPLE]
 	DELETE FROM [MEANING]
 	DELETE FROM [WORD]
+	DELETE FROM [BILINGUAL_PASSAGE]
 	DBCC CHECKIDENT ('[EXAMPLE]', RESEED, 0);
 	DBCC CHECKIDENT ('[MEANING]', RESEED, 0);
 	DBCC CHECKIDENT ('[WORD]', RESEED, 0);
+	DBCC CHECKIDENT ('[BILINGUAL_PASSAGE]', RESEED, 0);
 GO
 
 -- EXEC proc_RESET_ALL
+
+
+CREATE PROC proc_RESET_IDENTITY_WORD
+-- ALTER PROC proc_RESET_IDENTITY_WORD
+	@ID INT
+AS
+	DBCC CHECKIDENT('[WORD]', RESEED, @ID)
+	RETURN 1
+GO
+
+CREATE PROC proc_RESET_IDENTITY_PASSAGE
+-- ALTER PROC proc_RESET_IDENTITY_PASSAGE
+	@ID INT
+AS
+	DBCC CHECKIDENT('[PASSAGE]', RESEED, @ID)
+	RETURN 1
+GO
+
+/**************************************
+	DELETE WORD WITH MEANINS AND EXAMPLES
+***************************************/
+
+CREATE PROC proc_DELETE_WORD
+-- ALTER PROC proc_DELETE_WORD
+	@ID INT,
+	@OutputID INT OUTPUT
+AS
+BEGIN
+	DECLARE @DictTypeID INT
+	SET @DictTypeID = (SELECT DictType FROM WORD WHERE ID = @ID);
+	--DELETE FROM WORD WHERE ID = @ID;
+	UPDATE WORD SET Deleted = 1 WHERE ID = @ID;
+	SET @OutputID = (SELECT TOP 1 ID FROM WORD WHERE ID < @ID AND DictType = @DictTypeID AND Deleted = 0 ORDER BY ID DESC)
+	EXEC proc_DELETE_ALL_MEANINGS @ID
+	EXEC proc_DELETE_ALL_EXAMPLES @ID 
+END
+GO

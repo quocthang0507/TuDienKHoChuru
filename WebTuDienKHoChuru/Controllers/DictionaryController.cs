@@ -68,7 +68,7 @@ namespace WebTuDienKHoChuru.Controllers
 				model.SelectedWord.Meanings = await GetMeanings(wordID);
 				// Chuyển đường dẫn tuyệt đối sang đường dẫn tương đối
 				model.SelectedWord.ImgPath = _appEnvironment.ConvertRelativePath(model.SelectedWord.ImgPath);
-				model.SelectedWord.PronunPath = _appEnvironment.ConvertRelativePath(model.SelectedWord.PronunPath);
+				model.SelectedWord.PronouncePath = _appEnvironment.ConvertRelativePath(model.SelectedWord.PronouncePath);
 				// Get all meanings and its examples
 				var meanings = await MEANINGs.GetMeanings(wordID);
 				var meaningsWithExamples = new List<MEANING>();
@@ -105,7 +105,7 @@ namespace WebTuDienKHoChuru.Controllers
 
 			List<EXAMPLE> exampleList = await GetExamplesWithPagination(dictTypeID, pageNumber);
 			if (exampleList.Count > 0)
-				exampleList.ForEach(e => e.PronunPath = _appEnvironment.ConvertRelativePath(e.PronunPath));
+				exampleList.ForEach(e => e.PronouncePath = _appEnvironment.ConvertRelativePath(e.PronouncePath));
 
 			ViewBag.DictTypes = dictTypes;
 			ViewBag.PageNumbers = pageNumbers;
@@ -163,7 +163,7 @@ namespace WebTuDienKHoChuru.Controllers
 					Word = form.Word,
 					DictType = form.DictType,
 					WordType = form.WordType,
-					PronunPath = audioPath,
+					PronouncePath = audioPath,
 					ImgPath = imagePath,
 					Creator = HttpContext.Session.GetString(Constants.USERNAME)
 				});
@@ -196,7 +196,7 @@ namespace WebTuDienKHoChuru.Controllers
 				Word = form.Word,
 				DictType = form.DictType,
 				WordType = "Others",
-				PronunPath = null,
+				PronouncePath = null,
 				ImgPath = null,
 				Creator = HttpContext.Session.GetString(Constants.USERNAME)
 			});
@@ -416,25 +416,27 @@ namespace WebTuDienKHoChuru.Controllers
 		/// <summary>
 		/// Nhập danh sách từ vựng từ tập tin CSV vào loại từ điển được chỉ định
 		/// </summary>
-		/// <param name="csvFile"></param>
+		/// <param name="tsvFile"></param>
 		/// <param name="dictTypeID"></param>
 		/// <returns>Mã trạng thái: 200 OK, 400 BadRequest</returns>
-		[HttpPost("api/Import"), Authorize]
+		[HttpPost("api/ImportDictionary"), Authorize]
 		[ProducesResponseType(StatusCodes.Status200OK)]
 		[ProducesResponseType(StatusCodes.Status400BadRequest)]
-		public async Task<IActionResult> ImportFromFile(IFormFile csvFile, int dictTypeID)
+		public async Task<IActionResult> ImportFromFile(IFormFile tsvFile, int dictTypeID)
 		{
-			if (csvFile == null || csvFile.Length == 0)
-				return StatusCode(StatusCodes.Status400BadRequest, "Không nhận được tập tin CSV");
+			if (tsvFile == null || tsvFile.Length == 0)
+				return BadRequest("Không nhận được tập tin CSV");
 			try
 			{
 				// Chuẩn bị dữ liệu
-				DataTable dt = csvFile.ReadAsDataTable();
+				DataTable dt = tsvFile.ReadAsDataTable();
 				List<WORD> words = WORDs.ConvertDtToWordList(dt, dictTypeID, HttpContext.Session.GetString(Constants.USERNAME));
 				// Kiểm tra dữ liệu có thể chèn vào không
+				if (words.Count == 0)
+					return BadRequest("Dữ liệu trống!");
 				List<int> errorIndexes = await WORDs.TryInsertingWords(words);
 				if (errorIndexes == null)
-					return StatusCode(StatusCodes.Status500InternalServerError, "Lỗi máy chủ, vui lòng thử lại sau");
+					return BadRequest("Lỗi máy chủ, vui lòng thử lại sau");
 				else if (errorIndexes.Count > 0)
 					return BadRequest(errorIndexes);
 				// Chèn từ
@@ -458,23 +460,23 @@ namespace WebTuDienKHoChuru.Controllers
 			}
 			catch (NoNullAllowedException)
 			{
-				return StatusCode(StatusCodes.Status400BadRequest, "Hai cột đầu tiên không được để trống");
+				return BadRequest("Hai cột đầu tiên không được để trống");
 			}
 			catch (InvalidDataException)
 			{
-				return StatusCode(StatusCodes.Status400BadRequest, "Cột Loại từ có chứa giá trị không hợp lệ, nó chỉ nên chứa các giá trị số từ 0 đến 6");
+				return BadRequest("Cột Loại từ có chứa giá trị không hợp lệ, nó chỉ nên chứa các giá trị số từ 0 đến 6");
 			}
 			catch (FormatException)
 			{
-				return StatusCode(StatusCodes.Status400BadRequest, "Số lượng cột không đúng quy định");
+				return BadRequest("Số lượng cột không đúng quy định");
 			}
 			catch (InvalidCastException)
 			{
-				return StatusCode(StatusCodes.Status400BadRequest, "Số cột tiêu đề không đúng với dữ liệu");
+				return BadRequest("Số cột tiêu đề không đúng với dữ liệu");
 			}
 			catch (Exception)
 			{
-				return StatusCode(StatusCodes.Status400BadRequest, "Vui lòng kiểm tra lại tập tin CSV");
+				return BadRequest("Vui lòng kiểm tra lại tập tin CSV");
 			}
 			return Ok();
 		}

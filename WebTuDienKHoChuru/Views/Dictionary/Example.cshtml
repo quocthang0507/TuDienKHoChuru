@@ -81,27 +81,27 @@
 				<td>@item.Meaning</td>
 				<td>
 					<audio id="@idAudio" controls class="custom-control">
-						<source id="@idSource" src="@item.PronunPath" />
+						<source id="@idSource" src="@item.PronouncePath" />
 						Trình duyệt của bạn không hỗ trợ định dạng âm thanh này!
 					</audio>
 				</td>
 				<td class="text-center">
-					<button onclick="startRecording(this);" class="btn btn-outline-primary btn-md"
+					<button onclick="startRecording(this);" class="btn btn-outline-primary"
 							data-tooltip="tooltip" data-placement="bottom" title="Bắt đầu ghi âm cho ví dụ này" data-delay='{"show":"500", "hide":"100"}'>
 						<i class="fas fa-microphone"></i>
 					</button>
-					<button onclick="stopRecording(this, @item.ID);" class="btn btn-outline-danger btn-md" style="display: none;"
+					<button onclick="stopRecording(this, @item.ID);" class="btn btn-outline-danger" style="display: none;"
 							data-tooltip="tooltip" data-placement="bottom" title="Kết thúc ghi âm tại đây" data-delay='{"show":"500", "hide":"100"}'>
 						<i class="fas fa-stop"></i>
 					</button>
 					<div class="btn-group" role="group" aria-label="Action buttons">
-						<button onclick="uploadAudio(@item.ID);" class="btn btn-outline-success btn-md mr-2" style="display: none;"
+						<button onclick="uploadAudio(@item.ID);" class="btn btn-outline-success mr-2" style="display: none;"
 								data-tooltip="tooltip" data-placement="bottom" title="Lưu ghi âm của ví dụ này" data-delay='{"show":"500", "hide":"100"}'>
 							<i class="fas fa-save"></i>
 						</button>
-						@if (!string.IsNullOrEmpty(item.PronunPath))
+						@if (!string.IsNullOrEmpty(item.PronouncePath))
 						{
-							<button onclick="deleteAudio(@item.ID);" class="btn btn-outline-danger btn-md"
+							<button onclick="deleteAudio(@item.ID);" class="btn btn-outline-danger"
 									data-tooltip="tooltip" data-placement="bottom" title="Xóa âm thanh của ví dụ này" data-delay='{"show":"500", "hide":"100"}'>
 								<i class="fas fa-trash"></i>
 							</button>

@@ -256,3 +256,20 @@ body {
 	padding: 10px 15px 10px; /* Some padding */
 	border-radius: 5px; /* Rounded corners */
 }
+
+/*
+	Font TNKeyUni-Times
+*/
+@font-face {
+	src: url(../fonts/TNKEYUNI-TIMES.TTF);
+	font-family: TNKeyUni-Times;
+}
+
+/*
+	TSV table
+*/
+#tsvTable {
+	margin-top: 40px;
+	display: none;
+	font-family: TNKeyUni-Times;
+}
