@@ -82,7 +82,7 @@ namespace WebTuDienKHoChuru.Controllers
 				string audioPath = null;
 				if (form.AudioFile != null)
 				{
-					audioPath = await DictionaryController.SaveAudio(form.AudioFile);
+					audioPath = await DictionaryController.SaveAudio(form.AudioFile, form.DictType, form.ID);
 					if (audioPath == null)
 						return false;
 				}

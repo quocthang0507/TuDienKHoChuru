@@ -1,4 +1,4 @@
-﻿const maxSizePreview = 50;
+﻿const maxSizePreview = 50; //KB
 
 function checkTsvExt(filePath) {
 	var allowedExtensions = /\.(tsv|txt)$/i;
@@ -22,12 +22,12 @@ function onInputChange(dictTypeID) {
 				reader.onload = function (e) {
 					showTsvFile(e.target.result);
 					loaderOff();
-					btnUpload.addEventListener('click', function (e) {
-						submitTsvFile(inputTSV.files[0], dictTypeID);
-					});
 				};
 				reader.readAsText(inputTSV.files[0]);
 			}
+			btnUpload.addEventListener('click', function (e) {
+				submitTsvFile(inputTSV.files[0], dictTypeID);
+			});
 		}
 	}
 }
@@ -129,7 +129,13 @@ function submitTsvFile(fileObj, dictTypeID) {
 	if (confirm('Bạn có muốn nhập các từ này vào hệ thống không? Lưu ý: Các từ có thể bị trùng sau khi nhập')) {
 		loaderOn();
 
-		url = window.location.origin + '/api/ImportDictionary';
+		if (pageName == 'Dictionary')
+			url = window.location.origin + '/api/ImportDictionary';
+		else if (pageName == 'Passage')
+			url = window.location.origin + '/api/ImportPassage';
+		else
+			return;
+
 		var data = new FormData();
 		data.append('tsvFile', fileObj);
 		data.append('dictTypeID', dictTypeID);

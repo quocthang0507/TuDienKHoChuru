@@ -11,6 +11,7 @@ namespace WebTuDienKHoChuru.Models.DataAccess
 {
 	public class WORD
 	{
+
 		[Key]
 		[DisplayName("ID")]
 		public int ID { get; set; }
@@ -181,14 +182,14 @@ namespace WebTuDienKHoChuru.Models.DataAccess
 				EXAMPLE ex1, ex2;
 				MEANING meaning;
 				WORD word;
-				string ex1_e, ex1_m, ex2_e, ex2_m, word_w, word_m, word_t;
+				string ex1_e, ex1_m, ex2_e, ex2_m, word_w, word_m;
 				switch (dt.Columns.Count)
 				{
 					case 6:
 						// Thêm hai ví dụ
 						word_w = row[0].ToString();
 						word_m = row[1].ToString();
-\						ex1_e = row[2].ToString();
+						ex1_e = row[2].ToString();
 						ex1_m = row[3].ToString();
 						ex2_e = row[4].ToString();
 						ex2_m = row[5].ToString();
@@ -216,7 +217,7 @@ namespace WebTuDienKHoChuru.Models.DataAccess
 						word = new()
 						{
 							Word = word_w,
-							WordType = Enum.GetName(typeof(WordTypeEnum), int.Parse(6)),
+							WordType = Enum.GetName(typeof(WordTypeEnum), 6),
 							Meanings = new(),
 							Creator = creator,
 							DictType = dictTypeID
@@ -246,7 +247,7 @@ namespace WebTuDienKHoChuru.Models.DataAccess
 						word = new()
 						{
 							Word = word_w,
-							WordType = Enum.GetName(typeof(WordTypeEnum), int.Parse(6)),
+							WordType = Enum.GetName(typeof(WordTypeEnum), 6),
 							Meanings = new(),
 							Creator = creator,
 							DictType = dictTypeID

@@ -146,13 +146,13 @@ namespace WebTuDienKHoChuru.Controllers
 				// Kiểm tra âm thanh và hình ảnh có nằm trong form không, nếu có thì lưu lại và trả về đường dẫn của tập tin trên máy chủ
 				if (form.ImageFile != null)
 				{
-					imagePath = await SaveImage(form.ImageFile);
+					imagePath = await SaveImage(form.ImageFile, form.DictType, form.WordID);
 					if (imagePath == null)
 						return StatusCode(StatusCodes.Status415UnsupportedMediaType, "Định dạng hình ảnh không hợp lệ hoặc có vấn đề về tập tin");
 				}
 				if (form.AudioFile != null)
 				{
-					audioPath = await SaveAudio(form.AudioFile);
+					audioPath = await SaveAudio(form.AudioFile, form.DictType, form.WordID);
 					if (audioPath == null)
 						return StatusCode(StatusCodes.Status415UnsupportedMediaType, "Định dạng âm thanh không hợp lệ hoặc có vấn đề về tập tin");
 				}
@@ -240,7 +240,7 @@ namespace WebTuDienKHoChuru.Controllers
 		{
 			if (ModelState.IsValid && audio != null)
 			{
-				string audioPath = await SaveAudio(audio);
+				string audioPath = await SaveAudio(audio, null, null);
 				if (audioPath == null)
 					return StatusCode(StatusCodes.Status415UnsupportedMediaType, "Định dạng âm thanh không hợp lệ hoặc có vấn đề về tập tin âm thanh này");
 
@@ -462,10 +462,6 @@ namespace WebTuDienKHoChuru.Controllers
 			{
 				return BadRequest("Hai cột đầu tiên không được để trống");
 			}
-			catch (InvalidDataException)
-			{
-				return BadRequest("Cột Loại từ có chứa giá trị không hợp lệ, nó chỉ nên chứa các giá trị số từ 0 đến 6");
-			}
 			catch (FormatException)
 			{
 				return BadRequest("Số lượng cột không đúng quy định");
@@ -487,7 +483,7 @@ namespace WebTuDienKHoChuru.Controllers
 		/// </summary>
 		/// <param name="audio"></param>
 		/// <returns></returns>
-		public async static Task<string> SaveAudio(IFormFile audio)
+		public async static Task<string> SaveAudio(IFormFile audio, int? dictTypeID, int? wordID)
 		{
 			if (audio != null && audio.Length != 0)
 			{
@@ -509,8 +505,13 @@ namespace WebTuDienKHoChuru.Controllers
 							extension = "ogg";
 							break;
 					}
+
 					string audioFolder = Path.Combine(_appEnvironment.WebRootPath, "data", "audio");
-					string filePath = Path.Combine(audioFolder, Extensions.GetDateTimeFilename(extension));
+					string filePath;
+					if (dictTypeID != null && wordID != null)
+						filePath = Path.Combine(audioFolder, $"D{dictTypeID}_W{wordID}_{Extensions.GetDateTimeFilename(extension)}");
+					else
+						filePath = Path.Combine(audioFolder, Extensions.GetDateTimeFilename(extension));
 					// Save to disk
 					try
 					{
@@ -532,7 +533,7 @@ namespace WebTuDienKHoChuru.Controllers
 		/// </summary>
 		/// <param name="image"></param>
 		/// <returns></returns>
-		private async static Task<string> SaveImage(IFormFile image)
+		private async static Task<string> SaveImage(IFormFile image, int? dictTypeID, int? wordID)
 		{
 			if (image != null && image.Length != 0)
 			{
@@ -541,8 +542,13 @@ namespace WebTuDienKHoChuru.Controllers
 				string extension = Extensions.GetImageFormat(imageData) != null ? (Extensions.GetImageFormat(imageData) == ImageFormat.Jpeg ? ".jpg" : ".png") : null;
 				if (extension == null)
 					return null;
+
 				string imageFolder = Path.Combine(_appEnvironment.WebRootPath, "data", "images");
-				string filePath = Path.Combine(imageFolder, Extensions.GetDateTimeFilename(extension));
+				string filePath;
+				if (dictTypeID != null && wordID != null)
+					filePath = Path.Combine(imageFolder, $"D{dictTypeID}_W{wordID}_{Extensions.GetDateTimeFilename(extension)}");
+				else
+					filePath = Path.Combine(imageFolder, Extensions.GetDateTimeFilename(extension));
 				// Save to disk
 				try
 				{

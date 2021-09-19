@@ -200,12 +200,6 @@ namespace WebTuDienKHoChuru.Utils
 								DataRow row = dt.NewRow();
 								for (int j = 0; j < values.Length; j++)
 								{
-									if (j == 2)
-									{
-										bool result = int.TryParse(values[j].ToString(), out int num);
-										if (!result || num > 6 || num < 0)
-											throw new InvalidDataException("WordType column contains a invalid value");
-									}
 									row[j] = values[j].Trim();
 								}
 								dt.Rows.Add(row);

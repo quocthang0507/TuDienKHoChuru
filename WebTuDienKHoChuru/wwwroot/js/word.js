@@ -294,7 +294,7 @@ $(document).ready(function () {
 	$('#selectDictType').change(eventChangeDictType());
 
 	$('#inputPageNumber').change(function () {
-		var pageNumber = $(this).value;
+		var pageNumber = $('#inputPageNumber').get(0).value;
 		var dictTypeID = $('#selectDictType').get(0).value;
 		if (pageNumber && dictTypeID) {
 			window.location.href = window.location.origin + `/api/GoToWordPage/${dictTypeID}/${pageNumber}`;
