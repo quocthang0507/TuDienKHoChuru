@@ -711,7 +711,7 @@ AS
 GO
 
 /**************************************
-	DELETE WORD WITH MEANINS AND EXAMPLES
+	DELETE WORD WITH MEANINGS AND EXAMPLES
 ***************************************/
 
 CREATE PROC proc_DELETE_WORD
